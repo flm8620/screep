@@ -188,8 +188,8 @@ var dd = {
         } else {
             let d1 = creep.memory.my_path.dest;
             let d2 = creep.memory.dest_pos;
-            if (d1.x != d2.x && d1.y != d2.y && d1.roomName != d2.roomName) {
-                debug(`need a path now !`);
+            if (d1.x != d2.x || d1.y != d2.y || d1.roomName != d2.roomName) {
+                debug(`new dest, need a path now !`);
                 creep.memory.move_patience = 0;// I need a path now !
             }
         }
