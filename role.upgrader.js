@@ -30,7 +30,7 @@ var roleUpgrader = {
                 return;
             }
             if (!dd.in_range_destination(creep, 3)) {
-                var ok = dd.move_to_destination(creep, { visualizePathStyle: { stroke: '#ffffff' }, ignoreCreeps: false });
+                var ok = dd.move_to_destination(creep);
             } else {
                 let controller = dd.get_dest_obj(creep);
                 let ok = creep.upgradeController(dd.get_dest_obj(creep));

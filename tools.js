@@ -23,12 +23,12 @@ var tools = {
             TOP_LEFT];
         creep.move(moves[idx]);
     },
-    goto_and_get_energy: function (creep) { 
+    goto_and_get_energy: function (creep) {
         var store = dd.get_dest_obj(creep);
         var ok = creep.withdraw(store, RESOURCE_ENERGY);
         if (ok == ERR_NOT_IN_RANGE) {
-            creep.moveTo(store, { visualizePathStyle: { stroke: '#ffffff' } });
-            return false;
+            dd.move_to_destination(creep);
+            return true;
         } else if (ok == ERR_NOT_ENOUGH_RESOURCES) {
             return false;
         } else if (ok == ERR_INVALID_TARGET) {

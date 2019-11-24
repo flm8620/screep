@@ -26,58 +26,81 @@ function count_down(creep) {
 var roleBuilder = {
 
     run: function (creep) {
+        const DEBUG_ON = creep.name === 'BKK';
+        let debug = function (msg) {
+            if (DEBUG_ON)
+                console.log(`[${creep.name}]: ${msg}`);
+        }
+        debug('====== round begin ======');
         if (creep.spawning) return;
         if (creep.memory.building) {
-
+            debug('try building');
             if (creep.store.getUsedCapacity(RESOURCE_ENERGY) == 0) {
+                debug('no energy');
                 change_mode_recharging_or_become_harvester(creep);
-
-            } else {
-
-                if (!dd.has_destination(creep)) {
-                    change_mode_building(creep);
-                    return;
-                }
-
-                if (!dd.in_range_destination(creep, 3)) {
-                    var move_ok = dd.move_to_destination(creep, { visualizePathStyle: { stroke: '#ffffff' }, ignoreCreeps: false });
-
-                } else {
-                    let struct = dd.get_dest_obj(creep);
-                    let build_ok = 9999;
-                    if (struct) {
-                        if (struct.hits > 0) {
-                            if (struct.hits == struct.hitsMax) {
-                                change_mode_building(creep);
-                            } else {
-                                build_ok = creep.repair(struct);
-                            }
-                        } else {
-                            build_ok = creep.build(struct);
-                        }
-                    }
-                    if (build_ok == OK) {
-
-                    } else if (build_ok == ERR_NOT_ENOUGH_RESOURCES) {
-                        change_mode_recharging_or_become_harvester(creep);
-                    } else {//structure may be removed
-                        change_mode_building(creep);
-                    }
-                }
+            } else if (!dd.has_destination(creep)) {
+                debug('no destination');
+                change_mode_building(creep);
+            }
+        } else {
+            debug('try charging');
+            if (creep.store.getFreeCapacity(RESOURCE_ENERGY) == 0) {
+                debug('full');
+                change_mode_building(creep);
             }
         }
-        else {//recharging
-            if (creep.store.getFreeCapacity(RESOURCE_ENERGY) == 0) {
-                change_mode_building(creep);
+        if (creep.memory.role !== 'builder') return;
+
+
+        if (creep.memory.building) {
+            debug('really building');
+            if (!dd.in_range_destination(creep, 3)) {
+                debug('moving');
+                let move_ok = dd.move_to_destination(creep, DEBUG_ON);
             } else {
-                let ok = tools.goto_and_get_energy(creep);
-                if (!ok) change_mode_recharging_or_become_harvester(creep);
-                // else {
-                //     if (count_down(creep)) {
-                //         change_mode_building(creep);
-                //     }
-                // }
+                debug('get struct');
+                let struct = dd.get_dest_obj(creep);
+                let build_ok = 9999;
+                if (struct) {
+                    if (struct.hits > 0) {
+                        if (struct.hits == struct.hitsMax) {
+                            debug('struct repaired');
+                            change_mode_building(creep);
+                        } else {
+                            debug('repair struct');
+                            build_ok = creep.repair(struct);
+                        }
+                    } else {
+                        debug('build struct');
+                        build_ok = creep.build(struct);
+                    }
+                } else {
+                    debug('no struct');
+                }
+                if (build_ok == OK) {
+                    debug('build OK');
+                } else if (build_ok == ERR_NOT_ENOUGH_RESOURCES) {
+                    debug('build ERR_NOT_ENOUGH_RESOURCES');
+                    change_mode_recharging_or_become_harvester(creep);
+                } else {//structure may be removed
+                    debug('build other error');
+                    change_mode_building(creep);
+                }
             }
+
+        }
+        else {//recharging
+            debug('really charging');
+            let ok = tools.goto_and_get_energy(creep);
+            if (!ok) {
+                debug('change_mode_recharging_or_become_harvester');
+                change_mode_recharging_or_become_harvester(creep);
+            }
+            // else {
+            //     if (count_down(creep)) {
+            //         change_mode_building(creep);
+            //     }
+            // }
         }
     }
 };

@@ -34,7 +34,7 @@ var roleMiner = {
                 color='#ff0000';
             } 
             
-            var move_ok = dd.move_to_destination(creep,{visualizePathStyle: {stroke: color}, ignoreCreeps});
+            var move_ok = dd.move_to_destination(creep);
         }else{//mine
             if(creep.store.getFreeCapacity(RESOURCE_ENERGY) == 0){
                 var list = creep.room.lookForAt(LOOK_STRUCTURES,creep.pos);

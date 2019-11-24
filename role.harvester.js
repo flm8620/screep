@@ -40,84 +40,99 @@ function update_history_time_for_resource(creep, add_to) {
     creep.memory.mining_timer = 0;
 }
 
-function update_harvester_contribution(creep, contrib) {
-    if (!creep.memory.contrib) {
-        creep.memory.contrib = 0;
+function update_harvester_contribution(creep) {
+    let last_used_capacity = creep.memory.last_used_capacity;
+    if (last_used_capacity) {
+        let current_carry = creep.store.getUsedCapacity(RESOURCE_ENERGY);
+        if (!creep.memory.contrib) {
+            creep.memory.contrib = 0;
+        }
+        creep.memory.contrib += last_used_capacity - current_carry;
+        delete creep.memory.last_used_capacity;
     }
-    creep.memory.contrib += contrib;
 }
 
 var roleHarvester = {
     run: function (creep) {
+        const DEBUG_ON = creep.name === 'B7Y';
+        let debug = function (msg) {
+            if (DEBUG_ON)
+                console.log(`[${creep.name}]: ${msg}`);
+        }
         if (creep.spawning) return;
-
+        debug('====== round begin ======');
         creep.memory.mining_timer++;
+        let current_carry = creep.store.getUsedCapacity(RESOURCE_ENERGY);
+        update_harvester_contribution(creep);
+        if (creep.memory.goto_store) {
+            debug('try goto_store');
+            if (current_carry == 0) {
+                debug('carry empty');
+                change_mode_mining(creep);
+            } else if (!dd.has_destination(creep)) {
+                debug('no dest');
+                change_mode_storing(creep);
+            }
+        } else {//mining
+            debug('try mining');
+            if (creep.store.getFreeCapacity(RESOURCE_ENERGY) == 0) {
+                debug('full');
+                change_mode_storing(creep);
+            }
+            else if (!dd.has_destination(creep)) {
+                debug('no dest');
+                change_mode_mining(creep);
+            }
+        }
 
         if (!creep.memory.goto_store) {//mining
-            if (creep.store.getFreeCapacity(RESOURCE_ENERGY) == 0) {
-                change_mode_storing(creep);
-                return;
-            }
-
-            if (!dd.has_destination(creep)) {
-                change_mode_mining(creep);
-                return;
-            }
-
+            debug('mining');
             if (!dd.is_near_destination(creep)) {
-                //var ran = _.random(0, 10);
-                var ignoreCreeps = false;
-                var color = '#ffffff';
-
-                // if (ran == 0) {
-                //     ignoreCreeps = true;
-                //     color = '#ff0000';
-                // }
-
-                var move_ok = dd.move_to_destination(creep, { visualizePathStyle: { stroke: color }, ignoreCreeps });
-
+                debug('move_to_destination');
+                var move_ok = dd.move_to_destination(creep, DEBUG_ON);
                 if (move_ok == ERR_NO_PATH || move_ok === -9999) {
                     creep.say('NO PATH ' + creep.memory.patience);
                     creep.memory.patience--;
                     creep.say(creep.memory.patience);
                 }
                 if (creep.memory.patience <= 0) {
+                    debug('no patience, change mining');
                     update_history_time_for_resource(creep, true);
                     change_mode_mining(creep);
                 }
             } else {
+                debug('harvest');
                 let source = dd.get_dest_obj(creep);
                 let mine_ok = creep.harvest(source);
 
                 if (mine_ok == OK) {
-                    var works = tools.count_move_parts(creep);
+                    debug('harvest OK');
+                    //var works = tools.count_move_parts(creep);
                 } else if (mine_ok == ERR_NOT_ENOUGH_RESOURCES) {
+                    debug('harvest ERR_NOT_ENOUGH_RESOURCES');
                     change_mode_storing(creep);
                 } else {//structure may be removed
+                    debug('harvest other error');
                     change_mode_storing(creep);
                 }
             }
         } else {//storing
-            let current_carry = creep.store.getUsedCapacity(RESOURCE_ENERGY);
-            if (current_carry == 0) {
-                change_mode_mining(creep);
-                return;
-            }
-
-            if (!dd.has_destination(creep)) {
-                change_mode_storing(creep);
-                return;
-            }
-
+            debug('storing');
             if (!dd.is_near_destination(creep)) {
-                dd.move_to_destination(creep, { visualizePathStyle: { stroke: '#ffffff' }, ignoreCreeps: false });
+                debug('move_to_destination');
+                dd.move_to_destination(creep, DEBUG_ON);
             } else {
+                debug('store');
                 let store = dd.get_dest_obj(creep);
                 let store_ok = creep.transfer(store, RESOURCE_ENERGY);
+                creep.memory.last_used_capacity = creep.store.getUsedCapacity(RESOURCE_ENERGY);
+
                 if (store_ok == OK) {
+                    debug('store OK');
                     update_history_time_for_resource(creep, false);
-                    update_harvester_contribution(creep, current_carry);
-                } else {
+                }
+                else {
+                    debug('store not OK');
                     change_mode_storing(creep);
                 }
             }

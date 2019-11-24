@@ -23,36 +23,30 @@ var dd = {
         return t.id;
     },
     pick_nearest_site_id: function (creep) {
-        var id = dd.pick_id_using_filter(creep, FIND_CONSTRUCTION_SITES, null);
-        if (!id) {
-            id = dd.pick_id_using_filter(creep, FIND_STRUCTURES,
-                (structure) =>
-                    structure.hits < 0.5 * structure.hitsMax
-                    && structure.structureType != STRUCTURE_WALL
-                    && structure.structureType != STRUCTURE_RAMPART
-            );
-        }
-        if (!id) {
-            id = dd.pick_id_using_filter(creep, FIND_STRUCTURES,
-                (structure) =>
-                    structure.hits < 0.8 * structure.hitsMax
-                    && structure.structureType != STRUCTURE_WALL
-                    && structure.structureType != STRUCTURE_RAMPART
-            );
-        }
-        if (!id) {
-            id = dd.pick_id_using_filter(creep, FIND_STRUCTURES,
-                (structure) =>
-                    structure.structureType == STRUCTURE_RAMPART && structure.hits < 1000 && structure.hits > 0 ||
-                    structure.structureType == STRUCTURE_WALL && structure.hits < 1000 && structure.hits > 0
-            );
-        }
-        if (!id) {
-            id = dd.pick_id_using_filter(creep, FIND_STRUCTURES,
-                (structure) =>
-                    structure.structureType == STRUCTURE_RAMPART && structure.hits < 1000 && structure.hits > 0 ||
-                    structure.structureType == STRUCTURE_WALL && structure.hits < 1000 && structure.hits > 0
-            );
+        let filters = [
+            [FIND_CONSTRUCTION_SITES, null],
+            [FIND_STRUCTURES, (structure) =>
+                structure.hits < 0.5 * structure.hitsMax
+                && structure.structureType != STRUCTURE_WALL
+                && structure.structureType != STRUCTURE_RAMPART],
+            [FIND_STRUCTURES, (structure) =>
+                structure.hits < 0.8 * structure.hitsMax
+                && structure.structureType != STRUCTURE_WALL
+                && structure.structureType != STRUCTURE_RAMPART],
+            [FIND_STRUCTURES, (structure) =>
+                structure.structureType == STRUCTURE_RAMPART && structure.hits < 1000 && structure.hits > 0 ||
+                structure.structureType == STRUCTURE_WALL && structure.hits < 1000 && structure.hits > 0],
+            [FIND_STRUCTURES, (structure) =>
+                structure.structureType == STRUCTURE_RAMPART && structure.hits < 10000 && structure.hits > 0 ||
+                structure.structureType == STRUCTURE_WALL && structure.hits < 10000 && structure.hits > 0],
+            [FIND_STRUCTURES, (structure) =>
+                structure.structureType == STRUCTURE_RAMPART && structure.hits < structure.hitsMax ||
+                structure.structureType == STRUCTURE_WALL && structure.hits < structure.hitsMax],
+        ];
+        let id = null;
+        for (let f of filters) {
+            id = dd.pick_id_using_filter(creep, f[0], f[1]);
+            if (id) break;
         }
         return id;
     },
@@ -158,21 +152,25 @@ var dd = {
         creep.memory.dest_id = null;
         creep.memory.dest_pos = null;
     },
-    move_to_destination: function (creep, opt) {
-        const DEBUG_NAME = 'HMG';
+    move_to_destination: function (creep, debug_mode) {
+        opt = {};
+        if (!debug_mode) debug_mode = false;
+        const DEBUG_ON = debug_mode || creep.name == 'B3N';
         let debug = function (msg) {
-            if (creep.name == DEBUG_NAME)
-                console.log(`[${DEBUG_NAME}]: ${msg}`);
+            if (DEBUG_ON)
+                console.log(`[${creep.name}]: ${msg}`);
         }
+        debug('=== move begin ===');
         const PATH_REUSE = 20;
+        const PATH_REUSE_SHORT = 5;
         const MAX_MOVE_PATIENCE = 5;
         if (!creep.memory.dest_pos) return -10000;
-        let dest_pos = creep.memory.dest_pos;
         if (!('move_patience' in creep.memory)) creep.memory.move_patience = MAX_MOVE_PATIENCE;
 
-        let last_pos = creep.memory.last_pos_before_move;
+        let last_move_failed = false;
+        const last_pos = creep.memory.last_pos_before_move;
         if (last_pos) {
-            let last_move_failed = creep.pos.x == last_pos.x && creep.pos.y == last_pos.y;
+            last_move_failed = creep.pos.x == last_pos.x && creep.pos.y == last_pos.y;
             if (last_move_failed) {// last time, somehow block by other creeps on remembered path
                 debug(`last_move_failed`);
                 creep.memory.move_patience--;
@@ -182,9 +180,13 @@ var dd = {
             }
         }
 
+        // always ignore other creeps except last move failed(probably blocked by creeps)
+        opt.ignoreCreeps = !last_move_failed;
+
 
         if (!creep.memory.my_path) {
             creep.memory.move_patience = 0;// I need a path now !
+            debug(`no path, need a path now !`);
         } else {
             let d1 = creep.memory.my_path.dest;
             let d2 = creep.memory.dest_pos;
@@ -200,7 +202,7 @@ var dd = {
             let path = creep.pos.findPathTo(
                 new RoomPosition(creep.memory.dest_pos.x, creep.memory.dest_pos.y, creep.memory.dest_pos.roomName), opt);
             creep.memory.my_path =
-                { path, dest: creep.memory.dest_pos, count_down: PATH_REUSE };
+                { path, dest: creep.memory.dest_pos, count_down: last_move_failed ? PATH_REUSE_SHORT : PATH_REUSE };
 
             debug(`refind path length: ${path.length}`);
             if (!path.length) return ERR_NO_PATH;
@@ -222,7 +224,7 @@ var dd = {
             }
         }
         let result = creep.moveByPath(creep.memory.my_path.path);
-        if (creep.name == DEBUG_NAME)
+        if (DEBUG_ON)
             creep.room.visual.poly(creep.memory.my_path.path);
 
         if (result == OK) {

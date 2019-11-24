@@ -7,8 +7,45 @@ function makeid(length) {
     }
     return result;
 }
+function energy_of_body(body) {
+    let sum = 0;
+    body.reduce((accum, v) => {
+        switch (v) {
+            case WORK:
+                sum += 100;
+                break;
+            case MOVE:
+            case CARRY:
+                sum += 50;
+                break;
+            case ATTACK:
+                sum += 80;
+                break;
+            case RANGED_ATTACK:
+                sum += 150;
+                break;
+            case HEAL:
+                sum += 250;
+                break;
+            case CLAIM:
+                sum += 600;
+                break;
+            case TOUGH:
+                sum += 10;
+                break;
+        }
+    });
+    return sum;
+}
+function largest_possible_body(energy_available) {
+    body = [WORK, CARRY, MOVE];
+    while (energy_of_body(body.concat([WORK, CARRY, MOVE])) < energy_available) {
+        body = body.concat([WORK, CARRY, MOVE]);
+    }
+    return body;
+}
 // return true to stop create others
-function create_creep(spawn, role_name, number, parts) {
+function create_creep(spawn, role_name, number) {
     // if (role_name == 'transpoter') {
     //     if (Memory.population.count['miner'] == 0) {
     //         return true;
@@ -16,6 +53,19 @@ function create_creep(spawn, role_name, number, parts) {
     // }
     var creatures = _.filter(Game.creeps, (creep) => creep.memory.role == role_name);
     if (creatures.length < number) {
+        let energyCapacityAvailable = 0;
+        energyCapacityAvailable = spawn.room.energyCapacityAvailable
+
+        let parts = largest_possible_body(energyCapacityAvailable);
+
+        //var tanspoter_parts = [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE];
+        if (energyCapacityAvailable <= 300 ||
+            (Memory.population.count['harvester'] <= 2 && Memory.population.count['transpoter'] <= 2)) {
+            parts = [WORK, CARRY, MOVE];
+        } else if (energyCapacityAvailable > 300 && energyCapacityAvailable <= 500) {
+            parts = [WORK, WORK, CARRY, CARRY, MOVE, MOVE];
+        }
+
         var ok = spawn.spawnCreep(parts, 'asdasdasdasdasd', { dryRun: true });
         if (ok === OK) {
             let name = role_name[0].toUpperCase() + makeid(2);
@@ -64,7 +114,7 @@ var Population = {
                 Memory.current_population_stage[s] = stage;
                 for (var role in Memory.population.recipe) {
                     var recipe = Memory.population.recipe[role];
-                    if (create_creep(Game.spawns[s], role, recipe.number[stage], recipe.body)) return;
+                    if (create_creep(Game.spawns[s], role, recipe.number[stage])) return;
                 }
             }
         }
