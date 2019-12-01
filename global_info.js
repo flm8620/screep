@@ -46,13 +46,13 @@ function set_population_number() {
     Memory.population.recipe = {};
     // number[k] means for stage k, I want this many creature of each type
     Memory.population.recipe['harvester'] =
-        { number: [5, 6, 8, 8], body: parts };
+        { number: [3, 5, 6, 6], body: parts };
     //Memory.population.recipe['transpoter'] =
     //    { number: [0, 0, 4, 6], body: tanspoter_parts };
     Memory.population.recipe['builder'] =
-        { number: [0, 1, 1, 3], body: parts };
+        { number: [0, 1, 2, 3], body: parts };
     Memory.population.recipe['upgrader'] =
-        { number: [0, 1, 1, 5], body: parts };
+        { number: [0, 1, 2, 5], body: parts };
 
     Memory.population.count = {};
     Memory.population.count['upgrader'] = 0;

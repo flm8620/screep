@@ -26,7 +26,7 @@ function count_down(creep) {
 var roleBuilder = {
 
     run: function (creep) {
-        const DEBUG_ON = creep.name === 'BKK';
+        const DEBUG_ON = creep.name === 'B4U';
         let debug = function (msg) {
             if (DEBUG_ON)
                 console.log(`[${creep.name}]: ${msg}`);
@@ -56,7 +56,7 @@ var roleBuilder = {
             debug('really building');
             if (!dd.in_range_destination(creep, 3)) {
                 debug('moving');
-                let move_ok = dd.move_to_destination(creep, DEBUG_ON);
+                let move_ok = dd.move_to_destination(creep, DEBUG_ON, {range : 3});
             } else {
                 debug('get struct');
                 let struct = dd.get_dest_obj(creep);

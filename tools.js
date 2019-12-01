@@ -9,7 +9,7 @@ var tools = {
     worth_to_convert_to_harvester: function (creep) {
         if (!Memory.current_population_stage) return false;
         let stage = Memory.current_population_stage[creep.memory.spawn_name];
-        return Memory.population.count['harvester'] < Memory.population.recipe['harvester'].number[stage];
+        return Math.random() < 0.2 && Memory.population.count['harvester'] < Memory.population.recipe['harvester'].number[stage];
     },
     random_move: function (creep) {
         let idx = utils.random_idx_with_probability([1, 1, 1, 1, 1, 1, 1, 1]);
@@ -35,8 +35,10 @@ var tools = {
             return false;
         }
 
-        if (ok == OK)
+        if (ok == OK) {
+            dd.clear_destination(creep);
             return true;
+        }
         else
             return false
     },

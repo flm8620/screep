@@ -33,15 +33,11 @@ var dd = {
                 structure.hits < 0.8 * structure.hitsMax
                 && structure.structureType != STRUCTURE_WALL
                 && structure.structureType != STRUCTURE_RAMPART],
-            [FIND_STRUCTURES, (structure) =>
-                structure.structureType == STRUCTURE_RAMPART && structure.hits < 1000 && structure.hits > 0 ||
-                structure.structureType == STRUCTURE_WALL && structure.hits < 1000 && structure.hits > 0],
-            [FIND_STRUCTURES, (structure) =>
-                structure.structureType == STRUCTURE_RAMPART && structure.hits < 10000 && structure.hits > 0 ||
-                structure.structureType == STRUCTURE_WALL && structure.hits < 10000 && structure.hits > 0],
-            [FIND_STRUCTURES, (structure) =>
-                structure.structureType == STRUCTURE_RAMPART && structure.hits < structure.hitsMax ||
-                structure.structureType == STRUCTURE_WALL && structure.hits < structure.hitsMax],
+            ...[1000, 10000, 100000, 1000000, 10000000].map((x) =>
+                [FIND_STRUCTURES, (structure) =>
+                    structure.structureType == STRUCTURE_RAMPART && structure.hits < x && structure.hits > 0 ||
+                    structure.structureType == STRUCTURE_WALL && structure.hits < x && structure.hits > 0]
+            )
         ];
         let id = null;
         for (let f of filters) {
@@ -52,7 +48,8 @@ var dd = {
     },
     pick_available_resource_store_id: function (creep) {
         let id = dd.pick_id_using_filter(creep, FIND_STRUCTURES, (structure) =>
-            structure.structureType == STRUCTURE_CONTAINER && structure.store[RESOURCE_ENERGY] > 0
+            (structure.structureType == STRUCTURE_CONTAINER || structure.structureType == STRUCTURE_STORAGE)
+            && structure.store[RESOURCE_ENERGY] > 0
         );
         if (!id) {
             //let should_wait = creep.room.energyAvailable < creep.room.energyCapacityAvailable - 100;
@@ -152,8 +149,8 @@ var dd = {
         creep.memory.dest_id = null;
         creep.memory.dest_pos = null;
     },
-    move_to_destination: function (creep, debug_mode) {
-        opt = {};
+    move_to_destination: function (creep, debug_mode, opt) {
+        if(!opt) opt = {};
         if (!debug_mode) debug_mode = false;
         const DEBUG_ON = debug_mode || creep.name == 'B3N';
         let debug = function (msg) {
@@ -231,6 +228,9 @@ var dd = {
             //so next time we can check whether this move is failed
             creep.memory.last_pos_before_move = creep.pos;
             creep.memory.my_path.count_down--;
+            if (last_move_failed) {
+                result = ERR_NO_PATH;
+            }
         } else {
             delete creep.memory.last_pos_before_move;
         }

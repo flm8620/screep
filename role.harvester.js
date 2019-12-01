@@ -54,7 +54,7 @@ function update_harvester_contribution(creep) {
 
 var roleHarvester = {
     run: function (creep) {
-        const DEBUG_ON = creep.name === 'B7Y';
+        const DEBUG_ON = creep.name === 'USH';
         let debug = function (msg) {
             if (DEBUG_ON)
                 console.log(`[${creep.name}]: ${msg}`);
@@ -90,7 +90,7 @@ var roleHarvester = {
             if (!dd.is_near_destination(creep)) {
                 debug('move_to_destination');
                 var move_ok = dd.move_to_destination(creep, DEBUG_ON);
-                if (move_ok == ERR_NO_PATH || move_ok === -9999) {
+                if (move_ok == ERR_NO_PATH) {
                     creep.say('NO PATH ' + creep.memory.patience);
                     creep.memory.patience--;
                     creep.say(creep.memory.patience);
@@ -110,7 +110,10 @@ var roleHarvester = {
                     //var works = tools.count_move_parts(creep);
                 } else if (mine_ok == ERR_NOT_ENOUGH_RESOURCES) {
                     debug('harvest ERR_NOT_ENOUGH_RESOURCES');
-                    change_mode_storing(creep);
+                    if(creep.store.getUsedCapacity(RESOURCE_ENERGY) < 0.5 * creep.store.getCapacity(RESOURCE_ENERGY))
+                        change_mode_mining(creep);
+                    else
+                        change_mode_storing(creep);
                 } else {//structure may be removed
                     debug('harvest other error');
                     change_mode_storing(creep);
@@ -130,6 +133,7 @@ var roleHarvester = {
                 if (store_ok == OK) {
                     debug('store OK');
                     update_history_time_for_resource(creep, false);
+                    dd.clear_destination(creep);// so that the creep can change to another store when it needs next time
                 }
                 else {
                     debug('store not OK');
