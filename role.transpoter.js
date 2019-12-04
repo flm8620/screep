@@ -11,7 +11,6 @@ function change_mode_taking(creep) {
 
     if (!r_id) return null;
     creep.memory.resource_id = r_id;
-    creep.memory.mining_timer = 0;
     creep.memory.patience = PATIENCE_MAX;
     var miner_id = Memory.res[r_id].miner_id;
     if (!Game.getObjectById(miner_id)) {
@@ -39,13 +38,14 @@ function change_mode_storing(creep) {
 const PATIENCE_MAX = 20;
 var roleTranspoter = {
     run: function (creep) {
+        if (creep.spawning) return;
         const DEBUG_ON = creep.name === 'TU0';
         let debug = function (msg) {
             if (DEBUG_ON)
                 console.log(`[${creep.name}]: ${msg}`);
         }
         debug('====== round begin ======');
-        if (creep.spawning) return;
+        creep.memory.mining_timer++;
 
         if (!creep.memory.goto_store) {// taking
             debug('try taking');
@@ -84,8 +84,6 @@ var roleTranspoter = {
                 debug('!has_destination');
                 return;
             }
-
-            creep.memory.mining_timer++;
 
             if (!dd.is_near_destination(creep)) {
                 debug('!is_near_destination');
