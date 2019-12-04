@@ -11,28 +11,14 @@ function energy_of_body(body) {
     let sum = 0;
     body.reduce((accum, v) => {
         switch (v) {
-            case WORK:
-                sum += 100;
-                break;
+            case WORK: sum += 100; break;
             case MOVE:
-            case CARRY:
-                sum += 50;
-                break;
-            case ATTACK:
-                sum += 80;
-                break;
-            case RANGED_ATTACK:
-                sum += 150;
-                break;
-            case HEAL:
-                sum += 250;
-                break;
-            case CLAIM:
-                sum += 600;
-                break;
-            case TOUGH:
-                sum += 10;
-                break;
+            case CARRY: sum += 50; break;
+            case ATTACK: sum += 80; break;
+            case RANGED_ATTACK: sum += 150; break;
+            case HEAL: sum += 250; break;
+            case CLAIM: sum += 600; break;
+            case TOUGH: sum += 10; break;
         }
     });
     return sum;
@@ -44,28 +30,36 @@ function largest_possible_body(energy_available) {
     }
     return body;
 }
+function largest_possible_transpoter_body(energy_available) {
+    body = [CARRY, CARRY, MOVE];
+    let i = 0;
+    while (energy_of_body(body.concat([CARRY, CARRY, MOVE])) < energy_available && i < 4 && Memory.population.count['transpoter'] > 1) {
+        body = body.concat([CARRY, CARRY, MOVE]);
+        i++;
+    }
+    return body;
+}
+function largest_possible_miner_body(energy_available) {
+    body = [WORK, CARRY, MOVE];
+    let i = 0;
+    while (energy_of_body(body.concat([WORK])) < energy_available && i < 4 && Memory.population.count['transpoter'] > 2) {
+        body = body.concat([WORK]);
+        i++;
+    }
+    return body;
+}
 // return true to stop create others
 function create_creep(spawn, role_name, number) {
-    // if (role_name == 'transpoter') {
-    //     if (Memory.population.count['miner'] == 0) {
-    //         return true;
-    //     }
-    // }
+    let energyCapacityAvailable = spawn.room.energyCapacityAvailable;
+    let parts = largest_possible_body(energyCapacityAvailable);
+    if (role_name === 'transpoter') {
+        if (Memory.population.count['miner'] == 0) {
+            return true;
+        }
+        parts = largest_possible_transpoter_body(energyCapacityAvailable);
+    }
     var creatures = _.filter(Game.creeps, (creep) => creep.memory.role == role_name);
     if (creatures.length < number) {
-        let energyCapacityAvailable = 0;
-        energyCapacityAvailable = spawn.room.energyCapacityAvailable
-
-        let parts = largest_possible_body(energyCapacityAvailable);
-
-        //var tanspoter_parts = [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE];
-        if (energyCapacityAvailable <= 300 ||
-            (Memory.population.count['harvester'] <= 2 && Memory.population.count['transpoter'] <= 2)) {
-            parts = [WORK, CARRY, MOVE];
-        } else if (energyCapacityAvailable > 300 && energyCapacityAvailable <= 500) {
-            parts = [WORK, WORK, CARRY, CARRY, MOVE, MOVE];
-        }
-
         var ok = spawn.spawnCreep(parts, 'asdasdasdasdasd', { dryRun: true });
         if (ok === OK) {
             let name = role_name[0].toUpperCase() + makeid(2);
@@ -82,21 +76,26 @@ function create_creep(spawn, role_name, number) {
 }
 
 function create_miner() {
-    var parts = [WORK, WORK, WORK, WORK, WORK, CARRY, MOVE];
-    if (Memory.population.count['transpoter'] < 2 || Memory.population.count['miner'] == 0) {
-        parts = [WORK, CARRY, MOVE];
-    }
     var stop_creating = false;
-    return stop_creating;
+    let role_name = 'miner';
     for (var i in Memory.res) {
         var r = Memory.res[i];
         if (!Game.getObjectById(r.miner_id)) {
+            let room = r.pos.roomName;
+            let spawn = null;
+            for (let sname in Memory.spawns) {
+                if (Game.spawns[sname].room.name === room) {
+                    spawn = Game.spawns[sname];
+                    break;
+                }
+            }
+            let energyCapacityAvailable = spawn.room.energyCapacityAvailable;
+            let parts = largest_possible_miner_body(energyCapacityAvailable);
             r.miner_id = null;
-            var newName = Game.spawns['Origin'].spawnCreep(parts, undefined, { memory: { role: 'miner', mine_index: i } });
-            if (newName == ERR_NOT_ENOUGH_ENERGY) {
+            var ok = spawn.spawnCreep(parts, role_name[0].toUpperCase() + makeid(2), { memory: { role: role_name } });
+            if (ok == ERR_NOT_ENOUGH_ENERGY) {
                 stop_creating = true; //stop creating other creep
-            } else if (typeof newName === 'string') {
-                console.log('Spawning new ' + 'miner' + ' ' + newName);
+            } else if (ok === OK) {
                 stop_creating = true;
                 break;
             }

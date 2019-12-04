@@ -6,10 +6,23 @@ function manhattan_distance(p1, p2) {
 }
 
 var tools = {
-    worth_to_convert_to_harvester: function (creep) {
+    update_history_time_for_resource: function(creep, add_to) {
+        if (creep.memory.resource_id) {
+            if (!add_to)
+                console.log(creep.memory.resource_id + ' resource timer average with ' + creep.memory.mining_timer)
+            else
+                console.log(creep.memory.resource_id + ' resource timer add by ' + (0.2 * creep.memory.mining_timer))
+            if (!add_to)
+                Memory.res[creep.memory.resource_id].history_time *= 0.8;
+            Memory.res[creep.memory.resource_id].history_time += 0.2 * creep.memory.mining_timer;
+        }
+        creep.memory.resource_id = '';
+        creep.memory.mining_timer = 0;
+    },
+    worth_to_convert_to_transpoter: function (creep) {
         if (!Memory.current_population_stage) return false;
         let stage = Memory.current_population_stage[creep.memory.spawn_name];
-        return Math.random() < 0.2 && Memory.population.count['harvester'] < Memory.population.recipe['harvester'].number[stage];
+        return Math.random() < 0.2 && Memory.population.count['transpoter'] < Memory.population.recipe['transpoter'].number[stage];
     },
     random_move: function (creep) {
         let idx = utils.random_idx_with_probability([1, 1, 1, 1, 1, 1, 1, 1]);
@@ -42,11 +55,11 @@ var tools = {
         else
             return false
     },
-    get_energy_or_become_harvester: function (creep) {
+    get_energy_or_become_transpoter: function (creep) {
         dd.clear_destination(creep);
-        if (tools.worth_to_convert_to_harvester(creep)) {
-            console.log(creep.name + ' become harvester');
-            creep.memory.role = 'harvester';
+        if (tools.worth_to_convert_to_transpoter(creep)) {
+            console.log(creep.name + ' become transpoter');
+            creep.memory.role = 'transpoter';
         }
         if (!dd.set_id_as_destination(creep, dd.pick_available_resource_store_id(creep))) {
             // random move

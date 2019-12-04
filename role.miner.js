@@ -4,10 +4,21 @@ var dd = require('destinations');
 
 function change_mode_mining(creep){
     dd.clear_destination(creep);
+    console.log('mine')
     creep.say('start');
     var i = creep.memory.mine_index;
-    var r = Game.getObjectById(Memory.res[i].id);
-    console.log('source '+i+'is mining by '+creep.name);
+    if(!i){
+        for (let rid in Memory.res) {
+            let r = Memory.res[rid];
+            if(!r.miner_id){
+                creep.memory.mine_index = rid;
+                i = rid;
+            }
+        }
+    }
+    var r = Game.getObjectById(i);
+    if(!r) return;
+    console.log(`source ${i} is mined by ${creep.name}`);
     Memory.res[i].miner_id = creep.id;
     var mining_pos = Memory.res[i].mining_pos;
     
@@ -25,15 +36,6 @@ var roleMiner = {
         }
         
         if(!dd.is_at_destination(creep)){
-            var ran = _.random(0,1);
-            var ignoreCreeps = false;
-            var color = '#ffffff';
-            
-            if(ran == 0){
-                ignoreCreeps = true;
-                color='#ff0000';
-            } 
-            
             var move_ok = dd.move_to_destination(creep);
         }else{//mine
             if(creep.store.getFreeCapacity(RESOURCE_ENERGY) == 0){
@@ -48,7 +50,7 @@ var roleMiner = {
                 }
             }
             var i = creep.memory.mine_index;
-            var s = Game.getObjectById(Memory.res[i].id);
+            var s = Game.getObjectById(i);
             let mine_ok = creep.harvest(s);
             
         }

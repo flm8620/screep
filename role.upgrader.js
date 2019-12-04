@@ -7,11 +7,11 @@ function change_mode_upgrading(creep) {
     dd.clear_destination(creep);
     return dd.set_id_as_destination(creep, dd.pick_controller_id(creep));
 }
-function change_mode_recharging_or_become_harvester(creep) {
+function change_mode_recharging_or_become_transpoter(creep) {
     creep.say('reload');
     creep.memory.upgrading = false;
     dd.clear_destination(creep);
-    tools.get_energy_or_become_harvester(creep);
+    tools.get_energy_or_become_transpoter(creep);
 }
 
 var roleUpgrader = {
@@ -21,7 +21,7 @@ var roleUpgrader = {
         if (creep.spawning) return;
         if (creep.memory.upgrading) {
             if (creep.store.getUsedCapacity(RESOURCE_ENERGY) == 0) {
-                change_mode_recharging_or_become_harvester(creep);
+                change_mode_recharging_or_become_transpoter(creep);
                 return;
             }
 
@@ -37,7 +37,7 @@ var roleUpgrader = {
                 if (ok == OK) {
 
                 } else if (ok == ERR_NOT_ENOUGH_RESOURCES) {
-                    change_mode_recharging_or_become_harvester(creep);
+                    change_mode_recharging_or_become_transpoter(creep);
                 } else {
                     console.log('upgrader line 34');
                 }
@@ -48,7 +48,7 @@ var roleUpgrader = {
                 change_mode_upgrading(creep);
             } else {
                 let ok = tools.goto_and_get_energy(creep);
-                if (!ok) change_mode_recharging_or_become_harvester(creep);
+                if (!ok) change_mode_recharging_or_become_transpoter(creep);
             }
         }
     }

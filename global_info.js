@@ -1,20 +1,27 @@
 function initialize_sources() {
     //console.log('initialize sources')
-    let old_res = Memory.res || {};
-    Memory.res = {};
+    if (!Memory.res)
+        Memory.res = {};
     for (let name in Game.spawns) {
         let sp = Game.spawns[name];
         var sources = Game.spawns[name].room.find(FIND_SOURCES);
         var sources_info = [];
         for (var s in sources) {
-            var ss = sources[s];
-            var path = PathFinder.search(sp.pos, { pos: ss.pos, range: 1 });
-            var cost = path.cost;
-            sources_info.push({ source: ss, cost });
+            let ss = sources[s];
+            let id = ss.id;
+            let mining_pos = Memory.res[id].mining_pos;
+            if (!mining_pos) {
+                let path = PathFinder.search(sp.pos, { pos: ss.pos, range: 1 }).path;
+                mining_pos = path[path.length - 1];
+            }
+            sources_info.push({ source: ss, mining_pos })
         }
         for (let si of sources_info) {
             let id = si.source.id;
-            Memory.res[id] = { pos: si.source.pos, history_time: old_res[id] && old_res[id].history_time || 0 };
+            Memory.res[id].pos = si.source.pos;
+            if (!Memory.res[id].history_time)
+                Memory.res[id].history_time = 0;
+            Memory.res[id].mining_pos = si.mining_pos;
         }
     }
 }
@@ -25,34 +32,18 @@ function set_population_number() {
         energyCapacityAvailable = Game.spawns[s].room.energyCapacityAvailable
     }
 
-    var parts = [WORK, WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE];
-
-    //var tanspoter_parts = [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE];
-    if (energyCapacityAvailable <= 300 || (Memory.population.count['harvester'] <= 2 && Memory.population.count['transpoter'] <= 2)) {
-        parts = [WORK, CARRY, MOVE];
-    } else if (energyCapacityAvailable > 300 && energyCapacityAvailable <= 500) {
-        parts = [WORK, WORK, CARRY, CARRY, MOVE, MOVE];
-    }
-    //parts = [WORK,WORK,WORK,CARRY,MOVE,MOVE];
-    // if (Memory.population == null) {
-    //     parts = [WORK, CARRY, MOVE];
-    //     tanspoter_parts = [CARRY, CARRY, MOVE];
-    // } else if (Memory.population.count['transpoter'] <= 2) {
-    //     parts = [WORK, CARRY, MOVE];
-    //     tanspoter_parts = [CARRY, CARRY, MOVE];
-    // }
     Memory.population = {};
     Memory.population.recipe_stages = 4;
     Memory.population.recipe = {};
     // number[k] means for stage k, I want this many creature of each type
-    Memory.population.recipe['harvester'] =
-        { number: [3, 5, 6, 6], body: parts };
-    //Memory.population.recipe['transpoter'] =
-    //    { number: [0, 0, 4, 6], body: tanspoter_parts };
+    //Memory.population.recipe['harvester'] =
+    //    { number: [3, 5, 6, 6] };
+    Memory.population.recipe['transpoter'] =
+        { number: [3, 4, 4, 6] };
     Memory.population.recipe['builder'] =
-        { number: [0, 1, 2, 3], body: parts };
+        { number: [0, 1, 2, 3] };
     Memory.population.recipe['upgrader'] =
-        { number: [0, 1, 2, 5], body: parts };
+        { number: [0, 1, 2, 5] };
 
     Memory.population.count = {};
     Memory.population.count['upgrader'] = 0;

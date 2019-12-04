@@ -16,7 +16,6 @@ var dd = {
             var exit = room.findExitTo(creep.room);
             var exits = room.find(exit);
             var from = exits[0].pos;
-            console.log('from', from);
             t = from.findClosestByRange(find_name, { filter });
         }
         if (!t) return null;
@@ -48,7 +47,7 @@ var dd = {
     },
     pick_available_resource_store_id: function (creep) {
         let id = dd.pick_id_using_filter(creep, FIND_STRUCTURES, (structure) =>
-            (structure.structureType == STRUCTURE_CONTAINER || structure.structureType == STRUCTURE_STORAGE)
+            structure.structureType == STRUCTURE_STORAGE
             && structure.store[RESOURCE_ENERGY] > 0
         );
         if (!id) {
@@ -111,8 +110,9 @@ var dd = {
         for (var id in Memory.res) {
             let r = Memory.res[id];
             var res = Game.getObjectById(id);
-            if (res.amount < 100)
+            if (res.energy < 100){
                 continue;
+            }
             if (!r.miner_id) continue;
             if (time_min > r.history_time) {
                 best_rid = id;

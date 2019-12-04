@@ -26,20 +26,6 @@ function change_mode_storing(creep) {
     return dd.set_id_as_destination(creep, id);
 }
 
-function update_history_time_for_resource(creep, add_to) {
-    if (creep.memory.resource_id) {
-        if (!add_to)
-            console.log(creep.memory.resource_id + ' resource timer average with ' + creep.memory.mining_timer)
-        else
-            console.log(creep.memory.resource_id + ' resource timer add by ' + (0.2 * creep.memory.mining_timer))
-        if (!add_to)
-            Memory.res[creep.memory.resource_id].history_time *= 0.8;
-        Memory.res[creep.memory.resource_id].history_time += 0.2 * creep.memory.mining_timer;
-    }
-    creep.memory.resource_id = '';
-    creep.memory.mining_timer = 0;
-}
-
 function update_harvester_contribution(creep) {
     let last_used_capacity = creep.memory.last_used_capacity;
     if (last_used_capacity) {
@@ -132,7 +118,7 @@ var roleHarvester = {
 
                 if (store_ok == OK) {
                     debug('store OK');
-                    update_history_time_for_resource(creep, false);
+                    tools.update_history_time_for_resource(creep, false);
                     dd.clear_destination(creep);// so that the creep can change to another store when it needs next time
                 }
                 else {
