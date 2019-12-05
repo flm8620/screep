@@ -46,7 +46,9 @@ var dd = {
         return id;
     },
     pick_available_resource_store_id: function (creep) {
-        let id = dd.pick_id_using_filter(creep, FIND_DROPPED_RESOURCES, (r) => r.amount > 200);
+        let id = dd.pick_id_using_filter(creep, FIND_TOMBSTONES, (t) => t.store[RESOURCE_ENERGY] > 100);
+        if (!id)
+            id = dd.pick_id_using_filter(creep, FIND_DROPPED_RESOURCES, (r) => r.amount > 200);
         if (!id)
             id = dd.pick_id_using_filter(creep, FIND_STRUCTURES, (structure) =>
                 structure.structureType == STRUCTURE_STORAGE
