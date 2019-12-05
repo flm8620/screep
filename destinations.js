@@ -46,17 +46,17 @@ var dd = {
         return id;
     },
     pick_available_resource_store_id: function (creep) {
-        let id = dd.pick_id_using_filter(creep, FIND_STRUCTURES, (structure) =>
-            structure.structureType == STRUCTURE_STORAGE
-            && structure.store[RESOURCE_ENERGY] > 0
-        );
-        if (!id) {
-            //let should_wait = creep.room.energyAvailable < creep.room.energyCapacityAvailable - 100;
-            //if (!should_wait)
+        let id = dd.pick_id_using_filter(creep, FIND_DROPPED_RESOURCES, (r) => r.amount > 200);
+        if (!id)
+            id = dd.pick_id_using_filter(creep, FIND_STRUCTURES, (structure) =>
+                structure.structureType == STRUCTURE_STORAGE
+                && structure.store[RESOURCE_ENERGY] > 0
+            );
+        if (!id)
             id = dd.pick_id_using_filter(creep, FIND_STRUCTURES, (structure) =>
                 is_store(structure) && structure.store[RESOURCE_ENERGY] >= 50
             );
-        }
+
         return id;
     },
     pick_non_full_store_id: function (creep) {
@@ -110,7 +110,7 @@ var dd = {
         for (var id in Memory.res) {
             let r = Memory.res[id];
             var res = Game.getObjectById(id);
-            if (res.energy < 100){
+            if (res.energy < 100) {
                 continue;
             }
             if (!r.miner_id) continue;
@@ -150,7 +150,7 @@ var dd = {
         creep.memory.dest_pos = null;
     },
     move_to_destination: function (creep, debug_mode, opt) {
-        if(!opt) opt = {};
+        if (!opt) opt = {};
         if (!debug_mode) debug_mode = false;
         const DEBUG_ON = debug_mode || creep.name == 'B3N';
         let debug = function (msg) {

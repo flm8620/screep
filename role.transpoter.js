@@ -39,7 +39,7 @@ const PATIENCE_MAX = 20;
 var roleTranspoter = {
     run: function (creep) {
         if (creep.spawning) return;
-        const DEBUG_ON = creep.name === 'TU0';
+        const DEBUG_ON = creep.name === 'TYO';
         let debug = function (msg) {
             if (DEBUG_ON)
                 console.log(`[${creep.name}]: ${msg}`);
@@ -87,7 +87,7 @@ var roleTranspoter = {
 
             if (!dd.is_near_destination(creep)) {
                 debug('!is_near_destination');
-                var move_ok = dd.move_to_destination(creep);
+                var move_ok = dd.move_to_destination(creep, DEBUG_ON);
                 if (move_ok == ERR_NO_PATH) {
                     creep.memory.patience--;
                     if (creep.memory.patience < PATIENCE_MAX)
@@ -102,30 +102,25 @@ var roleTranspoter = {
                     change_mode_taking(creep);
                     return;
                 }
-
-                var list = creep.room.lookForAt(LOOK_STRUCTURES, miner.pos);
-                var container = list.filter((structure) => { return structure.structureType == STRUCTURE_CONTAINER });
-
-                if (container.length == 1 && container[0].store[RESOURCE_ENERGY] > 0) {
-                    debug('withdraw from container');
-                    var c = container[0];
-                    var draw_ok = creep.withdraw(c, RESOURCE_ENERGY);
-                    //console.log(JSON.stringify(draw_ok));
-                } else {
-                    list = creep.room.lookForAt(LOOK_RESOURCES, miner.pos);
-                    if (list.length == 0) {
-                        //creep.say('wait drop');
-                        return;
-                    }
+                let list = creep.room.lookForAt(LOOK_RESOURCES, miner.pos);
+                if (list.length > 0) {
                     var drop = list[0];
-
-
                     debug('withdraw from ground');
                     let mine_ok = creep.pickup(drop);
+                } else {
+                    list = creep.room.lookForAt(LOOK_STRUCTURES, miner.pos);
+                    let container = list.filter((structure) => { return structure.structureType == STRUCTURE_CONTAINER });
+    
+                    if (container.length == 1 && container[0].store[RESOURCE_ENERGY] > 0) {
+                        debug('withdraw from container');
+                        let c = container[0];
+                        let draw_ok = creep.withdraw(c, RESOURCE_ENERGY);
+                        //console.log(JSON.stringify(draw_ok));
+                    } else {
+                        debug('wait drop');
+                    }
                 }
-
             }
-
         }
 
         if (creep.memory.goto_store) {//storing
@@ -137,17 +132,16 @@ var roleTranspoter = {
             }
 
             if (!dd.is_near_destination(creep)) {
-                dd.move_to_destination(creep);
+                dd.move_to_destination(creep, DEBUG_ON);
             } else {
                 let store = dd.get_dest_obj(creep);
                 let store_ok = creep.transfer(store, RESOURCE_ENERGY);
                 if (store_ok == OK) {
+                    debug('store OK');
                     tools.update_history_time_for_resource(creep, false);
                     dd.clear_destination(creep);// so that the creep can change to another store when it needs next time
-                }
-                if (creep.store.getUsedCapacity(RESOURCE_ENERGY) == 0) {
-                    change_mode_taking(creep);
                 } else {
+                    debug('store not OK');
                     change_mode_storing(creep);
                 }
             }

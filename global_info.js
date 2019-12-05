@@ -39,7 +39,7 @@ function set_population_number() {
     //Memory.population.recipe['harvester'] =
     //    { number: [3, 5, 6, 6] };
     Memory.population.recipe['transpoter'] =
-        { number: [3, 4, 4, 6] };
+        { number: [3, 4, 4, 5] };
     Memory.population.recipe['builder'] =
         { number: [0, 1, 2, 3] };
     Memory.population.recipe['upgrader'] =

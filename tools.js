@@ -22,7 +22,7 @@ var tools = {
     worth_to_convert_to_transpoter: function (creep) {
         if (!Memory.current_population_stage) return false;
         let stage = Memory.current_population_stage[creep.memory.spawn_name];
-        return Math.random() < 0.2 && Memory.population.count['transpoter'] < Memory.population.recipe['transpoter'].number[stage];
+        return Math.random() < 0.02 && Memory.population.count['transpoter'] < Memory.population.recipe['transpoter'].number[stage];
     },
     random_move: function (creep) {
         let idx = utils.random_idx_with_probability([1, 1, 1, 1, 1, 1, 1, 1]);
