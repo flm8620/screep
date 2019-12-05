@@ -6,7 +6,7 @@ function manhattan_distance(p1, p2) {
 }
 
 var tools = {
-    update_history_time_for_resource: function(creep, add_to) {
+    update_history_time_for_resource: function (creep, add_to) {
         if (creep.memory.resource_id) {
             if (!add_to)
                 console.log(creep.memory.resource_id + ' resource timer average with ' + creep.memory.mining_timer)
@@ -37,23 +37,31 @@ var tools = {
         creep.move(moves[idx]);
     },
     goto_and_get_energy: function (creep) {
-        var store = dd.get_dest_obj(creep);
-        var ok = creep.withdraw(store, RESOURCE_ENERGY);
-        if (ok == ERR_NOT_IN_RANGE) {
+        let something = dd.get_dest_obj(creep);
+        if (!something) return false;
+        if (!creep.pos.isNearTo(something.pos)) {
             dd.move_to_destination(creep);
             return true;
-        } else if (ok == ERR_NOT_ENOUGH_RESOURCES) {
-            return false;
-        } else if (ok == ERR_INVALID_TARGET) {
-            return false;
+        } else {
+            let ok = creep.withdraw(something, RESOURCE_ENERGY);
+            if (ok == ERR_NOT_IN_RANGE) {
+                dd.clear_destination(creep);
+                return false;
+            } else if (ok == ERR_NOT_ENOUGH_RESOURCES) {
+                return false;
+            } else if (ok == ERR_INVALID_TARGET) {
+                ok = creep.pickup(something);
+                return ok == OK;
+            }
+
+            if (ok == OK) {
+                dd.clear_destination(creep);
+                return true;
+            }
+            else
+                return false
         }
 
-        if (ok == OK) {
-            dd.clear_destination(creep);
-            return true;
-        }
-        else
-            return false
     },
     get_energy_or_become_transpoter: function (creep) {
         dd.clear_destination(creep);

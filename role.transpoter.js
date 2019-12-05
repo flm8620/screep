@@ -102,19 +102,29 @@ var roleTranspoter = {
                     change_mode_taking(creep);
                     return;
                 }
+                let already_taken_some = creep.store.getUsedCapacity(RESOURCE_ENERGY) > 0;
                 let list = creep.room.lookForAt(LOOK_RESOURCES, miner.pos);
                 if (list.length > 0) {
                     var drop = list[0];
-                    debug('withdraw from ground');
-                    let mine_ok = creep.pickup(drop);
+                    if (drop.amount > 100 || already_taken_some) {
+                        debug('withdraw from ground');
+                        let mine_ok = creep.pickup(drop);
+                    } else {
+                        debug('wait others to take');
+                    }
                 } else {
                     list = creep.room.lookForAt(LOOK_STRUCTURES, miner.pos);
                     let container = list.filter((structure) => { return structure.structureType == STRUCTURE_CONTAINER });
-    
+
                     if (container.length == 1 && container[0].store[RESOURCE_ENERGY] > 0) {
-                        debug('withdraw from container');
+
                         let c = container[0];
-                        let draw_ok = creep.withdraw(c, RESOURCE_ENERGY);
+                        if (c.store[RESOURCE_ENERGY] > 100 || already_taken_some) {
+                            debug('withdraw from container');
+                            let draw_ok = creep.withdraw(c, RESOURCE_ENERGY);
+                        } else {
+                            debug('wait others to take');
+                        }
                         //console.log(JSON.stringify(draw_ok));
                     } else {
                         debug('wait drop');
