@@ -18,8 +18,8 @@ function change_mode_taking(creep) {
         creep.say('no miner');
         return false;
     }
-    creep.memory.miner_id = miner_id;
-    return dd.set_id_as_destination(creep, miner_id);
+    creep.memory.res_id = r_id;
+    return dd.set_pos_as_destination(creep, Memory.res[r_id].mining_pos);
 }
 
 function change_mode_storing(creep) {
@@ -39,7 +39,7 @@ const PATIENCE_MAX = 20;
 var roleTranspoter = {
     run: function (creep) {
         if (creep.spawning) return;
-        const DEBUG_ON = creep.name === 'TYO';
+        const DEBUG_ON = creep.name === 'TO5';
         let debug = function (msg) {
             if (DEBUG_ON)
                 console.log(`[${creep.name}]: ${msg}`);
@@ -53,7 +53,7 @@ var roleTranspoter = {
                 debug('change_mode_storing');
                 change_mode_storing(creep);
             }
-            if (!creep.memory.miner_id) {
+            if (!creep.memory.res_id) {
                 debug('no miner id, change_mode_taking');
                 change_mode_taking(creep);
             }
@@ -76,8 +76,8 @@ var roleTranspoter = {
         if (!creep.memory.goto_store) {//taking
             debug('really taking');
 
-            if (!creep.memory.miner_id) {
-                debug('no miner id!');
+            if (!creep.memory.res_id) {
+                debug('no res_id!');
                 return;
             }
             if (!dd.has_destination(creep)) {
@@ -85,6 +85,12 @@ var roleTranspoter = {
                 return;
             }
 
+            if (creep.memory.patience <= 0) {
+                debug('no patience change_mode_taking');
+                tools.random_move(creep);
+                change_mode_taking(creep);
+                return;
+            }
             if (!dd.is_near_destination(creep)) {
                 debug('!is_near_destination');
                 var move_ok = dd.move_to_destination(creep, DEBUG_ON);
@@ -93,17 +99,45 @@ var roleTranspoter = {
                     if (creep.memory.patience < PATIENCE_MAX)
                         creep.say(creep.memory.patience);
                 }
-                if (creep.memory.patience <= 0) change_mode_taking(creep);
+
             } else {
                 debug('is_near_destination');
-                var miner = Game.getObjectById(creep.memory.miner_id);
-                if (!creep.pos.isNearTo(miner)) {
-                    debug('retrace miner');
+                let res_id = creep.memory.res_id;
+                let p = Memory.res[res_id].mining_pos;
+                let mining_pos = new RoomPosition(p.x, p.y, p.roomName);
+                if (creep.pos === mining_pos) {
+                    debug('on minging_pos. random move');
+                    tools.random_move(creep);
+                    return;
+                }
+                if (!creep.pos.isNearTo(mining_pos)) {
+                    debug('go to mining pos');
                     change_mode_taking(creep);
                     return;
                 }
+                debug('queuing');
+
+                // if (!Memory.res[res_id].queue)
+                //     Memory.res[res_id].queue = [];
+                // let queue = Memory.res[res_id].queue;
+                // while (queue.length > 0 && !Game.creeps[queue[0]])
+                //     queue.shift();
+                // if (!queue.includes(creep.name)) {
+                //     debug('insert to queue');
+                //     queue.push(creep.name);
+                // }
+                // if (queue[0] != creep.name) {
+                //     debug('wait in queue');
+                //     return;
+                // }
+                let creeps = creep.room.lookForAt(LOOK_CREEPS, mining_pos);
+                if (creeps.length == 0 || creeps[0].id != Memory.res[res_id].miner_id) {
+                    debug('miner is not here yet');
+                    tools.random_move(creep);
+                    return;
+                }
                 let already_taken_some = creep.store.getUsedCapacity(RESOURCE_ENERGY) > 0;
-                let list = creep.room.lookForAt(LOOK_RESOURCES, miner.pos);
+                let list = creep.room.lookForAt(LOOK_RESOURCES, mining_pos);
                 if (list.length > 0) {
                     var drop = list[0];
                     if (drop.amount > 100 || already_taken_some) {
@@ -113,7 +147,7 @@ var roleTranspoter = {
                         debug('wait others to take');
                     }
                 } else {
-                    list = creep.room.lookForAt(LOOK_STRUCTURES, miner.pos);
+                    list = creep.room.lookForAt(LOOK_STRUCTURES, mining_pos);
                     let container = list.filter((structure) => { return structure.structureType == STRUCTURE_CONTAINER });
 
                     if (container.length == 1 && container[0].store[RESOURCE_ENERGY] > 0) {
@@ -122,12 +156,13 @@ var roleTranspoter = {
                         if (c.store[RESOURCE_ENERGY] > 100 || already_taken_some) {
                             debug('withdraw from container');
                             let draw_ok = creep.withdraw(c, RESOURCE_ENERGY);
-                        } else {
+                        } else if (c.store[RESOURCE_ENERGY] > 0) {
                             debug('wait others to take');
                         }
                         //console.log(JSON.stringify(draw_ok));
                     } else {
-                        debug('wait drop');
+                        debug('container empty');
+                        creep.memory.patience--;
                     }
                 }
             }
