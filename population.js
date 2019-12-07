@@ -58,7 +58,7 @@ function create_creep(spawn, role_name, number) {
         }
         parts = largest_possible_transpoter_body(energyCapacityAvailable);
     } else if (role_name === 'freeguy') {
-        parts = [WORK, CARRY, MOVE, ATTACK];
+        parts = [WORK, CARRY, ATTACK, RANGED_ATTACK, MOVE, MOVE, MOVE];
     }
     var creatures = _.filter(Game.creeps, (creep) => creep.memory.role == role_name);
     if (creatures.length < number) {
