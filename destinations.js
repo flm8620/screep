@@ -68,11 +68,6 @@ var dd = {
         );
         if (!id) {
             id = dd.pick_id_using_filter(creep, FIND_STRUCTURES,
-                (structure) => structure.structureType == STRUCTURE_CONTAINER && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0
-            );
-        }
-        if (!id) {
-            id = dd.pick_id_using_filter(creep, FIND_STRUCTURES,
                 (structure) => structure.structureType == STRUCTURE_TOWER && structure.store.getUsedCapacity(RESOURCE_ENERGY) < 0.9 * structure.store.getCapacity(RESOURCE_ENERGY)
             );
         }
