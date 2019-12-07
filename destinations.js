@@ -46,7 +46,9 @@ var dd = {
         return id;
     },
     pick_available_resource_store_id: function (creep) {
-        let id = dd.pick_id_using_filter(creep, FIND_TOMBSTONES, (t) => t.store[RESOURCE_ENERGY] > 100);
+        let id = dd.pick_id_using_filter(creep, FIND_TOMBSTONES, 
+            (t) => t.store[RESOURCE_ENERGY] > 100
+            );
         if (!id)
             id = dd.pick_id_using_filter(creep, FIND_DROPPED_RESOURCES, (r) => r.amount > 200);
         if (!id)
@@ -102,24 +104,39 @@ var dd = {
         return ids[idx];
     },
     pick_resource_id: function (creep) {
-        let best_rid = '';
-        let time_min = 1e10;
+        let id_score = [];
+        let ids = []
         for (var id in Memory.res) {
             let r = Memory.res[id];
-            var res = Game.getObjectById(id);
-            if (res.energy < 100) {
-                continue;
+            let p = r.mining_pos;
+            let mining_pos = new RoomPosition(p.x, p.y, p.roomName);
+
+            let list = creep.room.lookForAt(LOOK_RESOURCES, mining_pos);
+            if (list.length > 0) {
+                let drop = list[0];
+                if (drop.amount < 100) {
+                    continue;
+                }
+            } else {
+                list = creep.room.lookForAt(LOOK_STRUCTURES, mining_pos);
+                let container = list.filter((structure) => { return structure.structureType == STRUCTURE_CONTAINER });
+                if (container.length == 1 && container[0].store[RESOURCE_ENERGY] > 0) {
+                    let c = container[0];
+                    if (c.store[RESOURCE_ENERGY] < 100)
+                        continue
+                } else {
+                    continue;
+                }
             }
-            if (!r.miner_id) continue;
-            if (time_min > r.history_time) {
-                best_rid = id;
-                time_min = r.history_time;
-            }
+
+            id_score.push(Math.exp(-r.history_time / 50))
+            ids.push(id)
         }
-        if (best_rid === '') {
+        if (id_score.length === 0) {
             return null;
         }
-        return best_rid;
+        let idx = utils.random_idx_with_probability(id_score);
+        return ids[idx];
     },
     pick_controller_id: function (creep) {
         return creep.room.controller.id;
@@ -188,7 +205,7 @@ var dd = {
             if (d1.x != d2.x || d1.y != d2.y || d1.roomName != d2.roomName) {
                 debug(`new dest, need a path now !`);
                 creep.memory.move_patience = 0;// I need a path now !
-            } else if(creep.memory.my_path.room !== creep.pos.roomName){
+            } else if (creep.memory.my_path.room !== creep.pos.roomName) {
                 debug(`new room, need a path now !`);
                 creep.memory.move_patience = 0;// I need a path now !
             }
@@ -200,10 +217,10 @@ var dd = {
             let path = creep.pos.findPathTo(
                 new RoomPosition(dest_pos.x, dest_pos.y, dest_pos.roomName), opt);
             creep.memory.my_path =
-                { 
-                    path, 
-                    dest: dest_pos, 
-                    count_down: last_move_failed ? PATH_REUSE_SHORT : PATH_REUSE ,
+                {
+                    path,
+                    dest: dest_pos,
+                    count_down: last_move_failed ? PATH_REUSE_SHORT : PATH_REUSE,
                     room: creep.pos.roomName
                 };
 
