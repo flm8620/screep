@@ -39,7 +39,7 @@ const PATIENCE_MAX = 20;
 var roleTranspoter = {
     run: function (creep) {
         if (creep.spawning) return;
-        const DEBUG_ON = creep.name === 'TO5';
+        const DEBUG_ON = creep.name === '';
         let debug = function (msg) {
             if (DEBUG_ON)
                 console.log(`[${creep.name}]: ${msg}`);

@@ -4,7 +4,7 @@ var dd = require('destinations');
 var roleBuilder = {
 
     run: function (creep) {
-        const DEBUG_ON = creep.name === 'F89';
+        const DEBUG_ON = creep.name === '';
         let debug = function (msg) {
             if (DEBUG_ON)
                 console.log(`[${creep.name}]: ${msg}`);
@@ -17,7 +17,8 @@ var roleBuilder = {
         // debug(`ok = ${ok}`)
         // return;
 
-        let d = new RoomPosition(12, 46, 'W9S3');
+        let d = new RoomPosition(12, 43, 'W9S3');
+        //let d = new RoomPosition(23, 3, 'W9S5');
         //let d = new RoomPosition(12, 5, 'W9S4');
         dd.set_pos_as_destination(creep, d);
         if (!dd.has_destination(creep)) {

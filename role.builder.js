@@ -26,7 +26,7 @@ function count_down(creep) {
 var roleBuilder = {
 
     run: function (creep) {
-        const DEBUG_ON = creep.name === 'BP8';
+        const DEBUG_ON = creep.name === '';
         let debug = function (msg) {
             if (DEBUG_ON)
                 console.log(`[${creep.name}]: ${msg}`);

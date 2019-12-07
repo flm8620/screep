@@ -40,7 +40,7 @@ function update_harvester_contribution(creep) {
 
 var roleHarvester = {
     run: function (creep) {
-        const DEBUG_ON = creep.name === 'USH';
+        const DEBUG_ON = creep.name === '';
         let debug = function (msg) {
             if (DEBUG_ON)
                 console.log(`[${creep.name}]: ${msg}`);
