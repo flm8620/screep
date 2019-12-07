@@ -159,6 +159,7 @@ var dd = {
         const PATH_REUSE_SHORT = 5;
         const MAX_MOVE_PATIENCE = 5;
         if (!creep.memory.dest_pos) return -10000;
+        let dest_pos = creep.memory.dest_pos;
         if (!('move_patience' in creep.memory)) creep.memory.move_patience = MAX_MOVE_PATIENCE;
 
         let last_move_failed = false;
@@ -183,9 +184,12 @@ var dd = {
             debug(`no path, need a path now !`);
         } else {
             let d1 = creep.memory.my_path.dest;
-            let d2 = creep.memory.dest_pos;
+            let d2 = dest_pos;
             if (d1.x != d2.x || d1.y != d2.y || d1.roomName != d2.roomName) {
                 debug(`new dest, need a path now !`);
+                creep.memory.move_patience = 0;// I need a path now !
+            } else if(creep.memory.my_path.room !== creep.pos.roomName){
+                debug(`new room, need a path now !`);
                 creep.memory.move_patience = 0;// I need a path now !
             }
         }
@@ -194,9 +198,14 @@ var dd = {
         if (creep.memory.move_patience <= 0 || creep.memory.my_path.count_down <= 0) {
             creep.memory.move_patience = MAX_MOVE_PATIENCE
             let path = creep.pos.findPathTo(
-                new RoomPosition(creep.memory.dest_pos.x, creep.memory.dest_pos.y, creep.memory.dest_pos.roomName), opt);
+                new RoomPosition(dest_pos.x, dest_pos.y, dest_pos.roomName), opt);
             creep.memory.my_path =
-                { path, dest: creep.memory.dest_pos, count_down: last_move_failed ? PATH_REUSE_SHORT : PATH_REUSE };
+                { 
+                    path, 
+                    dest: dest_pos, 
+                    count_down: last_move_failed ? PATH_REUSE_SHORT : PATH_REUSE ,
+                    room: creep.pos.roomName
+                };
 
             debug(`refind path length: ${path.length}`);
             if (!path.length) return ERR_NO_PATH;
@@ -206,13 +215,16 @@ var dd = {
 
 
         //now try to move
+        debug(`try to move`);
         let path = creep.memory.my_path.path;
         if (path.length === 0) {
+            debug(`path empty`);
             creep.memory.move_patience--;
             return ERR_NO_PATH;
         } else {
             let end = path[path.length - 1];
             if (end.x == creep.pos.x && end.y == creep.pos.y) {
+                debug(`path finished`);
                 delete creep.memory.my_path;
                 return OK;
             }
