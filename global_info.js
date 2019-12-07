@@ -44,6 +44,8 @@ function set_population_number() {
         { number: [0, 1, 2, 3] };
     Memory.population.recipe['upgrader'] =
         { number: [0, 1, 2, 5] };
+    Memory.population.recipe['freeguy'] =
+        { number: [0, 0, 0, 0,] };
 
     Memory.population.count = {};
     Memory.population.count['upgrader'] = 0;

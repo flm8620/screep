@@ -4,6 +4,7 @@ var roleBuilder = require('role.builder');
 var roleMiner = require('role.miner');
 var roleHarvester = require('role.harvester');
 var roleTranspoter = require('role.transpoter');
+var roleFreeguy = require('role.freeguy');
 var tools = require('tools');
 var globalInfo = require('global_info');
 var weapon_ctrl = require('weapon_ctrl');
@@ -33,6 +34,9 @@ module.exports.loop = function () {
 
         if (c.memory.role == 'transpoter')
             roleTranspoter.run(c);
+
+        if (c.memory.role == 'freeguy')
+            roleFreeguy.run(c);
     }
 
     for (let s in Game.spawns) {
