@@ -2,13 +2,19 @@ function initialize_sources() {
     //console.log('initialize sources')
     if (!Memory.res)
         Memory.res = {};
+    let sources_info = [];
+    sources_info.push({
+        source: Game.getObjectById('5bbcac629099fc012e635600'),
+        mining_pos: new RoomPosition(45, 11, 'W9S3'),
+    });
     for (let name in Game.spawns) {
         let sp = Game.spawns[name];
         var sources = Game.spawns[name].room.find(FIND_SOURCES);
-        var sources_info = [];
+
         for (var s in sources) {
             let ss = sources[s];
             let id = ss.id;
+            if (!Memory.res[id]) Memory.res[id] = {};
             let mining_pos = Memory.res[id].mining_pos;
             if (!mining_pos) {
                 let path = PathFinder.search(sp.pos, { pos: ss.pos, range: 1 }).path;
@@ -16,13 +22,14 @@ function initialize_sources() {
             }
             sources_info.push({ source: ss, mining_pos })
         }
-        for (let si of sources_info) {
-            let id = si.source.id;
-            Memory.res[id].pos = si.source.pos;
-            if (!Memory.res[id].history_time)
-                Memory.res[id].history_time = 0;
-            Memory.res[id].mining_pos = si.mining_pos;
-        }
+    }
+    for (let si of sources_info) {
+        let id = si.source.id;
+        if (!Memory.res[id]) Memory.res[id] = {};
+        Memory.res[id].pos = si.source.pos;
+        if (!Memory.res[id].history_time)
+            Memory.res[id].history_time = 0;
+        Memory.res[id].mining_pos = si.mining_pos;
     }
 }
 function set_population_number() {

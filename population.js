@@ -42,8 +42,8 @@ function largest_possible_transpoter_body(energy_available) {
 function largest_possible_miner_body(energy_available) {
     body = [WORK, CARRY, MOVE];
     let i = 0;
-    while (energy_of_body(body.concat([WORK])) < energy_available && i < 4 && Memory.population.count['transpoter'] > 2) {
-        body = body.concat([WORK]);
+    while (energy_of_body(body.concat([WORK, WORK, MOVE])) < energy_available && i < 4 && Memory.population.count['transpoter'] > 2) {
+        body = body.concat([WORK, WORK, MOVE]);
         i++;
     }
     return body;
@@ -86,6 +86,7 @@ function create_miner() {
             let room = r.pos.roomName;
             let spawn = null;
             for (let sname in Memory.spawns) {
+                if (!spawn) spawn = Game.spawns[sname];
                 if (Game.spawns[sname].room.name === room) {
                     spawn = Game.spawns[sname];
                     break;
