@@ -22,7 +22,18 @@ var tools = {
     worth_to_convert_to_transpoter: function (creep) {
         if (!Memory.current_population_stage) return false;
         let stage = Memory.current_population_stage[creep.memory.spawn_name];
-        return Math.random() < 0.02 && Memory.population.count['transpoter'] < Memory.population.recipe['transpoter'].number[stage];
+        return Math.random() < 0.05 && Memory.population.count['transpoter'] < Memory.population.recipe['transpoter'].number[stage];
+    },
+    worth_to_convert_to_miner: function (creep) {
+        if (!Memory.current_population_stage) return false;
+        if (Math.random() > 0.05) return false;
+        let need = false;
+        for (let rid in Memory.res) {
+            if (!Memory.res[rid].miner_id) {
+                return true;
+            }
+        }
+        return false;
     },
     random_move: function (creep) {
         let idx = utils.random_idx_with_probability([1, 1, 1, 1, 1, 1, 1, 1]);
@@ -68,6 +79,11 @@ var tools = {
         if (tools.worth_to_convert_to_transpoter(creep)) {
             console.log(creep.name + ' become transpoter');
             creep.memory.role = 'transpoter';
+            return;
+        } else if (tools.worth_to_convert_to_miner(creep)) {
+            console.log(creep.name + ' become miner');
+            creep.memory.role = 'miner';
+            return;
         }
         if (!dd.set_id_as_destination(creep, dd.pick_available_resource_store_id(creep))) {
             // random move
