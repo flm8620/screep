@@ -130,12 +130,7 @@ var roleTranspoter = {
                 //     debug('wait in queue');
                 //     return;
                 // }
-                let creeps = creep.room.lookForAt(LOOK_CREEPS, mining_pos);
-                if (creeps.length == 0 || creeps[0].id != Memory.res[res_id].miner_id) {
-                    debug('miner is not here yet');
-                    tools.random_move(creep);
-                    return;
-                }
+
                 let already_taken_some = creep.store.getUsedCapacity(RESOURCE_ENERGY) > 0;
                 let list = creep.room.lookForAt(LOOK_RESOURCES, mining_pos);
                 if (list.length > 0) {
@@ -164,6 +159,12 @@ var roleTranspoter = {
                         debug('container empty');
                         creep.memory.patience--;
                     }
+                }
+                let creeps = creep.room.lookForAt(LOOK_CREEPS, mining_pos);
+                if (creeps.length == 0 || creeps[0].id != Memory.res[res_id].miner_id) {
+                    debug('miner is not here yet');
+                    tools.random_move(creep);
+                    return;
                 }
             }
         }
