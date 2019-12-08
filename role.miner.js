@@ -16,7 +16,7 @@ function change_mode_mining(creep) {
         }
     }
     if (!i) {
-        if (!creep.memory.patience) creep.memory.patience = PATIENCE_MAX;
+        if (!('patience' in creep.memory)) creep.memory.patience = PATIENCE_MAX;
         creep.memory.patience--;
         console.log(`miner ${creep.name} has nothing to mine`);
         if (creep.memory.patience < 0) {

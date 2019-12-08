@@ -3,10 +3,15 @@ function initialize_sources() {
     if (!Memory.res)
         Memory.res = {};
     let sources_info = [];
-    sources_info.push({
-        source: Game.getObjectById('5bbcac629099fc012e635600'),
-        mining_pos: new RoomPosition(45, 11, 'W9S3'),
-    });
+
+    // sources_info.push({
+    //     source: Game.getObjectById('5bbcac629099fc012e635600'),
+    //     mining_pos: new RoomPosition(45, 11, 'W9S3'),
+    // });
+    // sources_info.push({
+    //     source: Game.getObjectById('5bbcac729099fc012e635782'),
+    //     mining_pos: new RoomPosition(7, 37, 'W8S3'),
+    // });
     for (let name in Game.spawns) {
         let sp = Game.spawns[name];
         var sources = Game.spawns[name].room.find(FIND_SOURCES);
