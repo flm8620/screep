@@ -46,7 +46,7 @@ var dd = {
                 structure.hits < 0.8 * structure.hitsMax
                 && structure.structureType != STRUCTURE_WALL
                 && structure.structureType != STRUCTURE_RAMPART],
-            ...[1000, 10000, 100000, 1000000, 10000000].map((x) =>
+            ...[1000, 10000, 100000, 1000000].map((x) =>
                 [FIND_STRUCTURES, (structure) =>
                     structure.structureType == STRUCTURE_RAMPART && structure.hits < x && structure.hits > 0 ||
                     structure.structureType == STRUCTURE_WALL && structure.hits < x && structure.hits > 0]
