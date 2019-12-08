@@ -88,7 +88,10 @@ var roleTranspoter = {
             if (creep.memory.patience <= 0) {
                 debug('no patience change_mode_taking');
                 tools.random_move(creep);
-                change_mode_taking(creep);
+                if (creep.store.getUsedCapacity(RESOURCE_ENERGY) < 0.5 * creep.store.getCapacity(RESOURCE_ENERGY))
+                    change_mode_taking(creep);
+                else
+                    change_mode_storing(creep);
                 return;
             }
             if (!dd.is_near_destination(creep)) {
