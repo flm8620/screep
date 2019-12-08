@@ -119,10 +119,13 @@ var dd = {
     pick_resource_id: function (creep) {
         let id_score = [];
         let ids = []
+        const creep_spawn = Game.spawns[creep.memory.spawn_name];
+        const creep_room = creep_spawn.room;
         for (var id in Memory.res) {
             let r = Memory.res[id];
             let p = r.mining_pos;
             let room = Game.rooms[p.roomName];
+            if (room.name !== creep_room.name) continue;
             let mining_pos = new RoomPosition(p.x, p.y, p.roomName);
 
             let list = room.lookForAt(LOOK_RESOURCES, mining_pos);

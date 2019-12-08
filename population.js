@@ -38,23 +38,28 @@ const ALL_DIRECTIONS = [TOP, TOP_RIGHT, RIGHT, BOTTOM_RIGHT, BOTTOM, BOTTOM_LEFT
 
 // return true to stop create others
 function create_creep(spawn, role_name, number) {
+    const room_name = spawn.room.name;
+    const room_pop = Memory.population.rooms[room_name];
     let energyCapacityAvailable = spawn.room.energyCapacityAvailable;
     let parts = largest_possible_body(energyCapacityAvailable,
         [WORK, CARRY, MOVE],
         [WORK, CARRY, MOVE],
         100
     );
+    console.log(`room ${room_name} role ${role_name}`);
     if (role_name === 'transpoter') {
-        if (Memory.population.count['miner'] == 0)
+        if (room_pop['miner'] == 0)
             return true;
 
         parts = largest_possible_body(energyCapacityAvailable,
             [CARRY, CARRY, MOVE],
             [CARRY, CARRY, MOVE],
-            Memory.population.count['transpoter'] > 1 ? 4 : 0
+            room_pop['transpoter'] > 1 ? 4 : 0
         );
     } else if (role_name === 'freeguy') {
-        parts = [WORK, CARRY, ATTACK, RANGED_ATTACK, MOVE, MOVE, MOVE];
+        // parts = [WORK, WORK, WORK, WORK, WORK,
+        //     CARRY, CARRY, CARRY, CARRY, CARRY,
+        //     MOVE, MOVE, MOVE, MOVE, MOVE];
     } else if (role_name === 'builder') {
         parts = largest_possible_body(energyCapacityAvailable,
             [WORK, CARRY, MOVE],
@@ -62,8 +67,9 @@ function create_creep(spawn, role_name, number) {
             8
         );
     }
-    var creatures = _.filter(Game.creeps, (creep) => creep.memory.role == role_name);
-    if (creatures.length < number) {
+
+    let current_number = room_pop[role_name];
+    if (current_number < number) {
         var ok = spawn.spawnCreep(parts, 'asdasdasdasdasd', { dryRun: true });
         if (ok === OK) {
             let name = role_name[0].toUpperCase() + makeid(2);
@@ -105,14 +111,14 @@ function create_miner() {
             let parts = largest_possible_body(energyCapacityAvailable,
                 [WORK, CARRY, MOVE],
                 [WORK, WORK, MOVE],
-                Memory.population.count['transpoter'] >= 2 ? 2 : 0
+                Memory.population.rooms[room]['transpoter'] >= 2 ? 2 : 0
             );
             r.miner_id = null;
             var ok = spawn.spawnCreep(
                 parts,
                 role_name[0].toUpperCase() + makeid(2),
                 {
-                    memory: { role: role_name },
+                    memory: { role: role_name, spawn_name: spawn.name, body: parts },
                     directions: ALL_DIRECTIONS
                 }
             );
@@ -128,18 +134,21 @@ function create_miner() {
 }
 
 var Population = {
-    reproduce: function () {
-        Memory.current_population_stage = {}
-        for (let s in Game.spawns) {
-            var n = Memory.population.recipe_stages
-            for (var stage = 0; stage < n; stage++) {
-                Memory.current_population_stage[s] = stage;
-                for (var role in Memory.population.recipe) {
-                    var recipe = Memory.population.recipe[role];
-                    if (create_creep(Game.spawns[s], role, recipe.number[stage])) return;
-                }
+    reproduce_spawn: function (spawn) {
+        const room_name = spawn.room.name;
+        let n = Memory.population.recipe_stages
+        for (let stage = 0; stage < n; stage++) {
+            Memory.current_population_stage[room_name] = stage;
+            for (let role in Memory.population.recipe) {
+                let recipe = Memory.population.recipe[role];
+                if (create_creep(spawn, role, recipe.number[stage])) return;
             }
         }
+    },
+    reproduce: function () {
+        Memory.current_population_stage = {}
+        for (let s in Game.spawns)
+            Population.reproduce_spawn(Game.spawns[s]);
     },
     run: function () {
         //console.log('Population module run');

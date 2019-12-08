@@ -57,22 +57,35 @@ function set_population_number() {
     Memory.population.recipe['upgrader'] =
         { number: [0, 1, 2, 5] };
     Memory.population.recipe['freeguy'] =
-        { number: [0, 0, 0, 0,] };
+        { number: [0, 0, 0, 0] };
 
-    Memory.population.count = {};
-    Memory.population.count['upgrader'] = 0;
-    Memory.population.count['builder'] = 0;
-    Memory.population.count['miner'] = 0;
-    Memory.population.count['transpoter'] = 0;
-    Memory.population.count['harvester'] = 0;
-    for (let i in Game.creeps)
-        Memory.population.count[Game.creeps[i].memory.role]++;
+    Memory.population.rooms = {};
+    for (let i in Game.creeps) {
+        const c = Game.creeps[i];
+        const s_name = c.memory.spawn_name;
+        if (!s_name) continue;
+        const room = Game.spawns[s_name].room;
+        if (!(room.name in Memory.population.rooms)) {
+            Memory.population.rooms[room.name] = {};
+            let r = Memory.population.rooms[room.name];
+            r['upgrader'] = 0;
+            r['builder'] = 0;
+            r['miner'] = 0;
+            r['transpoter'] = 0;
+            r['harvester'] = 0;
+            r['freeguy'] = 0;
+        }
+        let r = Memory.population.rooms[room.name];
+        r[Game.creeps[i].memory.role]++;
+    }
 }
+
 function decrease_history_time() {
     for (var i in Memory.res) {
         Memory.res[i].history_time *= 0.999;
     }
 }
+
 function statistics_per_tick() {
     if (!Memory.cpu_history_time) Memory.cpu_history_time = []
     let cpu = Game.cpu.getUsed();
