@@ -33,6 +33,9 @@ function largest_possible_body(energy_available, start, repeat, largest_repeat) 
     }
     return body;
 }
+
+const ALL_DIRECTIONS = [TOP, TOP_RIGHT, RIGHT, BOTTOM_RIGHT, BOTTOM, BOTTOM_LEFT, LEFT, TOP_LEFT];
+
 // return true to stop create others
 function create_creep(spawn, role_name, number) {
     let energyCapacityAvailable = spawn.room.energyCapacityAvailable;
@@ -64,7 +67,14 @@ function create_creep(spawn, role_name, number) {
         var ok = spawn.spawnCreep(parts, 'asdasdasdasdasd', { dryRun: true });
         if (ok === OK) {
             let name = role_name[0].toUpperCase() + makeid(2);
-            ok = spawn.spawnCreep(parts, name, { memory: { role: role_name, spawn_name: spawn.name, body: parts } });
+            ok = spawn.spawnCreep(
+                parts,
+                name,
+                {
+                    memory: { role: role_name, spawn_name: spawn.name, body: parts },
+                    directions: ALL_DIRECTIONS
+                }
+            );
             if (ok === OK) {
                 console.log('Spawn ' + spawn.name + ' new ' + role_name + ' ' + name);
                 return true;
@@ -98,7 +108,14 @@ function create_miner() {
                 Memory.population.count['transpoter'] >= 2 ? 2 : 0
             );
             r.miner_id = null;
-            var ok = spawn.spawnCreep(parts, role_name[0].toUpperCase() + makeid(2), { memory: { role: role_name } });
+            var ok = spawn.spawnCreep(
+                parts,
+                role_name[0].toUpperCase() + makeid(2),
+                {
+                    memory: { role: role_name },
+                    directions: ALL_DIRECTIONS
+                }
+            );
             if (ok == ERR_NOT_ENOUGH_ENERGY) {
                 stop_creating = true; //stop creating other creep
             } else if (ok === OK) {
