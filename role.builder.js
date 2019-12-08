@@ -4,9 +4,15 @@ const PATIENCE_MAX = 5;
 
 function change_mode_building(creep) {
     dd.clear_destination(creep);
-    creep.say('build');
     creep.memory.building = true;
-    var ok = dd.set_id_as_destination(creep, dd.pick_nearest_site_id(creep));
+    let site = dd.pick_nearest_site_id(creep) || dd.pick_controller_id(creep);
+    if (!site) {
+        creep.say('no build');
+        tools.random_move(creep);
+    } else {
+        creep.say('build');
+    }
+    var ok = dd.set_id_as_destination(creep, site);
 }
 function change_mode_recharging_or_become_transpoter(creep) {
     //console.log(JSON.stringify(creep));
@@ -56,13 +62,15 @@ var roleBuilder = {
             debug('really building');
             if (!dd.in_range_destination(creep, 3)) {
                 debug('moving');
-                let move_ok = dd.move_to_destination(creep, DEBUG_ON, {range : 3});
+                let move_ok = dd.move_to_destination(creep, DEBUG_ON, { range: 3 });
             } else {
                 debug('get struct');
                 let struct = dd.get_dest_obj(creep);
                 let build_ok = 9999;
                 if (struct) {
-                    if (struct.hits > 0) {
+                    if (struct.structureType === STRUCTURE_CONTROLLER) {
+                        let ok = creep.upgradeController(dd.get_dest_obj(creep));
+                    } else if (struct.hits > 0) {
                         if (struct.hits == struct.hitsMax) {
                             debug('struct repaired');
                             change_mode_building(creep);
