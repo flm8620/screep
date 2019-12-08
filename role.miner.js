@@ -1,11 +1,10 @@
 var tools = require('tools');
 var dd = require('destinations');
 
+const PATIENCE_MAX = 50;
 
 function change_mode_mining(creep) {
     dd.clear_destination(creep);
-    console.log('mine')
-    creep.say('start');
     var i = creep.memory.mine_index;
     if (!i) {
         for (let rid in Memory.res) {
@@ -14,6 +13,14 @@ function change_mode_mining(creep) {
                 creep.memory.mine_index = rid;
                 i = rid;
             }
+        }
+    }
+    if (!i) {
+        if (!creep.memory.patience) creep.memory.patience = PATIENCE_MAX;
+        creep.memory.patience--;
+        console.log(`miner ${creep.name} has nothing to mine`);
+        if (creep.memory.patience < 0) {
+            creep.suicide();
         }
     }
     var r = Game.getObjectById(i);
@@ -26,7 +33,6 @@ function change_mode_mining(creep) {
     return dd.set_pos_as_destination(creep, mining_pos);
 }
 
-const PATIENCE_MAX = 20;
 var roleMiner = {
     run: function (creep) {
         if (creep.spawning) return;
