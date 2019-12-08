@@ -60,9 +60,9 @@ var dd = {
         return id;
     },
     pick_available_resource_store_id: function (creep) {
-        let id = dd.pick_id_using_filter(creep, FIND_TOMBSTONES, 
+        let id = dd.pick_id_using_filter(creep, FIND_TOMBSTONES,
             (t) => t.store[RESOURCE_ENERGY] > 100
-            );
+        );
         if (!id)
             id = dd.pick_id_using_filter(creep, FIND_DROPPED_RESOURCES, (r) => r.amount > 200);
         if (!id)
@@ -123,16 +123,17 @@ var dd = {
         for (var id in Memory.res) {
             let r = Memory.res[id];
             let p = r.mining_pos;
+            let room = Game.rooms[p.roomName];
             let mining_pos = new RoomPosition(p.x, p.y, p.roomName);
 
-            let list = creep.room.lookForAt(LOOK_RESOURCES, mining_pos);
+            let list = room.lookForAt(LOOK_RESOURCES, mining_pos);
             if (list.length > 0) {
                 let drop = list[0];
                 if (drop.amount < 100) {
                     continue;
                 }
             } else {
-                list = creep.room.lookForAt(LOOK_STRUCTURES, mining_pos);
+                list = room.lookForAt(LOOK_STRUCTURES, mining_pos);
                 let container = list.filter((structure) => { return structure.structureType == STRUCTURE_CONTAINER });
                 if (container.length == 1 && container[0].store[RESOURCE_ENERGY] > 0) {
                     let c = container[0];
