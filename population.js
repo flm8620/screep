@@ -46,7 +46,6 @@ function create_creep(spawn, role_name, number) {
         [WORK, CARRY, MOVE],
         100
     );
-    console.log(`room ${room_name} role ${role_name}`);
     if (role_name === 'transpoter') {
         if (room_pop['miner'] == 0)
             return true;
@@ -100,7 +99,7 @@ function create_miner() {
         if (!Game.getObjectById(r.miner_id)) {
             let room = r.pos.roomName;
             let spawn = null;
-            for (let sname in Memory.spawns) {
+            for (let sname in Game.spawns) {
                 if (!spawn) spawn = Game.spawns[sname];
                 if (Game.spawns[sname].room.name === room) {
                     spawn = Game.spawns[sname];

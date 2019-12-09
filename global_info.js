@@ -60,14 +60,11 @@ function set_population_number() {
         { number: [0, 0, 0, 0] };
 
     Memory.population.rooms = {};
-    for (let i in Game.creeps) {
-        const c = Game.creeps[i];
-        const s_name = c.memory.spawn_name;
-        if (!s_name) continue;
-        const room = Game.spawns[s_name].room;
-        if (!(room.name in Memory.population.rooms)) {
-            Memory.population.rooms[room.name] = {};
-            let r = Memory.population.rooms[room.name];
+    for(let s in Game.spawns){
+        let room = Game.spawns[s].room.name;
+        if (!(room in Memory.population.rooms)) {
+            Memory.population.rooms[room] = {};
+            let r = Memory.population.rooms[room];
             r['upgrader'] = 0;
             r['builder'] = 0;
             r['miner'] = 0;
@@ -75,6 +72,12 @@ function set_population_number() {
             r['harvester'] = 0;
             r['freeguy'] = 0;
         }
+    }
+    for (let i in Game.creeps) {
+        const c = Game.creeps[i];
+        const s_name = c.memory.spawn_name;
+        if (!s_name) continue;
+        const room = Game.spawns[s_name].room;
         let r = Memory.population.rooms[room.name];
         r[Game.creeps[i].memory.role]++;
     }
