@@ -9,7 +9,7 @@ function makeid(length) {
 }
 function energy_of_body(body) {
     let sum = 0;
-    body.reduce((accum, v) => {
+    body.forEach((v) => {
         switch (v) {
             case WORK: sum += 100; break;
             case MOVE:
