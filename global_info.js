@@ -1,17 +1,7 @@
 function initialize_sources() {
-    //console.log('initialize sources')
     if (!Memory.res)
         Memory.res = {};
     let sources_info = [];
-
-    // sources_info.push({
-    //     source: Game.getObjectById('5bbcac629099fc012e635600'),
-    //     mining_pos: new RoomPosition(45, 11, 'W9S3'),
-    // });
-    // sources_info.push({
-    //     source: Game.getObjectById('5bbcac729099fc012e635782'),
-    //     mining_pos: new RoomPosition(7, 37, 'W8S3'),
-    // });
     for (let name in Game.spawns) {
         let sp = Game.spawns[name];
         var sources = Game.spawns[name].room.find(FIND_SOURCES);
@@ -38,20 +28,7 @@ function initialize_sources() {
     }
 }
 function set_population_number() {
-    Memory.population = {};
-    Memory.population.recipe_stages = 4;
-    Memory.population.recipe = {};
-    // number[k] means for stage k, I want this many creature of each type
-    //Memory.population.recipe['harvester'] =
-    //    { number: [3, 5, 6, 6] };
-    Memory.population.recipe['transpoter'] =
-        { number: [3, 4, 4, 5] };
-    Memory.population.recipe['builder'] =
-        { number: [0, 1, 2, 3] };
-    Memory.population.recipe['upgrader'] =
-        { number: [0, 1, 2, 5] };
-    Memory.population.recipe['freeguy'] =
-        { number: [0, 0, 0, 0] };
+    delete Memory.rooms;
 
     for (let s in Game.spawns) {
         let room = Game.rooms[Game.spawns[s].room.name];
@@ -64,6 +41,23 @@ function set_population_number() {
         r['harvester'] = 0;
         r['freeguy'] = 0;
     }
+
+    for (const name in Memory.rooms) {
+        const room = Game.rooms[name];
+        const source_count = room.find(FIND_SOURCES).length;
+        room.memory.recipe = {};
+        room.memory.recipe_stages = 4;
+        let r = room.memory.recipe;
+        r['transpoter'] =
+            { number: [1 * source_count, 2 * source_count, 2 * source_count, 2 * source_count] };
+        r['builder'] =
+            { number: [0, 1, 2, 3] };
+        r['upgrader'] =
+            { number: [0, 1, 2, 5] };
+        r['freeguy'] =
+            { number: [0, 0, 0, 0] };
+    }
+
     for (let i in Game.creeps) {
         const c = Game.creeps[i];
         const s_name = c.memory.spawn_name;

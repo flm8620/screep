@@ -136,12 +136,12 @@ function create_miner() {
 var Population = {
     reproduce_spawn: function (spawn) {
         const room = spawn.room;
-        let n = Memory.population.recipe_stages
+        let n = room.memory.recipe_stages
         for (let stage = 0; stage < n; stage++) {
             room.memory.current_population_stage = stage;
-            for (let role in Memory.population.recipe) {
-                let recipe = Memory.population.recipe[role];
-                if (create_creep(spawn, role, recipe.number[stage])) return;
+            for (let role in room.memory.recipe) {
+                let numbers = room.memory.recipe[role];
+                if (create_creep(spawn, role, numbers[stage])) return;
             }
         }
     },
