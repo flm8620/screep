@@ -21,8 +21,7 @@ var tools = {
     },
     worth_to_convert_to_transpoter: function (creep) {
         if (!Memory.current_population_stage) return false;
-        const s = Game.spawns[creep.memory.spawn_name];
-        const room_name = s.room.name;
+        const room_name = Game.spawns[creep.memory.spawn_name].room.name;
         let stage = Memory.current_population_stage[room_name];
         const count = Memory.population.rooms[room_name];
         return Math.random() < 0.05 && count['transpoter'] < Memory.population.recipe['transpoter'].number[stage];
@@ -30,8 +29,10 @@ var tools = {
     worth_to_convert_to_miner: function (creep) {
         if (!Memory.current_population_stage) return false;
         if (Math.random() > 0.05) return false;
-        let need = false;
+        const room_name = Game.spawns[creep.memory.spawn_name].room.name;
+
         for (let rid in Memory.res) {
+            if (Memory.res[rid].pos.roomName !== room_name) continue;
             if (!Memory.res[rid].miner_id) {
                 return true;
             }
