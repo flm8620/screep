@@ -20,14 +20,12 @@ var tools = {
         creep.memory.mining_timer = 0;
     },
     worth_to_convert_to_transpoter: function (creep) {
-        if (!Memory.current_population_stage) return false;
-        const room_name = Game.spawns[creep.memory.spawn_name].room.name;
-        let stage = Memory.current_population_stage[room_name];
-        const count = Memory.population.rooms[room_name];
+        const room = Game.spawns[creep.memory.spawn_name].room;
+        let stage = room.memory.current_population_stage;
+        const count = room.memory.population;
         return Math.random() < 0.05 && count['transpoter'] < Memory.population.recipe['transpoter'].number[stage];
     },
     worth_to_convert_to_miner: function (creep) {
-        if (!Memory.current_population_stage) return false;
         if (Math.random() > 0.05) return false;
         const room_name = Game.spawns[creep.memory.spawn_name].room.name;
 

@@ -18,7 +18,7 @@ var roleUpgrader = {
 
     /** @param {Creep} creep **/
     run: function (creep) {
-        const DEBUG_ON = creep.name === 'UZV';
+        const DEBUG_ON = creep.name === '';
         let debug = function (msg) {
             if (DEBUG_ON)
                 console.log(`[${creep.name}]: ${msg}`);

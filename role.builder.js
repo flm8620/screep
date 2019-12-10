@@ -30,7 +30,6 @@ function count_down(creep) {
 }
 
 var roleBuilder = {
-
     run: function (creep) {
         const DEBUG_ON = creep.name === '';
         let debug = function (msg) {

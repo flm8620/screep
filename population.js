@@ -38,8 +38,8 @@ const ALL_DIRECTIONS = [TOP, TOP_RIGHT, RIGHT, BOTTOM_RIGHT, BOTTOM, BOTTOM_LEFT
 
 // return true to stop create others
 function create_creep(spawn, role_name, number) {
-    const room_name = spawn.room.name;
-    const room_pop = Memory.population.rooms[room_name];
+    const room = spawn.room;
+    const room_pop = room.memory.population;
     let energyCapacityAvailable = spawn.room.energyCapacityAvailable;
     let parts = largest_possible_body(energyCapacityAvailable,
         [WORK, CARRY, MOVE],
@@ -95,22 +95,23 @@ function create_miner() {
     var stop_creating = false;
     let role_name = 'miner';
     for (var i in Memory.res) {
-        var r = Memory.res[i];
+        const r = Memory.res[i];
+        const source = Game.getObjectById(i);
         if (!Game.getObjectById(r.miner_id)) {
-            let room = r.pos.roomName;
+            const room = source.room;
             let spawn = null;
             for (let sname in Game.spawns) {
                 if (!spawn) spawn = Game.spawns[sname];
-                if (Game.spawns[sname].room.name === room) {
+                if (Game.spawns[sname].room === room) {
                     spawn = Game.spawns[sname];
                     break;
                 }
             }
-            let energyCapacityAvailable = spawn.room.energyCapacityAvailable;
+            let energyCapacityAvailable = room.energyCapacityAvailable;
             let parts = largest_possible_body(energyCapacityAvailable,
                 [WORK, CARRY, MOVE],
                 [WORK, WORK, MOVE],
-                Memory.population.rooms[room]['transpoter'] >= 2 ? 2 : 0
+                room.memory.population['transpoter'] >= 2 ? 2 : 0
             );
             r.miner_id = null;
             var ok = spawn.spawnCreep(
@@ -134,10 +135,10 @@ function create_miner() {
 
 var Population = {
     reproduce_spawn: function (spawn) {
-        const room_name = spawn.room.name;
+        const room = spawn.room;
         let n = Memory.population.recipe_stages
         for (let stage = 0; stage < n; stage++) {
-            Memory.current_population_stage[room_name] = stage;
+            room.memory.current_population_stage = stage;
             for (let role in Memory.population.recipe) {
                 let recipe = Memory.population.recipe[role];
                 if (create_creep(spawn, role, recipe.number[stage])) return;
@@ -145,7 +146,6 @@ var Population = {
         }
     },
     reproduce: function () {
-        Memory.current_population_stage = {}
         for (let s in Game.spawns)
             Population.reproduce_spawn(Game.spawns[s]);
     },

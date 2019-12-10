@@ -118,21 +118,6 @@ var roleTranspoter = {
                     change_mode_taking(creep);
                     return;
                 }
-                debug('queuing');
-
-                // if (!Memory.res[res_id].queue)
-                //     Memory.res[res_id].queue = [];
-                // let queue = Memory.res[res_id].queue;
-                // while (queue.length > 0 && !Game.creeps[queue[0]])
-                //     queue.shift();
-                // if (!queue.includes(creep.name)) {
-                //     debug('insert to queue');
-                //     queue.push(creep.name);
-                // }
-                // if (queue[0] != creep.name) {
-                //     debug('wait in queue');
-                //     return;
-                // }
 
                 let already_taken_some = creep.store.getUsedCapacity(RESOURCE_ENERGY) > 0;
                 let list = creep.room.lookForAt(LOOK_RESOURCES, mining_pos);
@@ -157,7 +142,6 @@ var roleTranspoter = {
                         } else if (c.store[RESOURCE_ENERGY] > 0) {
                             debug('wait others to take');
                         }
-                        //console.log(JSON.stringify(draw_ok));
                     } else {
                         debug('container empty');
                         creep.memory.patience--;

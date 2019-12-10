@@ -38,12 +38,6 @@ function initialize_sources() {
     }
 }
 function set_population_number() {
-    //console.log('set_population_number')
-    let energyCapacityAvailable = 0;
-    for (let s in Game.spawns) {//TODO multiple base
-        energyCapacityAvailable = Game.spawns[s].room.energyCapacityAvailable
-    }
-
     Memory.population = {};
     Memory.population.recipe_stages = 4;
     Memory.population.recipe = {};
@@ -59,27 +53,23 @@ function set_population_number() {
     Memory.population.recipe['freeguy'] =
         { number: [0, 0, 0, 0] };
 
-    Memory.population.rooms = {};
-    for(let s in Game.spawns){
-        let room = Game.spawns[s].room.name;
-        if (!(room in Memory.population.rooms)) {
-            Memory.population.rooms[room] = {};
-            let r = Memory.population.rooms[room];
-            r['upgrader'] = 0;
-            r['builder'] = 0;
-            r['miner'] = 0;
-            r['transpoter'] = 0;
-            r['harvester'] = 0;
-            r['freeguy'] = 0;
-        }
+    for (let s in Game.spawns) {
+        let room = Game.rooms[Game.spawns[s].room.name];
+        room.memory.population = {}
+        let r = room.memory.population;
+        r['upgrader'] = 0;
+        r['builder'] = 0;
+        r['miner'] = 0;
+        r['transpoter'] = 0;
+        r['harvester'] = 0;
+        r['freeguy'] = 0;
     }
     for (let i in Game.creeps) {
         const c = Game.creeps[i];
         const s_name = c.memory.spawn_name;
         if (!s_name) continue;
         const room = Game.spawns[s_name].room;
-        let r = Memory.population.rooms[room.name];
-        r[Game.creeps[i].memory.role]++;
+        room.memory.population[Game.creeps[i].memory.role]++;
     }
 }
 
