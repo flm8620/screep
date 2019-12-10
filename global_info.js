@@ -48,14 +48,10 @@ function set_population_number() {
         room.memory.recipe = {};
         room.memory.recipe_stages = 4;
         let r = room.memory.recipe;
-        r['transpoter'] =
-            { number: [1 * source_count, 2 * source_count, 2 * source_count, 2 * source_count] };
-        r['builder'] =
-            { number: [0, 1, 2, 3] };
-        r['upgrader'] =
-            { number: [0, 1, 2, 5] };
-        r['freeguy'] =
-            { number: [0, 0, 0, 0] };
+        r['transpoter'] = [1 * source_count, 2 * source_count, 2 * source_count, 2 * source_count];
+        r['builder'] = [0, 1, 2, 3];
+        r['upgrader'] = [0, 1, 2, 5];
+        r['freeguy'] = [0, 0, 0, 0];
     }
 
     for (let i in Game.creeps) {
