@@ -12,7 +12,22 @@ function change_mode_taking(creep) {
     creep.memory.resource_id = r_id;
     creep.memory.patience = PATIENCE_MAX;
     var miner_id = Memory.res[r_id].miner_id;
+    let still_ok = true;
     if (!Game.getObjectById(miner_id)) {
+        still_ok = false;
+        const pos = Memory.res[r_id].mining_pos;
+        let list = creep.room.lookForAt(LOOK_RESOURCES, pos);
+        if (list.length > 0 && list[0].amount > 100) {
+            still_ok = true;
+        } else {
+            list = creep.room.lookForAt(LOOK_STRUCTURES, pos);
+            let container = list.filter((structure) => { return structure.structureType == STRUCTURE_CONTAINER });
+            if (container.length == 1 && container[0].store[RESOURCE_ENERGY] > 100) {
+                still_ok = true;
+            }
+        }
+    }
+    if (!still_ok) {
         creep.memory.miner_id = null;
         creep.say('no miner');
         return false;
