@@ -7,7 +7,6 @@ function change_mode_taking(creep) {
     creep.say('take');
     creep.memory.goto_store = false;
     var r_id = dd.pick_resource_id(creep);
-    console.log(`transpoter take ${r_id}`)
 
     if (!r_id) return null;
     creep.memory.resource_id = r_id;

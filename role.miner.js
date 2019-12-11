@@ -9,7 +9,7 @@ function change_mode_mining(creep) {
     if (!i) {
         for (let rid in Memory.res) {
             let r = Memory.res[rid];
-            if (!r.miner_id) {
+            if (!r.miner_id && r.pos.roomName === Game.spawns[creep.memory.spawn_name].room.name) {
                 creep.memory.mine_index = rid;
                 i = rid;
             }
