@@ -68,7 +68,7 @@ var roleBuilder = {
                 let build_ok = 9999;
                 if (struct) {
                     if (struct.structureType === STRUCTURE_CONTROLLER) {
-                        let ok = creep.upgradeController(dd.get_dest_obj(creep));
+                        build_ok= creep.upgradeController(dd.get_dest_obj(creep));
                     } else if (struct.hits > 0) {
                         if (struct.hits == struct.hitsMax) {
                             debug('struct repaired');
