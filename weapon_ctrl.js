@@ -28,12 +28,12 @@ var weapon = {
         } else {
             var closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
                 filter: (structure) =>
-                    structure.hits < structure.hitsMax - 500
+                    structure.hits < structure.hitsMax - 1000
                     && structure.structureType != STRUCTURE_WALL
                     && structure.structureType != STRUCTURE_RAMPART
             });
             if (closestDamagedStructure) {
-                if (closestDamagedStructure.pos.inRangeTo(tower, 8)) {
+                if (closestDamagedStructure.pos.inRangeTo(tower, 6)) {
                     let ok = tower.repair(closestDamagedStructure);
                     if (ok == OK)
                         Memory.tower_sleep_countdown = MAX_SLEEP_COUNTDOWN;

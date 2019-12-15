@@ -78,19 +78,24 @@ var dd = {
     },
     pick_non_full_store_id: function (creep) {
         let id = dd.pick_id_using_filter(creep, FIND_STRUCTURES,
-            (structure) => (structure.structureType == STRUCTURE_EXTENSION ||
-                structure.structureType == STRUCTURE_SPAWN) && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+            (structure) => {
+                return (structure.structureType == STRUCTURE_TOWER) && structure.store.getUsedCapacity(RESOURCE_ENERGY) < 500;
+            }
         );
-        if (!id) {
+        if (!id)
+            id = dd.pick_id_using_filter(creep, FIND_STRUCTURES,
+                (structure) => (structure.structureType == STRUCTURE_EXTENSION ||
+                    structure.structureType == STRUCTURE_SPAWN) && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+            );
+        if (!id)
             id = dd.pick_id_using_filter(creep, FIND_STRUCTURES,
                 (structure) => structure.structureType == STRUCTURE_TOWER && structure.store.getUsedCapacity(RESOURCE_ENERGY) < 0.9 * structure.store.getCapacity(RESOURCE_ENERGY)
             );
-        }
-        if (!id) {
+
+        if (!id)
             id = dd.pick_id_using_filter(creep, FIND_STRUCTURES,
                 (structure) => structure.structureType == STRUCTURE_STORAGE && structure.store[RESOURCE_ENERGY] < structure.storeCapacity
             );
-        }
         return id;
     },
     pick_tower_id: function (creep) {
