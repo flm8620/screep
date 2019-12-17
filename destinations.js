@@ -36,6 +36,9 @@ var dd = {
     },
     pick_nearest_site_id: function (creep) {
         let filters = [
+            [FIND_STRUCTURES, (structure) =>
+                structure.hits < 0.1 * structure.hitsMax
+                && structure.hits < 500],
             [FIND_CONSTRUCTION_SITES, null],
             [FIND_STRUCTURES, (structure) =>
                 structure.hits < 0.5 * structure.hitsMax
