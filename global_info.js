@@ -1,3 +1,4 @@
+var tools = require('tools');
 function initialize_sources() {
     if (!Memory.res)
         Memory.res = {};
@@ -32,6 +33,7 @@ function set_population_number() {
 
     for (let s in Game.spawns) {
         let room = Game.rooms[Game.spawns[s].room.name];
+        room.memory.recipe = {};
         room.memory.population = {}
         let r = room.memory.population;
         r['upgrader'] = 0;
@@ -52,6 +54,11 @@ function set_population_number() {
         r['builder'] = [0, 1, 2, 3];
         r['upgrader'] = [0, 1, 2, 5];
         r['freeguy'] = [0, 0, 0, 0];
+        let re = room.memory.recipe_in_energy;
+        //re['transpoter'] = [1 * source_count, 2 * source_count, 2 * source_count, 2 * source_count];
+        //e['builder'] = [0, 1, 2, 3];
+        //re['upgrader'] = [0, 1, 2, 5];
+        //re['freeguy'] = [0, 0, 0, 0];
     }
 
     for (let i in Game.creeps) {
@@ -60,6 +67,23 @@ function set_population_number() {
         if (!s_name) continue;
         const room = Game.spawns[s_name].room;
         room.memory.population[Game.creeps[i].memory.role]++;
+    }
+
+    for (let i in Game.creeps) {
+        const c = Game.creeps[i];
+        const s_name = c.memory.spawn_name;
+        if (!s_name) continue;
+        const room = Game.spawns[s_name].room;
+        const mem = room.memory;
+        if (!('population_in_energy' in mem)) {
+            mem.population_in_energy = {};
+        }
+        const p = mem.population_in_energy;
+        const role = Game.creeps[i].memory.role;
+        if (!(role in p)) {
+            p[role] = 0;
+        }
+        p[role] += tools.energy_of_body(c.body.map(b => b.type));
     }
 }
 

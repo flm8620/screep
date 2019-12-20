@@ -44,7 +44,7 @@ function create_creep(spawn, role_name, number) {
     let parts = largest_possible_body(energyCapacityAvailable,
         [WORK, CARRY, MOVE],
         [WORK, CARRY, MOVE],
-        100
+        10
     );
     if (role_name === 'transpoter') {
         if (room_pop['miner'] == 0)
@@ -53,7 +53,7 @@ function create_creep(spawn, role_name, number) {
         parts = largest_possible_body(energyCapacityAvailable,
             [CARRY, CARRY, MOVE],
             [CARRY, CARRY, MOVE],
-            room_pop['transpoter'] >= 1 ? 4 : 0
+            room_pop['transpoter'] >= 1 ? 3 : 0
         );
     } else if (role_name === 'freeguy') {
         // parts = [WORK, WORK, WORK, WORK, WORK,

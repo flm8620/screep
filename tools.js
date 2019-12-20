@@ -6,6 +6,22 @@ function manhattan_distance(p1, p2) {
 }
 
 var tools = {
+    energy_of_body: function(body) {
+        let sum = 0;
+        body.forEach((v) => {
+            switch (v) {
+                case WORK: sum += 100; break;
+                case MOVE:
+                case CARRY: sum += 50; break;
+                case ATTACK: sum += 80; break;
+                case RANGED_ATTACK: sum += 150; break;
+                case HEAL: sum += 250; break;
+                case CLAIM: sum += 600; break;
+                case TOUGH: sum += 10; break;
+            }
+        });
+        return sum;
+    },
     update_history_time_for_resource: function (creep, add_to) {
         if (creep.memory.resource_id) {
             if (!add_to)

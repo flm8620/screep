@@ -53,6 +53,10 @@ var roleBuilder = {
                 debug('full');
                 change_mode_building(creep);
             }
+            if (!dd.has_destination(creep)) {
+                debug('no destination');
+                change_mode_recharging_or_become_transpoter(creep);
+            }
         }
         if (creep.memory.role !== 'builder') return;
 
@@ -102,6 +106,7 @@ var roleBuilder = {
             if (!ok) {
                 debug('change_mode_recharging_or_become_harvester');
                 change_mode_recharging_or_become_transpoter(creep);
+            } else {
             }
             // else {
             //     if (count_down(creep)) {

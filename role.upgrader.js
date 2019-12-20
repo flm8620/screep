@@ -24,19 +24,31 @@ var roleUpgrader = {
                 console.log(`[${creep.name}]: ${msg}`);
         }
         if (creep.spawning) return;
+
+        if (creep.memory.upgrading) {
+            debug('try upgrading');
+            if (creep.store.getUsedCapacity(RESOURCE_ENERGY) == 0) {
+                debug('no energy');
+                change_mode_recharging_or_become_transpoter(creep);
+            } else if (!dd.has_destination(creep)) {
+                debug('no destination');
+                change_mode_upgrading(creep);
+            }
+        } else {
+            debug('try charging');
+            if (creep.store.getFreeCapacity(RESOURCE_ENERGY) == 0) {
+                debug('full');
+                change_mode_upgrading(creep);
+            }
+            if (!dd.has_destination(creep)) {
+                debug('no destination');
+                change_mode_recharging_or_become_transpoter(creep);
+            }
+        }
+
         if (creep.memory.upgrading) {
             debug(`upgrading`);
-            if (creep.store.getUsedCapacity(RESOURCE_ENERGY) == 0) {
-                debug(`no energy`);
-                change_mode_recharging_or_become_transpoter(creep);
-                return;
-            }
 
-            if (!dd.has_destination(creep)) {
-                debug(`no dest`);
-                change_mode_upgrading(creep);
-                return;
-            }
             if (!dd.in_range_destination(creep, 3)) {
                 debug(`move to dest`);
                 var ok = dd.move_to_destination(creep);

@@ -1,7 +1,6 @@
-var tools = require('tools');
 var dd = require('destinations');
 
-const PATIENCE_MAX = 50;
+const PATIENCE_MAX = 100;
 
 function change_mode_mining(creep) {
     dd.clear_destination(creep);
