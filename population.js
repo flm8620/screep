@@ -40,6 +40,11 @@ const ALL_DIRECTIONS = [TOP, TOP_RIGHT, RIGHT, BOTTOM_RIGHT, BOTTOM, BOTTOM_LEFT
 
 // return true to stop create others
 function create_creep(spawn, role_name, number) {
+    const DEBUG_ON = false;
+    let debug = function (msg) {
+        if (DEBUG_ON)
+            console.log(`[create_creep]: ${msg}`);
+    }
     const room = spawn.room;
     const room_pop = room.memory.population;
     let energyCapacityAvailable = spawn.room.energyCapacityAvailable;
@@ -58,9 +63,9 @@ function create_creep(spawn, role_name, number) {
             utils.get_or_zero(room_pop, 'transpoter') >= 1 ? 3 : 0
         );
     } else if (role_name === 'freeguy') {
-        // parts = [WORK, WORK, WORK, WORK, WORK,
-        //     CARRY, CARRY, CARRY, CARRY, CARRY,
-        //     MOVE, MOVE, MOVE, MOVE, MOVE];
+        parts = [WORK, WORK, WORK, WORK, WORK,
+            CARRY, CARRY, CARRY, CARRY, CARRY,
+            MOVE, MOVE, MOVE, MOVE, MOVE];
     } else if (role_name === 'builder') {
         parts = largest_possible_body(energyCapacityAvailable,
             [WORK, CARRY, MOVE],
@@ -71,8 +76,10 @@ function create_creep(spawn, role_name, number) {
 
     let current_number = utils.get_or_zero(room_pop, role_name);
     if (current_number < number) {
+        debug(`spawn ${spawn.name} try spawn ${role_name}`);
         var ok = spawn.spawnCreep(parts, 'asdasdasdasdasd', { dryRun: true });
         if (ok === OK) {
+            debug(`try spawn OK`);
             let name = role_name[0].toUpperCase() + makeid(2);
             ok = spawn.spawnCreep(
                 parts,
@@ -83,10 +90,15 @@ function create_creep(spawn, role_name, number) {
                 }
             );
             if (ok === OK) {
+                debug(`spawn OK`);
                 console.log('Spawn ' + spawn.name + ' new ' + role_name + ' ' + name);
                 return true;
+            } else {
+                debug(`spawn failed`);
+
             }
         } else {
+            debug(`try spawn failed`);
             return true;
         }
     }
@@ -94,7 +106,7 @@ function create_creep(spawn, role_name, number) {
 }
 const MAX_CREATE_MINER_PATIENCE = 10;
 function create_miner() {
-    const DEBUG_ON = true;
+    const DEBUG_ON = false;
     let debug = function (msg) {
         if (DEBUG_ON)
             console.log(`[create_miner]: ${msg}`);
