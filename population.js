@@ -90,14 +90,20 @@ function create_creep(spawn, role_name, number) {
     }
     return false;
 }
-
+const MAX_CREATE_MINER_PATIENCE = 10;
 function create_miner() {
+    const DEBUG_ON = true;
+    let debug = function (msg) {
+        if (DEBUG_ON)
+            console.log(`[create_miner]: ${msg}`);
+    }
     var stop_creating = false;
     let role_name = 'miner';
     for (var i in Memory.res) {
         const r = Memory.res[i];
         const source = Game.getObjectById(i);
         if (!Game.getObjectById(r.miner_id)) {
+            debug(`res ${i} has no miner`);
             const room = source.room;
             let spawn = null;
             for (let sname in Game.spawns) {
@@ -107,12 +113,17 @@ function create_miner() {
                     break;
                 }
             }
+
+            if (!('create_miner_patience' in room.memory))
+                room.memory.create_miner_patience = MAX_CREATE_MINER_PATIENCE;
+
             let energyCapacityAvailable = room.energyCapacityAvailable;
             let parts = largest_possible_body(energyCapacityAvailable,
                 [WORK, CARRY, MOVE],
                 [WORK, WORK, MOVE],
-                room.memory.population['transpoter'] >= 2 ? 2 : 0
+                room.memory.population['transpoter'] >= 2 && room.memory.create_miner_patience > 0 ? 2 : 0
             );
+            debug(`parts = ${parts}`);
             r.miner_id = null;
             var ok = spawn.spawnCreep(
                 parts,
@@ -123,8 +134,12 @@ function create_miner() {
                 }
             );
             if (ok == ERR_NOT_ENOUGH_ENERGY) {
+                debug(`ERR_NOT_ENOUGH_ENERGY, room ${room.name} patience--`);
+                room.memory.create_miner_patience--;
                 stop_creating = true; //stop creating other creep
             } else if (ok === OK) {
+                debug(`OK`);
+                room.memory.create_miner_patience = MAX_CREATE_MINER_PATIENCE;
                 stop_creating = true;
                 break;
             }
