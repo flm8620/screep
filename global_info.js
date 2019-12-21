@@ -50,14 +50,12 @@ function set_population_number() {
         room.memory.recipe_stages = 4;
         let r = room.memory.recipe;
         r['transpoter'] = [1 * source_count, 2 * source_count, 2 * source_count, 2 * source_count];
-        r['builder'] = [0, 1, 2, 3];
-        r['upgrader'] = [0, 1, 2, 5];
+        r['builder'] = [0, 2, 4, 8];
         r['freeguy'] = [0, 0, 0, 0];
         let re = room.memory.recipe_in_energy = {};
         room.memory.recipe_in_energy_stages = 4;
         re['transpoter'] = [1 * source_count, 2 * source_count, 2 * source_count, 2 * source_count];
         re['builder'] = [0, 1, 2, 3];
-        re['upgrader'] = [0, 1, 2, 5];
         re['freeguy'] = [0, 0, 0, 0];
     }
 
