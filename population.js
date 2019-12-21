@@ -167,32 +167,12 @@ var Population = {
             Population.reproduce_spawn(Game.spawns[s]);
     },
     run: function () {
-        //console.log('Population module run');
         if (!create_miner()) {
             Population.reproduce();
         }
-
-        if (!('harvester_contrib_history' in Memory)) {
-            Memory.harvester_contrib_history = [];
-        }
-        for (var name in Memory.creeps) {
-            if (!Game.creeps[name]) {
-                let creep_mem = Memory.creeps[name];
-                if (creep_mem.role === 'harvester') {
-                    if (creep_mem.resource_id) {
-                        console.log(creep_mem.resource_id + ' due to creep death, resource timer += 0.2 x ' + creep_mem.mining_timer)
-                        Memory.res[creep_mem.resource_id].history_time += creep_mem.mining_timer * 0.2/*death punishment*/;
-                    }
-                    if ('contrib' in creep_mem) {
-                        Memory.harvester_contrib_history.push({ contrib: creep_mem.contrib, body: creep_mem.body });
-                    }
-                }
+        for (var name in Memory.creeps)
+            if (!Game.creeps[name])
                 delete Memory.creeps[name];
-            }
-        }
-        while (Memory.harvester_contrib_history.length > 100) {
-            Memory.harvester_contrib_history.shift();
-        }
     }
 };
 module.exports = Population;
