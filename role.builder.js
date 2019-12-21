@@ -1,6 +1,5 @@
 var tools = require('tools');
 var dd = require('destinations');
-const PATIENCE_MAX = 5;
 
 function change_mode_building(creep) {
     dd.clear_destination(creep);
@@ -19,14 +18,6 @@ function change_mode_recharging_or_become_transpoter(creep) {
     creep.say('reload');
     creep.memory.building = false;
     tools.get_energy_or_become_transpoter(creep);
-}
-function count_down(creep) {
-    if (!('patience' in creep.memory)) {
-        creep.memory.patience = PATIENCE_MAX;
-    } else {
-        creep.memory.patience--;
-    }
-    return creep.memory.patience <= 0;
 }
 
 var roleBuilder = {

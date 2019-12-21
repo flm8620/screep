@@ -38,8 +38,7 @@ var tools = {
     worth_to_convert_to_transpoter: function (creep) {
         const room = Game.spawns[creep.memory.spawn_name].room;
         let stage = room.memory.current_population_stage;
-        const count = room.memory.population;
-        return Math.random() < 0.05 && count['transpoter'] < room.memory.recipe['transpoter'][stage];
+        return Math.random() < 0.05 && utils.get_or_zero(room.memory.population, 'transpoter') < room.memory.recipe['transpoter'][stage];
     },
     worth_to_convert_to_miner: function (creep) {
         if (Math.random() > 0.05) return false;

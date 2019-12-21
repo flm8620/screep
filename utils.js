@@ -9,6 +9,11 @@ var utils = {
             if (r <= s)
                 return i;
         }
+    },
+    get_or_zero: function (obj, field) {
+        if (field in obj)
+            return obj[field];
+        return 0;
     }
 }
 module.exports = utils;

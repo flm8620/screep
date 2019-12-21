@@ -1,3 +1,4 @@
+var utils = require('utils');
 function makeid(length) {
     var result = '';
     var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -36,6 +37,7 @@ function largest_possible_body(energy_available, start, repeat, largest_repeat) 
 
 const ALL_DIRECTIONS = [TOP, TOP_RIGHT, RIGHT, BOTTOM_RIGHT, BOTTOM, BOTTOM_LEFT, LEFT, TOP_LEFT];
 
+
 // return true to stop create others
 function create_creep(spawn, role_name, number) {
     const room = spawn.room;
@@ -47,13 +49,13 @@ function create_creep(spawn, role_name, number) {
         10
     );
     if (role_name === 'transpoter') {
-        if (room_pop['miner'] == 0)
+        if (utils.get_or_zero(room_pop, 'miner') == 0)
             return true;
 
         parts = largest_possible_body(energyCapacityAvailable,
             [CARRY, CARRY, MOVE],
             [CARRY, CARRY, MOVE],
-            room_pop['transpoter'] >= 1 ? 3 : 0
+            utils.get_or_zero(room_pop, 'transpoter') >= 1 ? 3 : 0
         );
     } else if (role_name === 'freeguy') {
         // parts = [WORK, WORK, WORK, WORK, WORK,
@@ -67,7 +69,7 @@ function create_creep(spawn, role_name, number) {
         );
     }
 
-    let current_number = room_pop[role_name];
+    let current_number = utils.get_or_zero(room_pop, role_name);
     if (current_number < number) {
         var ok = spawn.spawnCreep(parts, 'asdasdasdasdasd', { dryRun: true });
         if (ok === OK) {
@@ -121,7 +123,7 @@ function create_miner() {
             let parts = largest_possible_body(energyCapacityAvailable,
                 [WORK, CARRY, MOVE],
                 [WORK, WORK, MOVE],
-                room.memory.population['transpoter'] >= 2 && room.memory.create_miner_patience > 0 ? 2 : 0
+                utils.get_or_zero(room.memory.population, 'transpoter') >= 2 && room.memory.create_miner_patience > 0 ? 2 : 0
             );
             debug(`parts = ${parts}`);
             r.miner_id = null;
