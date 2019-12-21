@@ -14,7 +14,6 @@ function change_mode_building(creep) {
     var ok = dd.set_id_as_destination(creep, site);
 }
 function change_mode_recharging_or_become_transpoter(creep) {
-    //console.log(JSON.stringify(creep));
     creep.say('reload');
     creep.memory.building = false;
     tools.get_energy_or_become_transpoter(creep);
@@ -40,7 +39,7 @@ var roleBuilder = {
             }
         } else {
             debug('try charging');
-            if (creep.store.getFreeCapacity(RESOURCE_ENERGY) == 0) {
+            if (creep.store.getFreeCapacity() == 0) {
                 debug('full');
                 change_mode_building(creep);
             }
@@ -99,11 +98,6 @@ var roleBuilder = {
                 change_mode_recharging_or_become_transpoter(creep);
             } else {
             }
-            // else {
-            //     if (count_down(creep)) {
-            //         change_mode_building(creep);
-            //     }
-            // }
         }
     }
 };

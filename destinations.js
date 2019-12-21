@@ -61,43 +61,50 @@ var dd = {
         }
         return id;
     },
-    pick_available_resource_store_id: function (creep) {
+    pick_droped_stuff: function (creep) {
         let id = dd.pick_id_using_filter(creep, FIND_TOMBSTONES,
-            (t) => t.store[RESOURCE_ENERGY] > 100
+            (t) => t.store.getUsedCapacity() > 100
         );
         if (!id)
-            id = dd.pick_id_using_filter(creep, FIND_DROPPED_RESOURCES, (r) => r.amount > 200);
+            id = dd.pick_id_using_filter(creep, FIND_DROPPED_RESOURCES, (r) => r.amount > 100);
         if (!id)
             id = dd.pick_id_using_filter(creep, FIND_STRUCTURES, (structure) =>
-                structure.structureType == STRUCTURE_STORAGE
-                && structure.store[RESOURCE_ENERGY] > 0
+                structure.structureType == STRUCTURE_CONTAINER && structure.store.getUsedCapacity() >= 50
             );
-        if (!id)
-            id = dd.pick_id_using_filter(creep, FIND_STRUCTURES, (structure) =>
-                is_store(structure) && structure.store[RESOURCE_ENERGY] >= 50
-            );
-
         return id;
     },
-    pick_non_full_store_id: function (creep) {
-        let id = dd.pick_id_using_filter(creep, FIND_STRUCTURES,
-            (structure) => {
-                return (structure.structureType == STRUCTURE_TOWER) && structure.store.getUsedCapacity(RESOURCE_ENERGY) < 500;
-            }
+    pick_available_energy_store_id: function (creep) {
+        let id = dd.pick_id_using_filter(creep, FIND_STRUCTURES, (structure) =>
+            structure.structureType == STRUCTURE_STORAGE
+            && structure.store[RESOURCE_ENERGY] > 0
         );
         if (!id)
-            id = dd.pick_id_using_filter(creep, FIND_STRUCTURES,
-                (structure) => (structure.structureType == STRUCTURE_EXTENSION ||
-                    structure.structureType == STRUCTURE_SPAWN) && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+            id = dd.pick_id_using_filter(creep, FIND_STRUCTURES, (structure) =>
+                is_store(structure) && structure.store.getUsedCapacity(RESOURCE_ENERGY) >= 50
             );
+        return id;
+    },
+    pick_non_full_store_id: function (creep, resource_is_energy = true) {
+        let id = null;
+        if (resource_is_energy) {
+            id = dd.pick_id_using_filter(creep, FIND_STRUCTURES,
+                (structure) => {
+                    return (structure.structureType == STRUCTURE_TOWER) && structure.store.getUsedCapacity(RESOURCE_ENERGY) < 500;
+                }
+            );
+            if (!id)
+                id = dd.pick_id_using_filter(creep, FIND_STRUCTURES,
+                    (structure) => (structure.structureType == STRUCTURE_EXTENSION ||
+                        structure.structureType == STRUCTURE_SPAWN) && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+                );
+            if (!id)
+                id = dd.pick_id_using_filter(creep, FIND_STRUCTURES,
+                    (structure) => structure.structureType == STRUCTURE_TOWER && structure.store.getUsedCapacity(RESOURCE_ENERGY) < 0.9 * structure.store.getCapacity(RESOURCE_ENERGY)
+                );
+        }
         if (!id)
             id = dd.pick_id_using_filter(creep, FIND_STRUCTURES,
-                (structure) => structure.structureType == STRUCTURE_TOWER && structure.store.getUsedCapacity(RESOURCE_ENERGY) < 0.9 * structure.store.getCapacity(RESOURCE_ENERGY)
-            );
-
-        if (!id)
-            id = dd.pick_id_using_filter(creep, FIND_STRUCTURES,
-                (structure) => structure.structureType == STRUCTURE_STORAGE && structure.store[RESOURCE_ENERGY] < structure.storeCapacity
+                (structure) => structure.structureType == STRUCTURE_STORAGE && structure.store.getFreeCapacity() > 0
             );
         return id;
     },

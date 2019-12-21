@@ -112,7 +112,7 @@ var tools = {
             creep.memory.role = 'miner';
             return;
         }
-        if (!dd.set_id_as_destination(creep, dd.pick_available_resource_store_id(creep))) {
+        if (!dd.set_id_as_destination(creep, dd.pick_available_energy_store_id(creep))) {
             // random move
             tools.random_move(creep);
         }
