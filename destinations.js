@@ -287,7 +287,7 @@ var dd = {
         }
 
         if (result == ERR_NOT_FOUND) {
-            console.log(`Creep ${creep.name} has inconsistent path`);
+            //console.log(`Creep ${creep.name} has inconsistent path`);
             debug('inconsistent path');
             delete creep.memory.my_path;
         } else if (result == ERR_INVALID_ARGS) {

@@ -5,6 +5,17 @@ function manhattan_distance(p1, p2) {
     return Math.abs(p1.x - p2.x) + Math.abs(p1.y - p2.y);
 }
 
+const MAX_PATIENCE_CONVERT_ROLE = 80;
+
+function ready_to_convert_role(creep, worth) {
+    if (!('patience_convert_role' in creep.memory)) creep.memory.patience_convert_role = MAX_PATIENCE_CONVERT_ROLE + Math.random() * 20;
+    if (worth)
+        creep.memory.patience_convert_role--;
+    else
+        creep.memory.patience_convert_role = MAX_PATIENCE_CONVERT_ROLE;
+    return creep.memory.patience_convert_role <= 0;
+}
+
 var tools = {
     energy_of_body: function (body) {
         let sum = 0;
@@ -37,20 +48,19 @@ var tools = {
     },
     worth_to_convert_to_transpoter: function (creep) {
         const room = Game.spawns[creep.memory.spawn_name].room;
-        let stage = room.memory.current_population_stage;
-        return Math.random() < 0.05 && utils.get_or_zero(room.memory.population, 'transpoter') < room.memory.recipe['transpoter'][stage];
+        const stage = room.memory.current_population_stage;
+        let worth = utils.get_or_zero(room.memory.population, 'transpoter') < room.memory.recipe['transpoter'][stage];
+        return ready_to_convert_role(creep, worth);
     },
     worth_to_convert_to_miner: function (creep) {
-        if (Math.random() > 0.05) return false;
         const room_name = Game.spawns[creep.memory.spawn_name].room.name;
-
         for (let rid in Memory.res) {
             if (Memory.res[rid].pos.roomName !== room_name) continue;
             if (!Memory.res[rid].miner_id) {
-                return true;
+                return ready_to_convert_role(creep, true);
             }
         }
-        return false;
+        return ready_to_convert_role(creep, false);
     },
     random_move: function (creep) {
         let idx = utils.random_idx_with_probability([1, 1, 1, 1, 1, 1, 1, 1]);
