@@ -92,10 +92,12 @@ var roleTranspoter = {
 
             if (!creep.memory.res_id) {
                 debug('no res_id!');
+                tools.random_move(creep);
                 return;
             }
             if (!dd.has_destination(creep)) {
                 debug('!has_destination');
+                tools.random_move(creep);
                 return;
             }
 
