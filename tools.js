@@ -6,7 +6,7 @@ function manhattan_distance(p1, p2) {
 }
 
 var tools = {
-    energy_of_body: function(body) {
+    energy_of_body: function (body) {
         let sum = 0;
         body.forEach((v) => {
             switch (v) {

@@ -242,12 +242,12 @@ var dd = {
             let path = creep.pos.findPathTo(
                 new RoomPosition(dest_pos.x, dest_pos.y, dest_pos.roomName), opt);
             creep.memory.my_path =
-                {
-                    path,
-                    dest: dest_pos,
-                    count_down: last_move_failed ? PATH_REUSE_SHORT : PATH_REUSE,
-                    room: creep.pos.roomName
-                };
+            {
+                path,
+                dest: dest_pos,
+                count_down: last_move_failed ? PATH_REUSE_SHORT : PATH_REUSE,
+                room: creep.pos.roomName
+            };
 
             debug(`refind path length: ${path.length}`);
             if (!path.length) return ERR_NO_PATH;

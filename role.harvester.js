@@ -96,7 +96,7 @@ var roleHarvester = {
                     //var works = tools.count_move_parts(creep);
                 } else if (mine_ok == ERR_NOT_ENOUGH_RESOURCES) {
                     debug('harvest ERR_NOT_ENOUGH_RESOURCES');
-                    if(creep.store.getUsedCapacity(RESOURCE_ENERGY) < 0.5 * creep.store.getCapacity(RESOURCE_ENERGY))
+                    if (creep.store.getUsedCapacity(RESOURCE_ENERGY) < 0.5 * creep.store.getCapacity(RESOURCE_ENERGY))
                         change_mode_mining(creep);
                     else
                         change_mode_storing(creep);
