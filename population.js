@@ -121,12 +121,14 @@ function create_miner() {
             const room = source.room;
             let spawn = null;
             for (let sname in Game.spawns) {
-                if (!spawn) spawn = Game.spawns[sname];
-                if (Game.spawns[sname].room === room) {
-                    spawn = Game.spawns[sname];
+                const sp = Game.spawns[sname]
+                if (sp.spawning) continue;
+                if (sp.room === room) {
+                    spawn = sp;
                     break;
                 }
             }
+            if (!spawn) continue;
 
             if (!('create_miner_patience' in room.memory))
                 room.memory.create_miner_patience = MAX_CREATE_MINER_PATIENCE;
@@ -175,8 +177,11 @@ var Population = {
         }
     },
     reproduce: function () {
-        for (let s in Game.spawns)
-            Population.reproduce_spawn(Game.spawns[s]);
+        for (let s in Game.spawns){
+            const sp = Game.spawns[s];
+            if (sp.spawning) continue;
+            Population.reproduce_spawn(sp);
+        }
     },
     run: function () {
         if (!create_miner()) {
