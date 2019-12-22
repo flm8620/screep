@@ -32,16 +32,18 @@ var tools = {
         return sum;
     },
     worth_to_convert_to_transpoter: function (creep) {
-        const room = Game.spawns[creep.memory.spawn_name].room;
-        const stage = room.memory.current_population_stage;
-        let worth = utils.get_or_zero(room.memory.population, 'transpoter') < room.memory.recipe['transpoter'][stage];
+        const rname = Game.spawns[creep.memory.spawn_name].room.name;
+        const b = Memory.bases[rname];
+        const stage = b.current_population_stage;
+        let worth = utils.get_or_zero(b.population, 'transpoter') < b.recipe['transpoter'][stage];
         return ready_to_convert_role(creep, worth);
     },
     worth_to_convert_to_miner: function (creep) {
         const room_name = Game.spawns[creep.memory.spawn_name].room.name;
-        for (let rid in Memory.res) {
-            if (Memory.res[rid].pos.roomName !== room_name) continue;
-            if (!Memory.res[rid].miner_id) {
+        const b = Memory.bases[room_name];
+        for (let rid in b.res) {
+            if (b.res[rid].pos.roomName !== room_name) continue;
+            if (!b.res[rid].miner_id) {
                 return ready_to_convert_role(creep, true);
             }
         }

@@ -46,8 +46,10 @@ function create_creep(spawn, role_name, number) {
             console.log(`[create_creep]: ${msg}`);
     }
     const room = spawn.room;
-    const room_pop = room.memory.population;
-    let energyCapacityAvailable = spawn.room.energyCapacityAvailable;
+    const rname = room.name;
+    const b = Memory.bases[rname];
+    const room_pop = b.population;
+    let energyCapacityAvailable = room.energyCapacityAvailable;
     let parts = largest_possible_body(energyCapacityAvailable,
         [WORK, CARRY, MOVE],
         [WORK, CARRY, MOVE],
@@ -105,33 +107,27 @@ function create_creep(spawn, role_name, number) {
     return false;
 }
 const MAX_CREATE_MINER_PATIENCE = 10;
-function create_miner() {
+function create_miner(spawn) {
+    
+    let stop_creating = false;
+    const role_name = 'miner';
+    const room = spawn.room;
+    const rname = room.name;
+    const base = Memory.bases[rname];
+
     const DEBUG_ON = false;
     let debug = function (msg) {
         if (DEBUG_ON)
-            console.log(`[create_miner]: ${msg}`);
+            console.log(`[${spawn.name}.create_miner]: ${msg}`);
     }
-    var stop_creating = false;
-    let role_name = 'miner';
-    for (var i in Memory.res) {
-        const r = Memory.res[i];
-        const source = Game.getObjectById(i);
-        if (!Game.getObjectById(r.miner_id)) {
-            debug(`res ${i} has no miner`);
-            const room = source.room;
-            let spawn = null;
-            for (let sname in Game.spawns) {
-                const sp = Game.spawns[sname]
-                if (sp.spawning) continue;
-                if (sp.room === room) {
-                    spawn = sp;
-                    break;
-                }
-            }
-            if (!spawn) continue;
 
-            if (!('create_miner_patience' in room.memory))
-                room.memory.create_miner_patience = MAX_CREATE_MINER_PATIENCE;
+    for (let rid in base.res) {
+        const r = base.res[rid];
+        if (!Game.getObjectById(r.miner_id)) {
+            debug(`res ${rid} has no miner`);
+
+            if (!('create_miner_patience' in base))
+                base.create_miner_patience = MAX_CREATE_MINER_PATIENCE;
 
             let energyCapacityAvailable = room.energyCapacityAvailable;
             let parts = largest_possible_body(energyCapacityAvailable,
@@ -166,6 +162,7 @@ function create_miner() {
 
 var Population = {
     reproduce_spawn: function (spawn) {
+        if (create_miner(spawn)) return;
         const room = spawn.room;
         let n = room.memory.recipe_stages
         for (let stage = 0; stage < n; stage++) {
@@ -177,16 +174,14 @@ var Population = {
         }
     },
     reproduce: function () {
-        for (let s in Game.spawns){
+        for (let s in Game.spawns) {
             const sp = Game.spawns[s];
             if (sp.spawning) continue;
             Population.reproduce_spawn(sp);
         }
     },
     run: function () {
-        if (!create_miner()) {
-            Population.reproduce();
-        }
+        Population.reproduce();
         for (var name in Memory.creeps)
             if (!Game.creeps[name])
                 delete Memory.creeps[name];

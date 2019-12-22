@@ -4,11 +4,13 @@ const PATIENCE_MAX = 100;
 
 function change_mode_mining(creep) {
     dd.clear_destination(creep);
+    const sp = Game.spawns[creep.memory.spawn_name];
+    const b = Memory.bases[sp.room.name];
     var i = creep.memory.mine_index;
     if (!i) {
-        for (let rid in Memory.res) {
-            let r = Memory.res[rid];
-            if (!r.miner_id && r.pos.roomName === Game.spawns[creep.memory.spawn_name].room.name) {
+        for (let rid in b.res) {
+            let r = b.res[rid];
+            if (!r.miner_id) {
                 creep.memory.mine_index = rid;
                 i = rid;
             }
@@ -25,8 +27,8 @@ function change_mode_mining(creep) {
     var r = Game.getObjectById(i);
     if (!r) return;
     console.log(`source ${i} is mined by ${creep.name}`);
-    Memory.res[i].miner_id = creep.id;
-    var mining_pos = Memory.res[i].mining_pos;
+    b.res[i].miner_id = creep.id;
+    var mining_pos = b.res[i].mining_pos;
 
     console.log('set res ' + i + ' to creep ' + creep.id);
     return dd.set_pos_as_destination(creep, mining_pos);
