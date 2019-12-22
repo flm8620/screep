@@ -11,8 +11,6 @@ function ready_to_convert_role(creep, worth) {
     if (!('patience_convert_role' in creep.memory)) creep.memory.patience_convert_role = MAX_PATIENCE_CONVERT_ROLE + Math.random() * 20;
     if (worth)
         creep.memory.patience_convert_role--;
-    else
-        creep.memory.patience_convert_role = MAX_PATIENCE_CONVERT_ROLE;
     return creep.memory.patience_convert_role <= 0;
 }
 
