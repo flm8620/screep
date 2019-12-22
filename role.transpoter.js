@@ -130,7 +130,6 @@ var roleTranspoter = {
                     let store_ok = creep.transfer(store, name);
                     if (store_ok == OK) {
                         debug('store OK');
-                        tools.update_history_time_for_resource(creep, false);
                         dd.clear_destination(creep);// so that the creep can change to another store when it needs next time
                     } else {
                         debug(`store not OK: ${store_ok}`);

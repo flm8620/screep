@@ -23,8 +23,6 @@ function initialize_sources() {
         let id = si.source.id;
         if (!Memory.res[id]) Memory.res[id] = {};
         Memory.res[id].pos = si.source.pos;
-        if (!Memory.res[id].history_time)
-            Memory.res[id].history_time = 0;
         Memory.res[id].mining_pos = si.mining_pos;
     }
 }
@@ -74,12 +72,6 @@ function set_population_number() {
     }
 }
 
-function decrease_history_time() {
-    for (var i in Memory.res) {
-        Memory.res[i].history_time *= 0.999;
-    }
-}
-
 function statistics_per_tick() {
     if (!Memory.cpu_history_time) Memory.cpu_history_time = []
     let cpu = Game.cpu.getUsed();
@@ -95,7 +87,6 @@ var globalInfo = {
         initialize_sources();
     },
     per_tick: function () {
-        decrease_history_time();
         statistics_per_tick();
     },
     print_statistic: function () {

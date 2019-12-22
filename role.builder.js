@@ -4,10 +4,15 @@ var dd = require('destinations');
 function change_mode_building(creep) {
     dd.clear_destination(creep);
     creep.memory.building = true;
-    let site = dd.pick_nearest_site_id(creep) || dd.pick_controller_id(creep);
+    let site = dd.pick_nearest_site_id(creep);
     if (!site) {
-        creep.say('no build');
-        tools.random_move(creep);
+        site = dd.pick_controller_id(creep);
+        if (!site) {
+            creep.say('no build');
+            tools.random_move(creep);
+        } else {
+            creep.say('update');
+        }
     } else {
         creep.say('build');
     }

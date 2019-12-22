@@ -114,62 +114,6 @@ var dd = {
         }
         return dd.pick_id_using_filter(creep, FIND_STRUCTURES, filter);
     },
-    pick_resource_id_harvester: function (creep) {
-        let id_score = [];
-        let ids = []
-        for (var id in Memory.res) {
-            let r = Memory.res[id];
-            let res = Game.getObjectById(id);
-            if (res.amount < 100)
-                continue;
-            id_score.push(Math.exp(-r.history_time / 50))
-            ids.push(id)
-        }
-        if (id_score.length === 0) {
-            return null;
-        }
-        let idx = utils.random_idx_with_probability(id_score);
-        return ids[idx];
-    },
-    pick_resource_id: function (creep) {
-        let id_score = [];
-        let ids = []
-        const creep_spawn = Game.spawns[creep.memory.spawn_name];
-        const creep_room = creep_spawn.room;
-        for (var id in Memory.res) {
-            let r = Memory.res[id];
-            let p = r.mining_pos;
-            let room = Game.rooms[p.roomName];
-            if (room.name !== creep_room.name) continue;
-            let mining_pos = new RoomPosition(p.x, p.y, p.roomName);
-
-            let list = room.lookForAt(LOOK_RESOURCES, mining_pos);
-            if (list.length > 0) {
-                let drop = list[0];
-                if (drop.amount < 100) {
-                    continue;
-                }
-            } else {
-                list = room.lookForAt(LOOK_STRUCTURES, mining_pos);
-                let container = list.filter((structure) => { return structure.structureType == STRUCTURE_CONTAINER });
-                if (container.length == 1 && container[0].store[RESOURCE_ENERGY] > 0) {
-                    let c = container[0];
-                    if (c.store[RESOURCE_ENERGY] < 100)
-                        continue
-                } else {
-                    continue;
-                }
-            }
-
-            id_score.push(Math.exp(-r.history_time / 50))
-            ids.push(id)
-        }
-        if (id_score.length === 0) {
-            return null;
-        }
-        let idx = utils.random_idx_with_probability(id_score);
-        return ids[idx];
-    },
     pick_controller_id: function (creep) {
         return creep.room.controller.id;
     },

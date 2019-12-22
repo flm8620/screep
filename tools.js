@@ -31,19 +31,6 @@ var tools = {
         });
         return sum;
     },
-    update_history_time_for_resource: function (creep, add_to) {
-        if (creep.memory.resource_id) {
-            if (!add_to)
-                console.log(creep.memory.resource_id + ' resource timer average with ' + creep.memory.mining_timer)
-            else
-                console.log(creep.memory.resource_id + ' resource timer add by ' + (0.2 * creep.memory.mining_timer))
-            if (!add_to)
-                Memory.res[creep.memory.resource_id].history_time *= 0.8;
-            Memory.res[creep.memory.resource_id].history_time += 0.2 * creep.memory.mining_timer;
-        }
-        creep.memory.resource_id = '';
-        creep.memory.mining_timer = 0;
-    },
     worth_to_convert_to_transpoter: function (creep) {
         const room = Game.spawns[creep.memory.spawn_name].room;
         const stage = room.memory.current_population_stage;

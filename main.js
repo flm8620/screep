@@ -1,7 +1,6 @@
 var population = require('population');
 var roleBuilder = require('role.builder');
 var roleMiner = require('role.miner');
-var roleHarvester = require('role.harvester');
 var roleTranspoter = require('role.transpoter');
 var roleFreeguy = require('role.freeguy');
 var tools = require('tools');
@@ -19,8 +18,6 @@ module.exports.loop = function () {
 
     for (let name in Game.creeps) {
         let c = Game.creeps[name];
-        if (c.memory.role == 'harvester')
-            roleHarvester.run(c);
 
         if (c.memory.role == 'builder')
             roleBuilder.run(c);
