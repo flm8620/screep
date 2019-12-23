@@ -35,9 +35,7 @@ function set_population_number() {
     const bs = Memory.bases;
     for (const rname in Memory.bases) {
         bs[rname].recipe = {};
-        bs[rname].recipe_in_energy = {};
         bs[rname].population = {};
-        bs[rname].population_in_energy = {};
     }
 
     for (const rname in bs) {
@@ -49,11 +47,6 @@ function set_population_number() {
         r['transpoter'] = [1 * source_count, 2 * source_count, 2 * source_count, 2 * source_count];
         r['builder'] = [0, 2, 4, 8];
         r['freeguy'] = [0, 0, 0, 0];
-        let re = b.recipe_in_energy = {};
-        b.recipe_in_energy_stages = 4;
-        re['transpoter'] = [1 * source_count, 2 * source_count, 2 * source_count, 2 * source_count];
-        re['builder'] = [0, 1, 2, 3];
-        re['freeguy'] = [0, 0, 0, 0];
     }
 
     for (let i in Game.creeps) {
@@ -66,9 +59,6 @@ function set_population_number() {
         const role = Game.creeps[i].memory.role;
         if (!(role in pop)) pop[role] = 0;
         pop[role]++;
-        const pop_e = b.population_in_energy;
-        if (!(role in pop_e)) pop_e[role] = 0;
-        pop_e[role] += tools.energy_of_body(c.body.map(b => b.type));
     }
 }
 
