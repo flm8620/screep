@@ -36,6 +36,7 @@ function largest_possible_body(energy_available, start, repeat, largest_repeat) 
 }
 
 const ALL_DIRECTIONS = [TOP, TOP_RIGHT, RIGHT, BOTTOM_RIGHT, BOTTOM, BOTTOM_LEFT, LEFT, TOP_LEFT];
+const MAX_CREATE_CREEP_PATIENCE = 10;
 
 
 // return true to stop create others
@@ -93,6 +94,7 @@ function create_creep(spawn, role_name, number) {
             );
             if (ok === OK) {
                 debug(`spawn OK`);
+                b.create_creep_patience = MAX_CREATE_CREEP_PATIENCE;
                 console.log('Spawn ' + spawn.name + ' new ' + role_name + ' ' + name);
                 return true;
             } else {
@@ -106,9 +108,8 @@ function create_creep(spawn, role_name, number) {
     }
     return false;
 }
-const MAX_CREATE_MINER_PATIENCE = 10;
 function create_miner(spawn) {
-    
+
     let stop_creating = false;
     const role_name = 'miner';
     const room = spawn.room;
@@ -126,14 +127,14 @@ function create_miner(spawn) {
         if (!Game.getObjectById(r.miner_id)) {
             debug(`res ${rid} has no miner`);
 
-            if (!('create_miner_patience' in base))
-                base.create_miner_patience = MAX_CREATE_MINER_PATIENCE;
+            if (!('create_creep_patience' in base))
+                base.create_creep_patience = MAX_CREATE_CREEP_PATIENCE;
 
             let energyCapacityAvailable = room.energyCapacityAvailable;
             let parts = largest_possible_body(energyCapacityAvailable,
                 [WORK, CARRY, MOVE],
                 [WORK, WORK, MOVE],
-                utils.get_or_zero(room.memory.population, 'transpoter') >= 2 && room.memory.create_miner_patience > 0 ? 2 : 0
+                base.create_creep_patience > 0 ? 2 : 0
             );
             debug(`parts = ${parts}`);
             r.miner_id = null;
@@ -147,11 +148,11 @@ function create_miner(spawn) {
             );
             if (ok == ERR_NOT_ENOUGH_ENERGY) {
                 debug(`ERR_NOT_ENOUGH_ENERGY, room ${room.name} patience--`);
-                room.memory.create_miner_patience--;
+                base.create_creep_patience--;
                 stop_creating = true; //stop creating other creep
             } else if (ok === OK) {
                 debug(`OK`);
-                room.memory.create_miner_patience = MAX_CREATE_MINER_PATIENCE;
+                base.create_creep_patience = MAX_CREATE_CREEP_PATIENCE;
                 stop_creating = true;
                 break;
             }
@@ -162,13 +163,18 @@ function create_miner(spawn) {
 
 var Population = {
     reproduce_spawn: function (spawn) {
-        if (create_miner(spawn)) return;
-        const room = spawn.room;
-        let n = room.memory.recipe_stages
+        console.log('reproduce_spawn');
+        if (create_miner(spawn)) {
+            console.log('miner');
+            return;
+        }
+        const base = Memory.bases[spawn.room.name];
+        let n = base.recipe_stages
         for (let stage = 0; stage < n; stage++) {
-            room.memory.current_population_stage = stage;
-            for (let role in room.memory.recipe) {
-                let numbers = room.memory.recipe[role];
+            console.log('stage', stage);
+            base.current_population_stage = stage;
+            for (let role in base.recipe) {
+                let numbers = base.recipe[role];
                 if (create_creep(spawn, role, numbers[stage])) return;
             }
         }
