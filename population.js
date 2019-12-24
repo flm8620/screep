@@ -163,15 +163,12 @@ function create_miner(spawn) {
 
 var Population = {
     reproduce_spawn: function (spawn) {
-        console.log('reproduce_spawn');
         if (create_miner(spawn)) {
-            console.log('miner');
             return;
         }
         const base = Memory.bases[spawn.room.name];
         let n = base.recipe_stages
         for (let stage = 0; stage < n; stage++) {
-            console.log('stage', stage);
             base.current_population_stage = stage;
             for (let role in base.recipe) {
                 let numbers = base.recipe[role];
