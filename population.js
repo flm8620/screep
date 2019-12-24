@@ -181,7 +181,7 @@ function create_attacker(spawn) {
 
     for (let rname in base.neighbor_rooms) {
         const nb = base.neighbor_rooms[rname];
-        if (rname in Game.rooms && !Game.rooms[rname].my && Game.rooms[rname].controller && Game.rooms[rname].controller.owner) {
+        if (rname in Game.rooms && Game.rooms[rname].controller && !Game.rooms[rname].controller.my && Game.rooms[rname].controller.owner) {
             debug(`room ${rname} has no attacker`);
 
 

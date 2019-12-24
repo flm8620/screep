@@ -6,7 +6,7 @@ var dd = require('destinations');
 var roleAttacker = {
     run: function (creep) {
         if (creep.spawning) return;
-        const DEBUG_ON = creep.name === '';
+        const DEBUG_ON = creep.name === 'ARR';
         let debug = function (msg) {
             if (DEBUG_ON)
                 console.log(`[${creep.name}]: ${msg}`);
@@ -46,11 +46,11 @@ var roleAttacker = {
 
         const base = Memory.bases[Game.spawns[creep.memory.spawn_name].room.name];
         const nbs = base.neighbor_rooms;
-        if (!creep.memory.dest_room) {
+        if (!dd.has_destination(creep)) {
+            debug('!dd.has_destination(creep)');
             for (const rname in nbs) {
                 const nb = nbs[rname];
-                if (!(rname in Game.rooms) && !nb.explorer_id) {
-                    nb.explorer_id = creep.id;
+                if (rname in Game.rooms && Game.rooms[rname].controller && !Game.rooms[rname].controller.my && Game.rooms[rname].controller.owner) {
                     creep.memory.dest_room = rname;
 
                     let d = new RoomPosition(25, 25, rname);
