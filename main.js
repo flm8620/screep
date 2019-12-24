@@ -2,6 +2,8 @@ var population = require('population');
 var roleBuilder = require('role.builder');
 var roleMiner = require('role.miner');
 var roleTranspoter = require('role.transpoter');
+var roleExplorer = require('role.explorer');
+var roleAttacker = require('role.attacker');
 var roleFreeguy = require('role.freeguy');
 var tools = require('tools');
 var globalInfo = require('global_info');
@@ -27,6 +29,12 @@ module.exports.loop = function () {
 
         if (c.memory.role == 'transpoter')
             roleTranspoter.run(c);
+
+        if (c.memory.role == 'explorer')
+            roleExplorer.run(c);
+
+        if (c.memory.role == 'attacker')
+            roleAttacker.run(c);
 
         if (c.memory.role == 'freeguy')
             roleFreeguy.run(c);

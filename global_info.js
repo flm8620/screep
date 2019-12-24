@@ -1,4 +1,3 @@
-var tools = require('tools');
 function init_bases() {
     if (!Memory.bases)
         Memory.bases = {};
@@ -27,6 +26,21 @@ function init_bases() {
                 const path = PathFinder.search(sp.pos, { pos: s.pos, range: 1 }).path;
                 r.pos = s.pos;
                 r.mining_pos = path[path.length - 1];
+            }
+        }
+
+        if (!b.neighbor_rooms) b.neighbor_rooms = {};
+        const nbs = b.neighbor_rooms;
+        const exits = Game.map.describeExits(bname);
+        for (const e in exits) {
+            const nb_name = exits[e];
+            if (!nbs[nb_name]) nbs[nb_name] = {};
+            const nb = nbs[nb_name];
+            if (!nb.exit) nb.exit = e;
+            if (!nb.status) nb.status = "unknown";
+            if (!('explorer_id' in nb)) nb.explorer_id = null;
+            if (nb_name in Game.rooms && nb.status != 'danger') {
+                nb.status = 'visible';
             }
         }
     }

@@ -62,7 +62,26 @@ var dd = {
         return id;
     },
     pick_droped_stuff: function (creep) {
-        let id = dd.pick_id_using_filter(creep, FIND_TOMBSTONES,
+        let id = null;
+        const base = Memory.bases[Game.spawns[creep.memory.spawn_name].room.name];
+        for (const rname in base.neighbor_rooms) {
+            const room = Game.rooms[rname];
+            if (!room) continue;
+            const ruins = room.find(FIND_RUINS);
+            for (const r of ruins) {
+                if (r.store && r.store.getUsedCapacity() > 3000)
+                    return r.id;
+            }
+
+            const dropped = room.find(FIND_DROPPED_RESOURCES);
+            for (const d of dropped){
+                if (d.amount > 3000)
+                    return d.id;
+            }
+        }
+
+
+        id = dd.pick_id_using_filter(creep, FIND_TOMBSTONES,
             (t) => t.store.getUsedCapacity() > 100
         );
         if (!id)

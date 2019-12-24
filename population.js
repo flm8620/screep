@@ -37,6 +37,7 @@ function largest_possible_body(energy_available, start, repeat, largest_repeat) 
 
 const ALL_DIRECTIONS = [TOP, TOP_RIGHT, RIGHT, BOTTOM_RIGHT, BOTTOM, BOTTOM_LEFT, LEFT, TOP_LEFT];
 const MAX_CREATE_CREEP_PATIENCE = 10;
+const MAX_CREATE_ATTACKER_PATIENCE = 1000;
 
 
 // return true to stop create others
@@ -108,6 +109,106 @@ function create_creep(spawn, role_name, number) {
     }
     return false;
 }
+
+function create_explorer(spawn) {
+    let stop_creating = false;
+    const role_name = 'explorer';
+    const room = spawn.room;
+    const rname = room.name;
+    const base = Memory.bases[rname];
+
+    const DEBUG_ON = false;
+    let debug = function (msg) {
+        if (DEBUG_ON)
+            console.log(`[${spawn.name}.create_explorer]: ${msg}`);
+    }
+
+    for (let rname in base.neighbor_rooms) {
+        const nb = base.neighbor_rooms[rname];
+        if (!(rname in Game.rooms) && !Game.getObjectById(nb.explorer_id)) {
+            debug(`room ${rname} has no explorer`);
+
+            if (!('create_creep_patience' in base))
+                base.create_creep_patience = MAX_CREATE_CREEP_PATIENCE;
+
+            let parts = [ATTACK, RANGED_ATTACK, MOVE]
+            debug(`parts = ${parts}`);
+            nb.explorer_id = null;
+            var ok = spawn.spawnCreep(
+                parts,
+                role_name[0].toUpperCase() + makeid(2),
+                {
+                    memory: { role: role_name, spawn_name: spawn.name, body: parts },
+                    directions: ALL_DIRECTIONS
+                }
+            );
+            if (ok == ERR_NOT_ENOUGH_ENERGY) {
+                debug(`ERR_NOT_ENOUGH_ENERGY, room ${room.name} patience--`);
+                base.create_creep_patience--;
+                stop_creating = false; //never mind
+            } else if (ok === OK) {
+                debug(`OK`);
+                base.create_creep_patience = MAX_CREATE_CREEP_PATIENCE;
+                stop_creating = true;
+                break;
+            }
+        }
+    }
+    return stop_creating;
+}
+
+function create_attacker(spawn) {
+    let stop_creating = false;
+    const role_name = 'attacker';
+    const room = spawn.room;
+    const rname = room.name;
+    const base = Memory.bases[rname];
+
+    const DEBUG_ON = true;
+    let debug = function (msg) {
+        if (DEBUG_ON)
+            console.log(`[${spawn.name}.create_attacker]: ${msg}`);
+    }
+
+
+    if (!('create_attacker_patience' in base))
+        base.create_attacker_patience = 0;
+    if (base.create_attacker_patience > 0) {
+        debug(`waiting`);
+        base.create_attacker_patience--;
+        return stop_creating;
+    }
+
+    for (let rname in base.neighbor_rooms) {
+        const nb = base.neighbor_rooms[rname];
+        if (rname in Game.rooms && !Game.rooms[rname].my && Game.rooms[rname].controller && Game.rooms[rname].controller.owner) {
+            debug(`room ${rname} has no attacker`);
+
+
+            let parts = [ATTACK, ATTACK, ATTACK, RANGED_ATTACK, MOVE, MOVE]
+            debug(`parts = ${parts}`);
+            var ok = spawn.spawnCreep(
+                parts,
+                role_name[0].toUpperCase() + makeid(2),
+                {
+                    memory: { role: role_name, spawn_name: spawn.name, body: parts },
+                    directions: ALL_DIRECTIONS
+                }
+            );
+            if (ok == ERR_NOT_ENOUGH_ENERGY) {
+                debug(`ERR_NOT_ENOUGH_ENERGY, room ${room.name} patience--`);
+                stop_creating = false; //never mind
+            } else if (ok === OK) {
+                debug(`OK`);
+                base.create_attacker_patience = MAX_CREATE_ATTACKER_PATIENCE;
+                stop_creating = true;
+                break;
+            }
+        }
+    }
+    return stop_creating;
+}
+
 function create_miner(spawn) {
 
     let stop_creating = false;
@@ -164,6 +265,12 @@ function create_miner(spawn) {
 var Population = {
     reproduce_spawn: function (spawn) {
         if (create_miner(spawn)) {
+            return;
+        }
+        if (create_explorer(spawn)) {
+            return;
+        }
+        if (create_attacker(spawn)) {
             return;
         }
         const base = Memory.bases[spawn.room.name];
