@@ -235,7 +235,7 @@ function create_miner(spawn) {
             let parts = largest_possible_body(energyCapacityAvailable,
                 [WORK, CARRY, MOVE],
                 [WORK, WORK, MOVE],
-                base.create_creep_patience > 0 ? 2 : 0
+                base.create_creep_patience >= 8 ? 2 : base.create_creep_patience >= 4 ? 1 : 0
             );
             debug(`parts = ${parts}`);
             r.miner_id = null;

@@ -92,23 +92,27 @@ var roleTranspoter = {
                 }
 
             } else {
-                debug('is_near_destination');
-
                 debug('try pickup');
                 const stuff = dd.get_dest_obj(creep);
-                let pick_ok = creep.pickup(stuff);
-                if (pick_ok == OK) {
-                    debug('pickup OK');
-                } else if (pick_ok == ERR_INVALID_TARGET) {
-                    debug('try withdraw');
-                    let withdraw_ok = creep.withdraw(stuff, RESOURCE_ENERGY);
-                    if (withdraw_ok == OK) {
-                        debug('withdraw OK');
+                if (stuff) {
+                    let pick_ok = creep.pickup(stuff);
+                    if (pick_ok == OK) {
+                        debug('pickup OK');
+                    } else if (pick_ok == ERR_INVALID_TARGET) {
+                        debug('try withdraw');
+                        let withdraw_ok = -1;
+                        for (let name in stuff.store) {
+                            withdraw_ok = creep.withdraw(stuff, name);
+                            break;
+                        }
+                        if (withdraw_ok == OK) {
+                            debug('withdraw OK');
+                        } else {
+                            debug('withdraw failed');
+                        }
                     } else {
-                        debug('withdraw failed');
+                        debug(`pickup not OK: ${pick_ok}`);
                     }
-                } else {
-                    debug(`pickup not OK: ${pick_ok}`);
                 }
                 dd.clear_destination(creep);
             }
@@ -125,18 +129,19 @@ var roleTranspoter = {
             if (!dd.is_near_destination(creep)) {
                 dd.move_to_destination(creep, DEBUG_ON);
             } else {
-                let store = dd.get_dest_obj(creep);
-                for (let name in creep.store) {
-                    let store_ok = creep.transfer(store, name);
-                    if (store_ok == OK) {
-                        debug('store OK');
-                        dd.clear_destination(creep);// so that the creep can change to another store when it needs next time
-                    } else {
-                        debug(`store not OK: ${store_ok}`);
-                        change_mode_storing(creep);
+                const store = dd.get_dest_obj(creep);
+                if (store) {
+                    for (let name in creep.store) {
+                        let store_ok = creep.transfer(store, name);
+                        if (store_ok == OK) {
+                            debug('store OK');
+                        } else {
+                            debug(`store not OK: ${store_ok}`);
+                        }
+                        return;
                     }
-                    return;
                 }
+                dd.clear_destination(creep);
             }
         }
     }

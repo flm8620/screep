@@ -74,7 +74,7 @@ var dd = {
             }
 
             const dropped = room.find(FIND_DROPPED_RESOURCES);
-            for (const d of dropped){
+            for (const d of dropped) {
                 if (d.amount > 3000)
                     return d.id;
             }
@@ -82,10 +82,10 @@ var dd = {
 
 
         id = dd.pick_id_using_filter(creep, FIND_TOMBSTONES,
-            (t) => t.store.getUsedCapacity() > 100
+            (t) => t.store.getUsedCapacity() > 0
         );
         if (!id)
-            id = dd.pick_id_using_filter(creep, FIND_DROPPED_RESOURCES, (r) => r.amount > 100);
+            id = dd.pick_id_using_filter(creep, FIND_DROPPED_RESOURCES, (r) => r.amount > 0);
         if (!id)
             id = dd.pick_id_using_filter(creep, FIND_STRUCTURES, (structure) =>
                 structure.structureType == STRUCTURE_CONTAINER && structure.store.getUsedCapacity() >= 50
@@ -153,10 +153,6 @@ var dd = {
         creep.memory.dest_pos = pos;
         //creep.say('go ' + creep.memory.dest_pos.x + ' ' + creep.memory.dest_pos.y);
         return true;
-    },
-    clear_destination: function (creep) {
-        creep.memory.dest_id = null;
-        creep.memory.dest_pos = null;
     },
     move_to_destination: function (creep, debug_mode, opt) {
         if (!opt) opt = {};
@@ -291,6 +287,10 @@ var dd = {
             return creep.pos.isEqualTo(new RoomPosition(creep.memory.dest_pos.x, creep.memory.dest_pos.y, creep.memory.dest_pos.roomName));
         else
             return false;
+    },
+    clear_destination: function (creep) {
+        creep.memory.dest_id = null;
+        creep.memory.dest_pos = null;
     },
     get_dest_obj: function (creep) {
         return Game.getObjectById(creep.memory.dest_id);

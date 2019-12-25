@@ -5,7 +5,6 @@ var roleTranspoter = require('role.transpoter');
 var roleExplorer = require('role.explorer');
 var roleAttacker = require('role.attacker');
 var roleFreeguy = require('role.freeguy');
-var tools = require('tools');
 var globalInfo = require('global_info');
 var weapon_ctrl = require('weapon_ctrl');
 

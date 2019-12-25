@@ -60,14 +60,14 @@ var roleBuilder = {
             debug('really building');
             if (!dd.in_range_destination(creep, 3)) {
                 debug('moving');
-                let move_ok = dd.move_to_destination(creep, DEBUG_ON, { range: 3 });
+                dd.move_to_destination(creep, DEBUG_ON, { range: 3 });
             } else {
                 debug('get struct');
-                let struct = dd.get_dest_obj(creep);
+                const struct = dd.get_dest_obj(creep);
                 let build_ok = 9999;
                 if (struct) {
                     if (struct.structureType === STRUCTURE_CONTROLLER) {
-                        build_ok = creep.upgradeController(dd.get_dest_obj(creep));
+                        build_ok = creep.upgradeController(struct);
                     } else if (struct.hits > 0) {
                         if (struct.hits == struct.hitsMax) {
                             debug('struct repaired');
@@ -82,6 +82,7 @@ var roleBuilder = {
                     }
                 } else {
                     debug('no struct');
+                    dd.clear_destination(creep);
                 }
                 if (build_ok == OK) {
                     debug('build OK');
