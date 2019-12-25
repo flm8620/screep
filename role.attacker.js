@@ -16,6 +16,7 @@ var roleAttacker = {
         {
             const enemy = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
             if (enemy) {
+                debug('attack creep');
                 let p = enemy.pos;
                 if (!creep.pos.isNearTo(p)) {
                     creep.moveTo(p);
@@ -29,8 +30,10 @@ var roleAttacker = {
             }
         }
         {
-            const enemy = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES);
+            const enemy = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES,
+                { filter: (structure) => structure.structureType != STRUCTURE_CONTROLLER });
             if (enemy) {
+                debug(`attack building ${enemy.id}`);
                 let p = enemy.pos;
                 if (!creep.pos.isNearTo(p)) {
                     creep.moveTo(p);
@@ -49,7 +52,6 @@ var roleAttacker = {
         if (!dd.has_destination(creep)) {
             debug('!dd.has_destination(creep)');
             for (const rname in nbs) {
-                const nb = nbs[rname];
                 if (rname in Game.rooms && Game.rooms[rname].controller && !Game.rooms[rname].controller.my && Game.rooms[rname].controller.owner) {
                     creep.memory.dest_room = rname;
 
