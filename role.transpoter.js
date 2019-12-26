@@ -138,7 +138,6 @@ var roleTranspoter = {
                         } else {
                             debug(`store not OK: ${store_ok}`);
                         }
-                        return;
                     }
                 }
                 dd.clear_destination(creep);
