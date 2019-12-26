@@ -12,23 +12,9 @@ var dd = {
         if (creep.room.name == room.name) {
             t = creep.pos.findClosestByRange(find_name, { filter });
         } else {
-            var exit = room.findExitTo(creep.room);
-            let dir = room.find(exit);
-            let p = new RoomPosition(25, 25, room.name);
-            switch (dir) {
-                case FIND_EXIT_TOP:
-                    p.x = 25; p.y = 1;
-                    break;
-                case FIND_EXIT_RIGHT:
-                    p.x = 48; p.y = 25;
-                    break;
-                case FIND_EXIT_BOTTOM:
-                    p.x = 25; p.y = 48;
-                    break;
-                case FIND_EXIT_LEFT:
-                    p.x = 1; p.y = 25;
-                    break;
-            }
+            const exit = room.findExitTo(creep.room);
+            const dir = room.find(exit);
+            const p = room.find(dir)[0]
             t = p.findClosestByRange(find_name, { filter });
         }
         if (!t) return null;
