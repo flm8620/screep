@@ -45,7 +45,7 @@ function init_bases() {
             let pos_start = null;
             const room = Game.rooms[rname];
             if (!room) continue;
-            if (room.controller && room.controller.owner && !room.controller.owner.my) continue;
+            if (room.controller && room.controller.owner && !room.controller.my) continue;
             if (rname == bname) {
                 pos_start = sp.pos;
             } else {

@@ -2,12 +2,12 @@ var tools = require('tools');
 var dd = require('destinations');
 
 
-function change_mode_taking(creep) {
+function change_mode_taking(creep, debug) {
     dd.clear_destination(creep);
     creep.say('take');
     creep.memory.goto_store = false;
     creep.memory.patience = PATIENCE_MAX;
-    let dropped_id = dd.pick_droped_stuff(creep);
+    let dropped_id = dd.pick_droped_stuff(creep, debug);
     return dd.set_id_as_destination(creep, dropped_id);
 }
 
@@ -31,7 +31,7 @@ const PATIENCE_MAX = 20;
 var roleTranspoter = {
     run: function (creep) {
         if (creep.spawning) return;
-        const DEBUG_ON = creep.name === '';
+        const DEBUG_ON = creep.name === 'T6D';
         let debug = function (msg) {
             if (DEBUG_ON)
                 console.log(`[${creep.name}]: ${msg}`);
@@ -47,13 +47,13 @@ var roleTranspoter = {
             }
             if (!dd.has_destination(creep)) {
                 debug('!has_destination, change_mode_taking');
-                change_mode_taking(creep);
+                change_mode_taking(creep, DEBUG_ON);
             }
         } else {// storing
             debug('try storing');
             if (creep.store.getUsedCapacity() == 0) {
                 debug('empty already');
-                change_mode_taking(creep);
+                change_mode_taking(creep, DEBUG_ON);
             }
             if (!dd.has_destination(creep)) {
                 debug('no destination');
@@ -75,7 +75,7 @@ var roleTranspoter = {
                 tools.random_move(creep);
                 if (creep.store.getUsedCapacity() < 0.5 * creep.store.getCapacity()) {
                     debug('change_mode_taking');
-                    change_mode_taking(creep);
+                    change_mode_taking(creep, DEBUG_ON);
                 } else {
                     debug('change_mode_storing');
                     change_mode_storing(creep);

@@ -13,14 +13,13 @@ var dd = {
             t = creep.pos.findClosestByRange(find_name, { filter });
         } else {
             const exit = room.findExitTo(creep.room);
-            const dir = room.find(exit);
-            const p = room.find(dir)[0]
+            const p = room.find(exit)[0]
             t = p.findClosestByRange(find_name, { filter });
         }
         if (!t) return null;
         return t.id;
     },
-    pick_res_id_in_nb_room_using_filter: function (creep) {
+    pick_res_id_in_nb_room_using_filter: function (creep, debug = false) {
         const bname = Game.spawns[creep.memory.spawn_name].room.name;
         const b = Memory.bases[bname];
         const rooms_search = [bname].concat(Object.keys(b.neighbor_rooms));
@@ -29,13 +28,13 @@ var dd = {
             let pos_start = null;
             const room = Game.rooms[rname];
             if (!room) continue;
-            if (room.controller && room.controller.owner && !room.controller.owner.my) continue;
-            let start_length = 0;
+            if (room.controller && room.controller.owner && !room.controller.my) continue;
+            let start_length = 1;
             if (rname === creep.pos.roomName) {
                 pos_start = creep.pos;
             } else {
                 pos_start = room.find(room.findExitTo(creep.pos.roomName))[0];
-                start_length = 50;
+                start_length = 20;
             }
             const tbs = room.find(FIND_TOMBSTONES);
             for (const tb of tbs) {
@@ -93,28 +92,28 @@ var dd = {
         }
         return id;
     },
-    pick_droped_stuff: function (creep) {
-        let id = dd.pick_res_id_in_nb_room_using_filter(creep);
+    pick_droped_stuff: function (creep, debug = false) {
+        let id = dd.pick_res_id_in_nb_room_using_filter(creep, debug);
 
-        if (!id) {
-            const base = Memory.bases[Game.spawns[creep.memory.spawn_name].room.name];
-            for (const rname in base.neighbor_rooms) {
-                const room = Game.rooms[rname];
-                if (!room) continue;
-                const ruins = room.find(FIND_RUINS);
-                for (const r of ruins) {
-                    if (r.store && r.store.getUsedCapacity() > 3000)
-                        id = r.id;
-                }
-                if (!id) {
-                    const dropped = room.find(FIND_DROPPED_RESOURCES);
-                    for (const d of dropped) {
-                        if (d.amount > 3000)
-                            id = d.id;
-                    }
-                }
-            }
-        }
+        // if (!id) {
+        //     const base = Memory.bases[Game.spawns[creep.memory.spawn_name].room.name];
+        //     for (const rname in base.neighbor_rooms) {
+        //         const room = Game.rooms[rname];
+        //         if (!room) continue;
+        //         const ruins = room.find(FIND_RUINS);
+        //         for (const r of ruins) {
+        //             if (r.store && r.store.getUsedCapacity() > 3000)
+        //                 id = r.id;
+        //         }
+        //         if (!id) {
+        //             const dropped = room.find(FIND_DROPPED_RESOURCES);
+        //             for (const d of dropped) {
+        //                 if (d.amount > 3000)
+        //                     id = d.id;
+        //             }
+        //         }
+        //     }
+        // }
         return id;
     },
     pick_available_energy_store_id: function (creep) {
@@ -192,6 +191,12 @@ var dd = {
         const PATH_REUSE_SHORT = 5;
         const MAX_MOVE_PATIENCE = 5;
         if (!creep.memory.dest_pos) return -10000;
+        if (creep.memory.dest_id && !Game.getObjectById(creep.memory.dest_id)) {
+            debug('move target disappeared !');
+            dd.clear_destination(creep);
+            return -10001;
+        }
+
         let dest_pos = creep.memory.dest_pos;
         if (!('move_patience' in creep.memory)) creep.memory.move_patience = MAX_MOVE_PATIENCE;
 
