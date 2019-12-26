@@ -1,12 +1,13 @@
 function init_bases() {
-    if (!Memory.bases)
-        Memory.bases = {};
+    const seen_rooms = new Set();
+    if (!Memory.bases) Memory.bases = {};
     const bs = Memory.bases;
-    for (let rname in bs) {
+    for (let rname in bs)
         bs[rname].spawns = [];
-    }
+
     for (const [name, sp] of Object.entries(Game.spawns)) {
         const rname = sp.room.name
+        seen_rooms.add(rname);
         if (!bs[rname]) bs[rname] = {};
         const b = bs[rname];
         if (!b.spawns) b.spawns = [];
@@ -14,26 +15,14 @@ function init_bases() {
     }
 
     for (const [bname, b] of Object.entries(bs)) {
-        if (!b.res) b.res = {};
-        const res = b.res;
-        const room = Game.rooms[bname];
-        const sp = Game.spawns[b.spawns[0]];
-        const sources = room.find(FIND_SOURCES);
-        for (const s of sources) {
-            const id = s.id;
-            if (!res[id]) {
-                const r = res[id] = {};
-                const path = PathFinder.search(sp.pos, { pos: s.pos, range: 1 }).path;
-                r.pos = s.pos;
-                r.mining_pos = path[path.length - 1];
-            }
-        }
-
         if (!b.neighbor_rooms) b.neighbor_rooms = {};
         const nbs = b.neighbor_rooms;
         const exits = Game.map.describeExits(bname);
         for (const e in exits) {
             const nb_name = exits[e];
+            if (seen_rooms.has(nb_name)) continue;
+            seen_rooms.add(nb_name);
+
             if (!nbs[nb_name]) nbs[nb_name] = {};
             const nb = nbs[nb_name];
             if (!nb.exit) nb.exit = e;
@@ -41,6 +30,36 @@ function init_bases() {
             if (!('explorer_id' in nb)) nb.explorer_id = null;
             if (nb_name in Game.rooms && nb.status != 'danger') {
                 nb.status = 'visible';
+            }
+        }
+    }
+
+    for (const [bname, b] of Object.entries(bs)) {
+        if (!b.res) b.res = {};
+        const res = b.res;
+        const broom = Game.rooms[bname];
+        const sp = Game.spawns[b.spawns[0]];
+
+        const rooms_search = [bname].concat(Object.keys(b.neighbor_rooms));
+        for (const rname of rooms_search) {
+            let pos_start = null;
+            const room = Game.rooms[rname];
+            if (!room) continue;
+            if (room.controller && room.controller.owner && !room.controller.owner.my) continue;
+            if (rname == bname) {
+                pos_start = sp.pos;
+            } else {
+                pos_start = room.find(room.findExitTo(broom))[0];
+            }
+            const sources = room.find(FIND_SOURCES);
+            for (const s of sources) {
+                const id = s.id;
+                if (!res[id]) {
+                    const r = res[id] = {};
+                    const path = PathFinder.search(pos_start, { pos: s.pos, range: 1 }).path;
+                    r.pos = s.pos;
+                    r.mining_pos = path[path.length - 1];
+                }
             }
         }
     }
