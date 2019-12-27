@@ -2,12 +2,14 @@ var dd = require('destinations');
 
 const PATIENCE_MAX = 100;
 
-function change_mode_mining(creep) {
+function change_mode_mining(creep, debug = false) {
     dd.clear_destination(creep);
     const sp = Game.spawns[creep.memory.spawn_name];
     const b = Memory.bases[sp.room.name];
     var i = creep.memory.mine_index;
     if (!i) {
+        if (debug) 
+            console.log(`no mine_index`);
         for (let rid in b.res) {
             let r = b.res[rid];
             if (!r.miner_id) {
@@ -24,8 +26,6 @@ function change_mode_mining(creep) {
             creep.suicide();
         }
     }
-    var r = Game.getObjectById(i);
-    if (!r) return;
     console.log(`source ${i} is mined by ${creep.name}`);
     b.res[i].miner_id = creep.id;
     var mining_pos = b.res[i].mining_pos;
@@ -37,13 +37,21 @@ function change_mode_mining(creep) {
 var roleMiner = {
     run: function (creep) {
         if (creep.spawning) return;
+
+        const DEBUG_ON = creep.name === 'MBG';
+        let debug = function (msg) {
+            if (DEBUG_ON)
+                console.log(`[${creep.name}]: ${msg}`);
+        }
+        debug('====== round begin ======');
         if (!dd.has_destination(creep)) {
-            change_mode_mining(creep);
+            debug('!has_destination, change_mode_mining');
+            change_mode_mining(creep, DEBUG_ON);
             return;
         }
 
         if (!dd.is_at_destination(creep)) {
-            var move_ok = dd.move_to_destination(creep);
+            var move_ok = dd.move_to_destination(creep, DEBUG_ON);
         } else {//mine
             if (creep.store.getFreeCapacity(RESOURCE_ENERGY) == 0) {
                 let list = creep.room.lookForAt(LOOK_STRUCTURES, creep.pos);
