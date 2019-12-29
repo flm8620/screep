@@ -3,7 +3,7 @@ var dd = require('destinations');
 var roleExplorer = {
     run: function (creep) {
         if (creep.spawning) return;
-        const DEBUG_ON = creep.name === '';
+        const DEBUG_ON = creep.name === 'E1N';
         let debug = function (msg) {
             if (DEBUG_ON)
                 console.log(`[${creep.name}]: ${msg}`);
@@ -46,7 +46,9 @@ var roleExplorer = {
         if (!creep.memory.dest_room) {
             for (const rname in nbs) {
                 const nb = nbs[rname];
-                if (!(rname in Game.rooms) && !nb.explorer_id) {
+                debug(`room ${rname}`);
+                if (!(rname in Game.rooms) || !Game.getObjectById(nb.explorer_id)) {
+                    debug(`pick room`);
                     nb.explorer_id = creep.id;
                     creep.memory.dest_room = rname;
 
