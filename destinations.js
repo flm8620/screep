@@ -1,5 +1,3 @@
-var utils = require('utils');
-
 const is_store = (structure) => {
     return structure.structureType == STRUCTURE_EXTENSION ||
         structure.structureType == STRUCTURE_SPAWN;
