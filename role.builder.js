@@ -18,10 +18,14 @@ function change_mode_building(creep) {
     }
     var ok = dd.set_id_as_destination(creep, site);
 }
-function change_mode_recharging_or_become_transpoter(creep) {
+function change_mode_recharging(creep) {
     creep.say('reload');
     creep.memory.building = false;
-    tools.get_energy_or_become_transpoter(creep);
+    dd.clear_destination(creep);
+    if (!dd.set_id_as_destination(creep, dd.pick_available_energy_store_id(creep))) {
+        // random move
+        tools.random_move(creep);
+    }
 }
 
 var roleBuilder = {
@@ -37,7 +41,7 @@ var roleBuilder = {
             debug('try building');
             if (creep.store.getUsedCapacity(RESOURCE_ENERGY) == 0) {
                 debug('no energy');
-                change_mode_recharging_or_become_transpoter(creep);
+                change_mode_recharging(creep);
             } else if (!dd.has_destination(creep)) {
                 debug('no destination');
                 change_mode_building(creep);
@@ -50,7 +54,7 @@ var roleBuilder = {
             }
             if (!dd.has_destination(creep)) {
                 debug('no destination');
-                change_mode_recharging_or_become_transpoter(creep);
+                change_mode_recharging(creep);
             }
         }
         if (creep.memory.role !== 'builder') return;
@@ -88,7 +92,7 @@ var roleBuilder = {
                     debug('build OK');
                 } else if (build_ok == ERR_NOT_ENOUGH_RESOURCES) {
                     debug('build ERR_NOT_ENOUGH_RESOURCES');
-                    change_mode_recharging_or_become_transpoter(creep);
+                    change_mode_recharging(creep);
                 } else {//structure may be removed
                     debug('build other error');
                     change_mode_building(creep);
@@ -98,11 +102,24 @@ var roleBuilder = {
         }
         else {//recharging
             debug('really charging');
-            let ok = tools.goto_and_get_energy(creep);
-            if (!ok) {
-                debug('change_mode_recharging_or_become_harvester');
-                change_mode_recharging_or_become_transpoter(creep);
+
+            let something = dd.get_dest_obj(creep);
+            if (!something) {
+                dd.clear_destination(creep);
+                return
+            }
+            if (!creep.pos.isNearTo(something.pos)) {
+                debug('move_to_destination');
+                dd.move_to_destination(creep);
             } else {
+                let ok = creep.withdraw(something, RESOURCE_ENERGY);
+                if (ok == OK) {
+                } else if (ok == ERR_NOT_IN_RANGE) {
+                } else if (ok == ERR_NOT_ENOUGH_RESOURCES) {
+                } else if (ok == ERR_INVALID_TARGET) {
+                    ok = creep.pickup(something);
+                }
+                dd.clear_destination(creep);
             }
         }
     }

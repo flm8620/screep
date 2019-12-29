@@ -1,18 +1,4 @@
-var dd = require('destinations');
 var utils = require('utils');
-
-function manhattan_distance(p1, p2) {
-    return Math.abs(p1.x - p2.x) + Math.abs(p1.y - p2.y);
-}
-
-const MAX_PATIENCE_CONVERT_ROLE = 80;
-
-function ready_to_convert_role(creep, worth) {
-    if (!('patience_convert_role' in creep.memory)) creep.memory.patience_convert_role = MAX_PATIENCE_CONVERT_ROLE + Math.random() * 20;
-    if (worth)
-        creep.memory.patience_convert_role--;
-    return creep.memory.patience_convert_role <= 0;
-}
 
 var tools = {
     energy_of_body: function (body) {
@@ -31,24 +17,6 @@ var tools = {
         });
         return sum;
     },
-    worth_to_convert_to_transpoter: function (creep) {
-        const rname = Game.spawns[creep.memory.spawn_name].room.name;
-        const b = Memory.bases[rname];
-        const stage = b.current_population_stage;
-        let worth = utils.get_or_zero(b.population, 'transpoter') < b.recipe['transpoter'][stage];
-        return ready_to_convert_role(creep, worth);
-    },
-    worth_to_convert_to_miner: function (creep) {
-        const room_name = Game.spawns[creep.memory.spawn_name].room.name;
-        const b = Memory.bases[room_name];
-        for (let rid in b.res) {
-            if (b.res[rid].pos.roomName !== room_name) continue;
-            if (!b.res[rid].miner_id) {
-                return ready_to_convert_role(creep, true);
-            }
-        }
-        return ready_to_convert_role(creep, false);
-    },
     random_move: function (creep) {
         let idx = utils.random_idx_with_probability([1, 1, 1, 1, 1, 1, 1, 1]);
         let moves = [TOP,
@@ -60,73 +28,6 @@ var tools = {
             LEFT,
             TOP_LEFT];
         creep.move(moves[idx]);
-    },
-    goto_and_get_energy: function (creep) {
-        let something = dd.get_dest_obj(creep);
-        if (!something) return false;
-        if (!creep.pos.isNearTo(something.pos)) {
-            dd.move_to_destination(creep);
-            return true;
-        } else {
-            let ok = creep.withdraw(something, RESOURCE_ENERGY);
-            if (ok == ERR_NOT_IN_RANGE) {
-                dd.clear_destination(creep);
-                return false;
-            } else if (ok == ERR_NOT_ENOUGH_RESOURCES) {
-                return false;
-            } else if (ok == ERR_INVALID_TARGET) {
-                ok = creep.pickup(something);
-                return ok == OK;
-            }
-
-            if (ok == OK) {
-                dd.clear_destination(creep);
-                return true;
-            }
-            else
-                return false
-        }
-
-    },
-    get_energy_or_become_transpoter: function (creep) {
-        dd.clear_destination(creep);
-        if (tools.worth_to_convert_to_transpoter(creep)) {
-            console.log(creep.name + ' become transpoter');
-            creep.memory.role = 'transpoter';
-            return;
-        } else if (tools.worth_to_convert_to_miner(creep)) {
-            console.log(creep.name + ' become miner');
-            creep.memory.role = 'miner';
-            return;
-        }
-        if (!dd.set_id_as_destination(creep, dd.pick_available_energy_store_id(creep))) {
-            // random move
-            tools.random_move(creep);
-        }
-    },
-    pick_nearest_target_number: function (targets, pos) {//return -1 if empty
-        var min_d = 9999999;
-        var nearest = -1;
-        for (var t in targets) {
-            let d = manhattan_distance(targets[t].pos, pos);
-            if (d < min_d) {
-                nearest = t;
-                min_d = d;
-            }
-        }
-        return nearest;
-    },
-    count_move_parts: function (creep) {
-        if (creep.memory.work_count == null) {
-            var c = 0;
-            for (var i in creep.body) {
-                if (creep.body[i].type == WORK) {
-                    c++;
-                }
-            }
-            creep.memory.work_count = c;
-        }
-        return creep.memory.work_count;
     }
 }
 module.exports = tools;
