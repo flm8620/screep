@@ -1,4 +1,4 @@
-var tools = require('tools');
+var utils = require('utils');
 var dd = require('destinations');
 
 
@@ -66,13 +66,13 @@ var roleTranspoter = {
 
             if (!dd.has_destination(creep)) {
                 debug('!has_destination');
-                tools.random_move(creep);
+                utils.random_move(creep);
                 return;
             }
 
             if (creep.memory.patience <= 0) {
                 debug('no patience');
-                tools.random_move(creep);
+                utils.random_move(creep);
                 if (creep.store.getUsedCapacity() < 0.5 * creep.store.getCapacity()) {
                     debug('change_mode_taking');
                     change_mode_taking(creep, DEBUG_ON);

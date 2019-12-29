@@ -1,4 +1,4 @@
-var tools = require('tools');
+var utils = require('utils');
 var dd = require('destinations');
 
 var roleFreeguy = {

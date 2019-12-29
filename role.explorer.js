@@ -1,7 +1,4 @@
-var tools = require('tools');
 var dd = require('destinations');
-
-
 
 var roleExplorer = {
     run: function (creep) {

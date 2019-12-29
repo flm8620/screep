@@ -1,4 +1,4 @@
-var tools = require('tools');
+var utils = require('utils');
 var dd = require('destinations');
 
 function change_mode_building(creep) {
@@ -9,7 +9,7 @@ function change_mode_building(creep) {
         site = dd.pick_controller_id(creep);
         if (!site) {
             creep.say('no build');
-            tools.random_move(creep);
+            utils.random_move(creep);
         } else {
             creep.say('update');
         }
@@ -24,7 +24,7 @@ function change_mode_recharging(creep) {
     dd.clear_destination(creep);
     if (!dd.set_id_as_destination(creep, dd.pick_available_energy_store_id(creep))) {
         // random move
-        tools.random_move(creep);
+        utils.random_move(creep);
     }
 }
 
