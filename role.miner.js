@@ -12,7 +12,7 @@ function change_mode_mining(creep, debug = false) {
             console.log(`no mine_index`);
         for (let rid in b.res) {
             let r = b.res[rid];
-            if (!r.miner_id) {
+            if (!r.miner_name) {
                 creep.memory.mine_index = rid;
                 i = rid;
             }
@@ -27,7 +27,7 @@ function change_mode_mining(creep, debug = false) {
         }
     }
     console.log(`source ${i} is mined by ${creep.name}`);
-    b.res[i].miner_id = creep.id;
+    b.res[i].miner_name = creep.name;
     var mining_pos = b.res[i].mining_pos;
 
     console.log('set res ' + i + ' to creep ' + creep.id);

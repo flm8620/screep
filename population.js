@@ -84,7 +84,7 @@ function create_creep(spawn, role_name, number) {
         var ok = spawn.spawnCreep(parts, 'asdasdasdasdasd', { dryRun: true });
         if (ok === OK) {
             debug(`try spawn OK`);
-            let name = role_name[0].toUpperCase() + makeid(2);
+            let name = role_name[0].toUpperCase() + makeid(3);
             ok = spawn.spawnCreep(
                 parts,
                 name,
@@ -131,12 +131,12 @@ function create_explorer(spawn) {
             if (!('create_creep_patience' in base))
                 base.create_creep_patience = MAX_CREATE_CREEP_PATIENCE;
 
-            let parts = [ATTACK, RANGED_ATTACK, MOVE]
+            let parts = [ATTACK, MOVE]
             debug(`parts = ${parts}`);
             nb.explorer_id = null;
             var ok = spawn.spawnCreep(
                 parts,
-                role_name[0].toUpperCase() + makeid(2),
+                role_name[0].toUpperCase() + makeid(3),
                 {
                     memory: { role: role_name, spawn_name: spawn.name, body: parts },
                     directions: ALL_DIRECTIONS
@@ -180,8 +180,8 @@ function create_attacker(spawn) {
     }
 
     for (let rname in base.neighbor_rooms) {
-        const nb = base.neighbor_rooms[rname];
-        if (rname in Game.rooms && Game.rooms[rname].controller && !Game.rooms[rname].controller.my && Game.rooms[rname].controller.owner) {
+        if (rname in Game.rooms && Game.rooms[rname].controller &&
+            !Game.rooms[rname].controller.my && Game.rooms[rname].controller.owner) {
             debug(`room ${rname} has no attacker`);
 
 
@@ -189,7 +189,7 @@ function create_attacker(spawn) {
             debug(`parts = ${parts}`);
             var ok = spawn.spawnCreep(
                 parts,
-                role_name[0].toUpperCase() + makeid(2),
+                role_name[0].toUpperCase() + makeid(3),
                 {
                     memory: { role: role_name, spawn_name: spawn.name, body: parts },
                     directions: ALL_DIRECTIONS
@@ -225,7 +225,7 @@ function create_miner(spawn) {
 
     for (let rid in base.res) {
         const r = base.res[rid];
-        if (!Game.getObjectById(r.miner_id)) {
+        if (!Game.creeps[r.miner_name]) {
             debug(`res ${rid} has no miner`);
 
             if (!('create_creep_patience' in base))
@@ -238,10 +238,10 @@ function create_miner(spawn) {
                 base.create_creep_patience >= 8 ? 2 : base.create_creep_patience >= 4 ? 1 : 0
             );
             debug(`parts = ${parts}`);
-            r.miner_id = null;
+            r.miner_name = null;
             var ok = spawn.spawnCreep(
                 parts,
-                role_name[0].toUpperCase() + makeid(2),
+                role_name[0].toUpperCase() + makeid(3),
                 {
                     memory: { role: role_name, spawn_name: spawn.name, body: parts },
                     directions: ALL_DIRECTIONS
