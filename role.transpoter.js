@@ -44,7 +44,7 @@ function transpoter_pick_target(creep, debug) {
                 filter: (s) => (s.structureType == STRUCTURE_TOWER) && s.store.getUsedCapacity(RESOURCE_ENERGY) < 500
             })) {
                 const path_length = PathFinder.search(pos_start, { pos: t.pos, range: 1 }).path.length + start_length;
-                const score = Math.min(used_capa_energy, t.store.getFreeCapacity()) / path_length;
+                const score = Math.min(used_capa_energy, t.store.getFreeCapacity(RESOURCE_ENERGY)) / path_length;
                 score_id.push({ id: t.id, score, goto_store: true });
                 found = true;
             }
