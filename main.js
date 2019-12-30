@@ -2,6 +2,7 @@ var population = require('population');
 var roleBuilder = require('role.builder');
 var roleMiner = require('role.miner');
 var roleTranspoter = require('role.transpoter');
+var roleRecycle = require('role.recycle');
 var roleExplorer = require('role.explorer');
 var roleAttacker = require('role.attacker');
 var roleFreeguy = require('role.freeguy');
@@ -37,6 +38,9 @@ module.exports.loop = function () {
 
         if (c.memory.role == 'freeguy')
             roleFreeguy.run(c);
+
+        if (c.memory.role == 'recycle')
+            roleRecycle.run(c);
     }
 
     for (let s in Game.spawns) {
