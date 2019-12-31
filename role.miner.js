@@ -6,14 +6,14 @@ function change_mode_mining(creep, debug = false) {
     dd.clear_destination(creep);
     const sp = Game.spawns[creep.memory.spawn_name];
     const b = Memory.bases[sp.room.name];
-    var i = creep.memory.mine_index;
+    var i = creep.memory.mine_id;
     if (!i) {
         if (debug) 
-            console.log(`no mine_index`);
+            console.log(`no mine_id`);
         for (let rid in b.res) {
             let r = b.res[rid];
             if (!r.miner_name) {
-                creep.memory.mine_index = rid;
+                creep.memory.mine_id = rid;
                 i = rid;
             }
         }
@@ -37,7 +37,6 @@ function change_mode_mining(creep, debug = false) {
 var roleMiner = {
     run: function (creep) {
         if (creep.spawning) return;
-
         const DEBUG_ON = creep.name === 'MBG';
         let debug = function (msg) {
             if (DEBUG_ON)
@@ -72,7 +71,7 @@ var roleMiner = {
                     creep.drop(RESOURCE_ENERGY);
                 }
             }
-            var i = creep.memory.mine_index;
+            var i = creep.memory.mine_id;
             var s = Game.getObjectById(i);
             let mine_ok = creep.harvest(s);
 

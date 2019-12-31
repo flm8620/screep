@@ -210,7 +210,6 @@ function create_attacker(spawn) {
 }
 
 function create_miner(spawn) {
-
     let stop_creating = false;
     const role_name = 'miner';
     const room = spawn.room;
@@ -239,11 +238,12 @@ function create_miner(spawn) {
             );
             debug(`parts = ${parts}`);
             r.miner_name = null;
+            const name = role_name[0].toUpperCase() + makeid(3);
             var ok = spawn.spawnCreep(
                 parts,
-                role_name[0].toUpperCase() + makeid(3),
+                name,
                 {
-                    memory: { role: role_name, spawn_name: spawn.name, body: parts },
+                    memory: { role: role_name, spawn_name: spawn.name, body: parts, mine_id: rid },
                     directions: ALL_DIRECTIONS
                 }
             );
