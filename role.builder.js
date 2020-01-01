@@ -1,5 +1,7 @@
 var utils = require('utils');
 var dd = require('destinations');
+const db = require('debug_name');
+const debug = db.log;
 
 function change_mode_building(creep) {
     dd.clear_destination(creep);
@@ -30,11 +32,7 @@ function change_mode_recharging(creep) {
 
 var roleBuilder = {
     run: function (creep) {
-        const DEBUG_ON = creep.name === '';
-        let debug = function (msg) {
-            if (DEBUG_ON)
-                console.log(`[${creep.name}]: ${msg}`);
-        }
+        db.set_creep_name(creep.name);
         debug('====== round begin ======');
         if (creep.spawning) return;
         if (creep.memory.building) {
@@ -64,7 +62,7 @@ var roleBuilder = {
             debug('really building');
             if (!dd.in_range_destination(creep, 3)) {
                 debug('moving');
-                dd.move_to_destination(creep, DEBUG_ON, { range: 3 });
+                dd.move_to_destination(creep, false, { range: 3 });
             } else {
                 debug('get struct');
                 const struct = dd.get_dest_obj(creep);

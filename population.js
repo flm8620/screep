@@ -1,4 +1,5 @@
 var utils = require('utils');
+
 function makeid(length) {
     var result = '';
     var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -8,6 +9,7 @@ function makeid(length) {
     }
     return result;
 }
+
 function energy_of_body(body) {
     let sum = 0;
     body.forEach((v) => {
@@ -84,7 +86,7 @@ function create_creep(spawn, role_name, number) {
         var ok = spawn.spawnCreep(parts, 'asdasdasdasdasd', { dryRun: true });
         if (ok === OK) {
             debug(`try spawn OK`);
-            let name = role_name[0].toUpperCase() + makeid(3);
+            const name = role_name[0].toUpperCase() + makeid(3);
             ok = spawn.spawnCreep(
                 parts,
                 name,
@@ -134,9 +136,10 @@ function create_explorer(spawn) {
             let parts = [ATTACK, MOVE]
             debug(`parts = ${parts}`);
             nb.explorer_id = null;
+            const name = role_name[0].toUpperCase() + makeid(3);
             var ok = spawn.spawnCreep(
                 parts,
-                role_name[0].toUpperCase() + makeid(3),
+                name,
                 {
                     memory: { role: role_name, spawn_name: spawn.name, body: parts },
                     directions: ALL_DIRECTIONS
@@ -164,7 +167,7 @@ function create_attacker(spawn) {
     const rname = room.name;
     const base = Memory.bases[rname];
 
-    const DEBUG_ON = true;
+    const DEBUG_ON = false;
     let debug = function (msg) {
         if (DEBUG_ON)
             console.log(`[${spawn.name}.create_attacker]: ${msg}`);
@@ -187,9 +190,10 @@ function create_attacker(spawn) {
 
             let parts = [ATTACK, ATTACK, ATTACK, RANGED_ATTACK, MOVE, MOVE]
             debug(`parts = ${parts}`);
+            const name = role_name[0].toUpperCase() + makeid(3);
             var ok = spawn.spawnCreep(
                 parts,
-                role_name[0].toUpperCase() + makeid(3),
+                name,
                 {
                     memory: { role: role_name, spawn_name: spawn.name, body: parts },
                     directions: ALL_DIRECTIONS
@@ -253,6 +257,7 @@ function create_miner(spawn) {
                 stop_creating = true; //stop creating other creep
             } else if (ok === OK) {
                 debug(`OK`);
+                r.miner_name = name;
                 base.create_creep_patience = MAX_CREATE_CREEP_PATIENCE;
                 stop_creating = true;
                 break;

@@ -1,13 +1,11 @@
 var dd = require('destinations');
+const db = require('debug_name');
+const debug = db.log;
 
 var roleRecycle = {
     run: function (creep) {
         if (creep.spawning) return;
-        const DEBUG_ON = creep.name === '';
-        let debug = function (msg) {
-            if (DEBUG_ON)
-                console.log(`[${creep.name}]: ${msg}`);
-        }
+        db.set_creep_name(creep.name);
         debug('====== round begin ======');
 
         if (!creep.memory.destination_cleaned) {
@@ -32,7 +30,7 @@ var roleRecycle = {
             debug('go home');
             if (!dd.is_near_destination(creep)) {
                 debug('!is_near_destination');
-                var move_ok = dd.move_to_destination(creep, DEBUG_ON);
+                var move_ok = dd.move_to_destination(creep);
             } else {
                 const spawn = dd.get_dest_obj(creep);
                 spawn.recycleCreep(creep);

@@ -1,56 +1,37 @@
 var dd = require('destinations');
+const db = require('debug_name');
+const debug = db.log;
 
-const PATIENCE_MAX = 100;
-
-function change_mode_mining(creep, debug = false) {
+function set_mine_as_destination(creep) {
     dd.clear_destination(creep);
     const sp = Game.spawns[creep.memory.spawn_name];
     const b = Memory.bases[sp.room.name];
-    var i = creep.memory.mine_id;
+    const i = creep.memory.mine_id;
     if (!i) {
-        if (debug) 
-            console.log(`no mine_id`);
-        for (let rid in b.res) {
-            let r = b.res[rid];
-            if (!r.miner_name) {
-                creep.memory.mine_id = rid;
-                i = rid;
-            }
-        }
+        debug(`no mine_id`);
+        creep.memory.role = 'recycle';
+        return;
     }
-    if (!i) {
-        if (!('patience' in creep.memory)) creep.memory.patience = PATIENCE_MAX;
-        creep.memory.patience--;
-        console.log(`miner ${creep.name} has nothing to mine`);
-        if (creep.memory.patience < 0) {
-            creep.suicide();
-        }
-    }
-    console.log(`source ${i} is mined by ${creep.name}`);
-    b.res[i].miner_name = creep.name;
-    var mining_pos = b.res[i].mining_pos;
+    debug(`source ${i} is mined by ${creep.name}`);
+    const mining_pos = b.res[i].mining_pos;
+    debug(`set res ${i} to creep ${creep.id}`);
 
-    console.log('set res ' + i + ' to creep ' + creep.id);
     return dd.set_pos_as_destination(creep, mining_pos);
 }
 
 var roleMiner = {
     run: function (creep) {
         if (creep.spawning) return;
-        const DEBUG_ON = creep.name === 'MBG';
-        let debug = function (msg) {
-            if (DEBUG_ON)
-                console.log(`[${creep.name}]: ${msg}`);
-        }
+        db.set_creep_name(creep.name);
         debug('====== round begin ======');
         if (!dd.has_destination(creep)) {
-            debug('!has_destination, change_mode_mining');
-            change_mode_mining(creep, DEBUG_ON);
+            debug('!has_destination, set_mine_as_destination');
+            set_mine_as_destination(creep);
             return;
         }
 
         if (!dd.is_at_destination(creep)) {
-            var move_ok = dd.move_to_destination(creep, DEBUG_ON);
+            var move_ok = dd.move_to_destination(creep);
         } else {//mine
             if (creep.store.getFreeCapacity(RESOURCE_ENERGY) == 0) {
                 let list = creep.room.lookForAt(LOOK_STRUCTURES, creep.pos);

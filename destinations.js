@@ -1,3 +1,6 @@
+const db = require('debug_name');
+const debug = db.log;
+
 const is_store = (structure) => {
     return structure.structureType == STRUCTURE_EXTENSION ||
         structure.structureType == STRUCTURE_SPAWN;
@@ -179,11 +182,6 @@ var dd = {
     move_to_destination: function (creep, debug_mode, opt) {
         if (!opt) opt = {};
         if (!debug_mode) debug_mode = false;
-        const DEBUG_ON = debug_mode || creep.name == 'B3N';
-        let debug = function (msg) {
-            if (DEBUG_ON)
-                console.log(`[${creep.name}]: ${msg}`);
-        }
         debug('=== move begin ===');
         const PATH_REUSE = 20;
         const PATH_REUSE_SHORT = 5;
@@ -266,7 +264,7 @@ var dd = {
             }
         }
         let result = creep.moveByPath(creep.memory.my_path.path);
-        if (DEBUG_ON)
+        if (db.DEBUG_ON)
             creep.room.visual.poly(creep.memory.my_path.path);
 
         if (result == OK) {

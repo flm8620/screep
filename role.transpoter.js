@@ -1,7 +1,9 @@
 var utils = require('utils');
 var dd = require('destinations');
+const db = require('debug_name');
+const debug = db.log;
 
-function transpoter_pick_target(creep, debug) {
+function transpoter_pick_target(creep) {
     dd.clear_destination(creep);
     creep.memory.patience = PATIENCE_MAX;
     const used_capa = creep.store.getUsedCapacity();
@@ -89,9 +91,9 @@ function transpoter_pick_target(creep, debug) {
     return { id, goto_store };
 }
 
-function change_mode(creep, debug) {
+function change_mode(creep) {
     dd.clear_destination(creep);
-    const result = transpoter_pick_target(creep, debug);
+    const result = transpoter_pick_target(creep);
     creep.memory.goto_store = result.goto_store;
     if (!result.id)
         return false;
@@ -109,16 +111,12 @@ const PATIENCE_MAX = 20;
 var roleTranspoter = {
     run: function (creep) {
         if (creep.spawning) return;
-        const DEBUG_ON = creep.name === 'T9K';
-        let debug = function (msg) {
-            if (DEBUG_ON)
-                console.log(`[${creep.name}]: ${msg}`);
-        }
+        db.set_creep_name(creep.name);
         debug('====== round begin ======');
 
         if (!dd.has_destination(creep)) {
             debug('!has_destination, change_mode');
-            change_mode(creep, DEBUG_ON);
+            change_mode(creep);
             if (!dd.has_destination(creep)) {
                 debug('!has_destination');
                 utils.random_move(creep);
@@ -135,7 +133,7 @@ var roleTranspoter = {
             }
             if (!dd.is_near_destination(creep)) {
                 debug('!is_near_destination');
-                var move_ok = dd.move_to_destination(creep, DEBUG_ON);
+                var move_ok = dd.move_to_destination(creep);
                 if (move_ok == ERR_NO_PATH) {
                     creep.memory.patience--;
                     if (creep.memory.patience < PATIENCE_MAX)
@@ -178,7 +176,7 @@ var roleTranspoter = {
             }
 
             if (!dd.is_near_destination(creep)) {
-                dd.move_to_destination(creep, DEBUG_ON);
+                dd.move_to_destination(creep);
             } else {
                 const store = dd.get_dest_obj(creep);
                 if (store) {

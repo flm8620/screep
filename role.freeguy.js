@@ -1,14 +1,13 @@
 var utils = require('utils');
 var dd = require('destinations');
+const db = require('debug_name');
+const debug = db.log;
 
 var roleFreeguy = {
 
     run: function (creep) {
-        const DEBUG_ON = creep.name === 'F76';
-        let debug = function (msg) {
-            if (DEBUG_ON)
-                console.log(`[${creep.name}]: ${msg}`);
-        }
+        if (creep.spawning) return;
+        db.set_creep_name(creep.name);
         debug('====== round begin ======');
         if (false) {
             if (creep.memory.building) {
@@ -80,7 +79,7 @@ var roleFreeguy = {
         } else {
             if (!dd.is_near_destination(creep)) {
                 debug('!is_near_destination');
-                var move_ok = dd.move_to_destination(creep, DEBUG_ON);
+                var move_ok = dd.move_to_destination(creep);
                 if (move_ok == ERR_NO_PATH) {
                     debug('no path');
                 }

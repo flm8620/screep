@@ -1,15 +1,11 @@
 var dd = require('destinations');
-
-
+const db = require('debug_name');
+const debug = db.log;
 
 var roleAttacker = {
     run: function (creep) {
         if (creep.spawning) return;
-        const DEBUG_ON = creep.name === 'ARR';
-        let debug = function (msg) {
-            if (DEBUG_ON)
-                console.log(`[${creep.name}]: ${msg}`);
-        }
+        db.set_creep_name(creep.name);
         debug('====== round begin ======');
 
         {
@@ -63,16 +59,11 @@ var roleAttacker = {
 
         if (!dd.is_near_destination(creep)) {
             debug('!is_near_destination');
-            var move_ok = dd.move_to_destination(creep, DEBUG_ON);
+            var move_ok = dd.move_to_destination(creep);
             if (move_ok == ERR_NO_PATH) {
                 debug('no path');
             }
-
         }
-
-
-
-
     }
 };
 
