@@ -127,7 +127,7 @@ function create_explorer(spawn) {
 
     for (let rname in base.neighbor_rooms) {
         const nb = base.neighbor_rooms[rname];
-        if (!(rname in Game.rooms) && !Game.getObjectById(nb.explorer_id)) {
+        if (!(rname in Game.rooms) && !Game.creeps[nb.explorer_name]) {
             debug(`room ${rname} has no explorer`);
 
             if (!('create_creep_patience' in base))
@@ -135,7 +135,7 @@ function create_explorer(spawn) {
 
             let parts = [ATTACK, MOVE]
             debug(`parts = ${parts}`);
-            nb.explorer_id = null;
+            nb.explorer_name = '';
             const name = role_name[0].toUpperCase() + makeid(3);
             var ok = spawn.spawnCreep(
                 parts,

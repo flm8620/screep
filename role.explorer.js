@@ -44,9 +44,9 @@ var roleExplorer = {
             for (const rname in nbs) {
                 const nb = nbs[rname];
                 debug(`room ${rname}`);
-                if (!(rname in Game.rooms) || !Game.getObjectById(nb.explorer_id)) {
+                if (!(rname in Game.rooms) || !Game.creeps[nb.explorer_name]) {
                     debug(`pick room`);
-                    nb.explorer_id = creep.id;
+                    nb.explorer_name = creep.name;
                     creep.memory.dest_room = rname;
 
                     let d = new RoomPosition(25, 25, rname);

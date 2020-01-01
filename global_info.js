@@ -27,7 +27,7 @@ function init_bases() {
             const nb = nbs[nb_name];
             if (!nb.exit) nb.exit = e;
             if (!nb.status) nb.status = "unknown";
-            if (!('explorer_id' in nb)) nb.explorer_id = null;
+            if (!('explorer_name' in nb)) nb.explorer_name = '';
             if (nb_name in Game.rooms && nb.status != 'danger') {
                 nb.status = 'visible';
             }
