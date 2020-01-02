@@ -118,14 +118,17 @@ var dd = {
         return id;
     },
     pick_available_energy_store_id: function (creep) {
+        const room = Game.spawns[creep.memory.spawn_name].room;
+        const reserved = Memory.bases[room.name].reserved_energy;
         let id = dd.pick_id_using_filter(creep, FIND_STRUCTURES, (structure) =>
             structure.structureType == STRUCTURE_STORAGE
             && structure.store[RESOURCE_ENERGY] > 0
         );
         if (!id)
-            id = dd.pick_id_using_filter(creep, FIND_STRUCTURES, (structure) =>
-                is_store(structure) && structure.store.getUsedCapacity(RESOURCE_ENERGY) >= 50
-            );
+            if (!reserved || reserved < room.energyAvailable)
+                id = dd.pick_id_using_filter(creep, FIND_STRUCTURES, (structure) =>
+                    is_store(structure) && structure.store.getUsedCapacity(RESOURCE_ENERGY) >= 50
+                );
         return id;
     },
     pick_non_full_store_id: function (creep, resource_is_energy = true) {

@@ -38,7 +38,7 @@ function largest_possible_body(energy_available, start, repeat, largest_repeat) 
 }
 
 const ALL_DIRECTIONS = [TOP, TOP_RIGHT, RIGHT, BOTTOM_RIGHT, BOTTOM, BOTTOM_LEFT, LEFT, TOP_LEFT];
-const MAX_CREATE_CREEP_PATIENCE = 10;
+const MAX_CREATE_CREEP_PATIENCE = 30;
 const MAX_CREATE_ATTACKER_PATIENCE = 1000;
 
 
@@ -98,6 +98,7 @@ function create_creep(spawn, role_name, number) {
             if (ok === OK) {
                 debug(`spawn OK`);
                 b.create_creep_patience = MAX_CREATE_CREEP_PATIENCE;
+                b.reserved_energy = 0;
                 console.log('Spawn ' + spawn.name + ' new ' + role_name + ' ' + name);
                 return true;
             } else {
@@ -152,6 +153,7 @@ function create_explorer(spawn) {
             } else if (ok === OK) {
                 debug(`OK`);
                 base.create_creep_patience = MAX_CREATE_CREEP_PATIENCE;
+                base.reserved_energy = 0;
                 stop_creating = true;
                 break;
             }
@@ -205,6 +207,7 @@ function create_attacker(spawn) {
             } else if (ok === OK) {
                 debug(`OK`);
                 base.create_attacker_patience = MAX_CREATE_ATTACKER_PATIENCE;
+                base.reserved_energy = 0;
                 stop_creating = true;
                 break;
             }
@@ -234,12 +237,14 @@ function create_miner(spawn) {
             if (!('create_creep_patience' in base))
                 base.create_creep_patience = MAX_CREATE_CREEP_PATIENCE;
 
-            let energyCapacityAvailable = room.energyCapacityAvailable;
-            let parts = largest_possible_body(energyCapacityAvailable,
-                [WORK, CARRY, MOVE],
+            const energyCapacityAvailable = room.energyCapacityAvailable;
+            const parts = largest_possible_body(energyCapacityAvailable,
+                [WORK, WORK, CARRY, MOVE],
                 [WORK, WORK, MOVE],
-                base.create_creep_patience >= 8 ? 2 : base.create_creep_patience >= 4 ? 1 : 0
+                base.create_creep_patience >= MAX_CREATE_CREEP_PATIENCE / 2 ? 2 :
+                    base.create_creep_patience >= MAX_CREATE_CREEP_PATIENCE / 4 ? 1 : 0
             );
+            const energy_required = energy_of_body(parts);
             debug(`parts = ${parts}`);
             r.miner_name = null;
             const name = role_name[0].toUpperCase() + makeid(3);
@@ -254,11 +259,13 @@ function create_miner(spawn) {
             if (ok == ERR_NOT_ENOUGH_ENERGY) {
                 debug(`ERR_NOT_ENOUGH_ENERGY, room ${room.name} patience--`);
                 base.create_creep_patience--;
+                base.reserved_energy = energy_required;
                 stop_creating = true; //stop creating other creep
             } else if (ok === OK) {
                 debug(`OK`);
                 r.miner_name = name;
                 base.create_creep_patience = MAX_CREATE_CREEP_PATIENCE;
+                base.reserved_energy = 0;
                 stop_creating = true;
                 break;
             }
