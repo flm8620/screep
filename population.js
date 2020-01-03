@@ -142,7 +142,7 @@ function create_explorer(spawn) {
                 parts,
                 name,
                 {
-                    memory: { role: role_name, spawn_name: spawn.name, body: parts },
+                    memory: { role: role_name, spawn_name: spawn.name, body: parts, dest_room: rname },
                     directions: ALL_DIRECTIONS
                 }
             );
@@ -154,6 +154,7 @@ function create_explorer(spawn) {
                 debug(`OK`);
                 base.create_creep_patience = MAX_CREATE_CREEP_PATIENCE;
                 base.reserved_energy = 0;
+                nb.explorer_name = name;
                 stop_creating = true;
                 break;
             }

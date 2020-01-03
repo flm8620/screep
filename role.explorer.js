@@ -38,22 +38,10 @@ var roleExplorer = {
             }
         }
 
-        const base = Memory.bases[Game.spawns[creep.memory.spawn_name].room.name];
-        const nbs = base.neighbor_rooms;
-        if (!creep.memory.dest_room) {
-            for (const rname in nbs) {
-                const nb = nbs[rname];
-                debug(`room ${rname}`);
-                if (!(rname in Game.rooms) || !Game.creeps[nb.explorer_name]) {
-                    debug(`pick room`);
-                    nb.explorer_name = creep.name;
-                    creep.memory.dest_room = rname;
-
-                    let d = new RoomPosition(25, 25, rname);
-                    dd.set_pos_as_destination(creep, d);
-                    break;
-                }
-            }
+        if(!dd.has_destination(creep)){
+            debug(`pick room`);
+            let d = new RoomPosition(25, 25, creep.memory.dest_room);
+            dd.set_pos_as_destination(creep, d);
         }
 
         if (!dd.is_near_destination(creep)) {
