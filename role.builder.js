@@ -8,6 +8,7 @@ function change_mode_building(creep) {
     creep.memory.building = true;
     let site = dd.pick_nearest_site_id(creep);
     if (!site) {
+        debug(`no build site, try update`);
         site = dd.pick_controller_id(creep);
         if (!site) {
             creep.say('no build');
@@ -16,6 +17,7 @@ function change_mode_building(creep) {
             creep.say('update');
         }
     } else {
+        debug(`get build id ${site}`);
         creep.say('build');
     }
     var ok = dd.set_id_as_destination(creep, site);
@@ -63,11 +65,14 @@ var roleBuilder = {
             if (!dd.in_range_destination(creep, 3)) {
                 debug('moving');
                 dd.move_to_destination(creep, false, { range: 3 });
+            } else if (utils.is_at_border(creep)) {
+                utils.move_out_of_border(creep);
             } else {
-                debug('get struct');
+                debug('try struct');
                 const struct = dd.get_dest_obj(creep);
                 let build_ok = 9999;
                 if (struct) {
+                    debug(`got struct ${struct.id}`);
                     if (struct.structureType === STRUCTURE_CONTROLLER) {
                         build_ok = creep.upgradeController(struct);
                     } else if (struct.hits > 0) {

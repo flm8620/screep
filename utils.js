@@ -10,6 +10,23 @@ var utils = {
                 return i;
         }
     },
+    is_at_border: function (creep) {
+        const x = creep.pos.x;
+        const y = creep.pos.y;
+        return x == 0 || y == 0 || x == 49 || y == 49;
+    },
+    move_out_of_border: function (creep) {
+        const x = creep.pos.x;
+        const y = creep.pos.y;
+        if (x == 0)
+            creep.move(RIGHT);
+        else if (y == 0)
+            creep.move(BOTTOM);
+        else if (x == 49)
+            creep.move(TOP);
+        else if (y == 49)
+            creep.move(LEFT);
+    },
     get_or_zero: function (obj, field) {
         if (field in obj)
             return obj[field];

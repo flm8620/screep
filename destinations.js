@@ -7,6 +7,52 @@ const is_store = (structure) => {
 }
 
 var dd = {
+    pick_id_using_filter_with_nb_room: function (creep, find_name, filter) {
+        debug(`pick_id_using_filter_with_nb_room`);
+        var base_room = Game.spawns[creep.memory.spawn_name].room;
+        const base = Memory.bases[base_room.name];
+        const rooms_search = [base_room.name].concat(Object.keys(base.neighbor_rooms));
+        const length_obj = [];
+        for (const rname of rooms_search) {
+            debug(`searching room ${rname}`);
+            const room = Game.rooms[rname];
+            if (!room) continue;
+            let start_length = 0;
+            let pos_start = null;
+            if (creep.room.name === rname) {
+                pos_start = creep.pos;
+            } else {
+                const route = Game.map.findRoute(creep.room.name, rname);
+
+                if (!route.length) {
+                    debug(`no route`);
+                    continue;
+                }
+                if (route.length >= 2) {
+                    start_length += route.length * 50;
+                }
+                const exit = room.findExitTo(creep.room);
+                pos_start = room.find(exit)[0]
+            }
+            const t = pos_start.findClosestByPath(find_name, { filter });
+            if (!t) {
+                debug(`nothing found`);
+                continue;
+            }
+            const path_length = PathFinder.search(pos_start, { pos: t.pos, range: 1 }).path.length + start_length;
+            debug(`found ${t.id} with length ${path_length}`);
+            length_obj.push({ l: path_length, id: t.id });
+        }
+        let id = null;
+        let min_length = 99999;
+        for (const l_id of length_obj) {
+            if (l_id.l < min_length) {
+                min_length = l_id.l;
+                id = l_id.id;
+            }
+        }
+        return id;
+    },
     pick_id_using_filter: function (creep, find_name, filter) {//return null if empty
         var room = Game.spawns[creep.memory.spawn_name].room;
         var t;
@@ -68,27 +114,28 @@ var dd = {
     },
     pick_nearest_site_id: function (creep) {
         let filters = [
-            [FIND_STRUCTURES, (structure) =>
+            [FIND_MY_STRUCTURES, (structure) =>
                 structure.hits < 0.1 * structure.hitsMax
                 && structure.hits < 500],
-            [FIND_CONSTRUCTION_SITES, null],
-            [FIND_STRUCTURES, (structure) =>
+            [FIND_MY_CONSTRUCTION_SITES, null],
+            [FIND_MY_STRUCTURES, (structure) =>
                 structure.hits < 0.5 * structure.hitsMax
                 && structure.structureType != STRUCTURE_WALL
                 && structure.structureType != STRUCTURE_RAMPART],
-            [FIND_STRUCTURES, (structure) =>
+            [FIND_MY_STRUCTURES, (structure) =>
                 structure.hits < 0.8 * structure.hitsMax
                 && structure.structureType != STRUCTURE_WALL
                 && structure.structureType != STRUCTURE_RAMPART],
             ...[1000, 10000, 100000, 1000000].map((x) =>
-                [FIND_STRUCTURES, (structure) =>
+                [FIND_MY_STRUCTURES, (structure) =>
                     structure.structureType == STRUCTURE_RAMPART && structure.hits < x && structure.hits > 0 ||
                     structure.structureType == STRUCTURE_WALL && structure.hits < x && structure.hits > 0]
             )
         ];
         let id = null;
         for (let f of filters) {
-            id = dd.pick_id_using_filter(creep, f[0], f[1]);
+            //id = dd.pick_id_using_filter(creep, f[0], f[1]);
+            id = dd.pick_id_using_filter_with_nb_room(creep, f[0], f[1]);
             if (id) break;
         }
         return id;
