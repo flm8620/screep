@@ -73,11 +73,8 @@ function set_population_number() {
 
     for (const rname in bs) {
         const b = bs[rname];
-        const source_count = Object.entries(b.res).length;
         b.recipe_stages = 4;
         let r = b.recipe;
-        const n = Math.ceil(source_count * 1.5);
-        r['transpoter'] = [n, n, n, n];
         r['builder'] = [0, 2, 4, 8];
         r['freeguy'] = [0, 0, 0, 0];
     }

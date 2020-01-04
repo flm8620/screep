@@ -59,16 +59,7 @@ function create_creep(spawn, role_name, number) {
         [WORK, CARRY, MOVE],
         10
     );
-    if (role_name === 'transpoter') {
-        if (utils.get_or_zero(room_pop, 'miner') == 0)
-            return true;
-
-        parts = largest_possible_body(energyCapacityAvailable,
-            [CARRY, CARRY, MOVE],
-            [CARRY, CARRY, MOVE],
-            utils.get_or_zero(room_pop, 'transpoter') >= 1 ? 3 : 0
-        );
-    } else if (role_name === 'freeguy') {
+    if (role_name === 'freeguy') {
         parts = [WORK, WORK, WORK, WORK, WORK,
             CARRY, CARRY, CARRY, CARRY, CARRY,
             MOVE, MOVE, MOVE, MOVE, MOVE];
@@ -278,9 +269,8 @@ function create_attacker(spawn) {
     return stop_creating;
 }
 
-function create_miner(spawn) {
+function create_miner_and_transpoter(spawn) {
     let stop_creating = false;
-    const role_name = 'miner';
     const room = spawn.room;
     const rname = room.name;
     const base = Memory.bases[rname];
@@ -288,63 +278,104 @@ function create_miner(spawn) {
     const DEBUG_ON = false;
     let debug = function (msg) {
         if (DEBUG_ON)
-            console.log(`[${spawn.name}.create_miner]: ${msg}`);
+            console.log(`[${spawn.name}.create_miner_and_transpoter]: ${msg}`);
     }
 
+    let res_count = 0;
+    let miner_count = 0;
     for (let rid in base.res) {
+        res_count++;
         const r = base.res[rid];
-        if (!Game.creeps[r.miner_name]) {
-            debug(`res ${rid} has no miner`);
+        if (Game.creeps[r.miner_name])
+            miner_count++;
+    }
 
-            if (!('create_creep_patience' in base))
-                base.create_creep_patience = MAX_CREATE_CREEP_PATIENCE;
+    const transpoter_count = utils.get_or_zero(base.population, 'transpoter');
+    let mine_transpoter_ratio = 1.5;
+    if (transpoter_count < miner_count * mine_transpoter_ratio) {
+        const parts = largest_possible_body(energyCapacityAvailable,
+            [CARRY, CARRY, MOVE],
+            [CARRY, CARRY, MOVE],
+            transpoter_count >= 1 ? 3 : 0
+        );
+        const role_name = 'transpoter';
+        debug(`spawn ${spawn.name} ${role_name}`);
+        const name = role_name[0].toUpperCase() + makeid(3);
+        const ok = spawn.spawnCreep(
+            parts,
+            name,
+            {
+                memory: { role: role_name, spawn_name: spawn.name, body: parts },
+                directions: ALL_DIRECTIONS
+            }
+        );
+        if (ok === OK) {
+            debug(`spawn OK`);
+            b.create_creep_patience = MAX_CREATE_CREEP_PATIENCE;
+            b.reserved_energy = 0;
+            debug(`Spawn ${spawn.name} new ${role_name} ${name}`);
+            stop_creating = true;
+        } else {
+            debug(`spawn failed`);
+        }
+    } else if (miner_count < res_count) {
+        const role_name = 'miner';
+        for (let rid in base.res) {
+            const r = base.res[rid];
+            if (!Game.creeps[r.miner_name]) {
+                debug(`res ${rid} has no miner`);
 
-            const energyCapacityAvailable = room.energyCapacityAvailable;
-            const parts = largest_possible_body(energyCapacityAvailable,
-                [WORK, WORK, CARRY, MOVE],
-                [WORK, WORK, MOVE],
-                base.create_creep_patience >= MAX_CREATE_CREEP_PATIENCE / 2 ? 2 :
-                    base.create_creep_patience >= MAX_CREATE_CREEP_PATIENCE / 4 ? 1 : 0
-            );
-            const energy_required = energy_of_body(parts);
-            debug(`parts = ${parts}`);
-            r.miner_name = null;
-            const name = role_name[0].toUpperCase() + makeid(3);
-            var ok = spawn.spawnCreep(
-                parts,
-                name,
-                {
-                    memory: { role: role_name, spawn_name: spawn.name, body: parts, mine_id: rid },
-                    directions: ALL_DIRECTIONS
+                if (!('create_creep_patience' in base))
+                    base.create_creep_patience = MAX_CREATE_CREEP_PATIENCE;
+
+                const energyCapacityAvailable = room.energyCapacityAvailable;
+                const parts = largest_possible_body(energyCapacityAvailable,
+                    [WORK, WORK, CARRY, MOVE],
+                    [WORK, WORK, MOVE],
+                    base.create_creep_patience >= MAX_CREATE_CREEP_PATIENCE / 2 ? 2 :
+                        base.create_creep_patience >= MAX_CREATE_CREEP_PATIENCE / 4 ? 1 : 0
+                );
+                const energy_required = energy_of_body(parts);
+                debug(`parts = ${parts}`);
+                r.miner_name = null;
+                const name = role_name[0].toUpperCase() + makeid(3);
+                var ok = spawn.spawnCreep(
+                    parts,
+                    name,
+                    {
+                        memory: { role: role_name, spawn_name: spawn.name, body: parts, mine_id: rid },
+                        directions: ALL_DIRECTIONS
+                    }
+                );
+                if (ok == ERR_NOT_ENOUGH_ENERGY) {
+                    debug(`ERR_NOT_ENOUGH_ENERGY, room ${room.name} patience--`);
+                    base.create_creep_patience--;
+                    base.reserved_energy = energy_required;
+                    stop_creating = true; //stop creating other creep
+                } else if (ok === OK) {
+                    debug(`OK`);
+                    r.miner_name = name;
+                    base.create_creep_patience = MAX_CREATE_CREEP_PATIENCE;
+                    base.reserved_energy = 0;
+                    stop_creating = true;
+                    break;
                 }
-            );
-            if (ok == ERR_NOT_ENOUGH_ENERGY) {
-                debug(`ERR_NOT_ENOUGH_ENERGY, room ${room.name} patience--`);
-                base.create_creep_patience--;
-                base.reserved_energy = energy_required;
-                stop_creating = true; //stop creating other creep
-            } else if (ok === OK) {
-                debug(`OK`);
-                r.miner_name = name;
-                base.create_creep_patience = MAX_CREATE_CREEP_PATIENCE;
-                base.reserved_energy = 0;
-                stop_creating = true;
-                break;
             }
         }
     }
+
     return stop_creating;
 }
 
 var Population = {
     reproduce_spawn: function (spawn) {
-        if (create_miner(spawn)) {
+        if (create_attacker(spawn)) {
+            return;
+        }
+        if (create_miner_and_transpoter(spawn)) {
             return;
         }
         if (create_explorer(spawn)) {
-            return;
-        }
-        if (create_attacker(spawn)) {
             return;
         }
         if (create_claimer(spawn)) {
