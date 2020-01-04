@@ -251,6 +251,7 @@ function create_attacker(spawn) {
             debug(`room ${rname} has no attacker`);
 
             let parts = [ATTACK, ATTACK, ATTACK, MOVE, MOVE, MOVE]
+            const energy_required = energy_of_body(parts);
             debug(`parts = ${parts}`);
             const name = role_name[0].toUpperCase() + makeid(3);
             var ok = spawn.spawnCreep(
@@ -264,6 +265,7 @@ function create_attacker(spawn) {
             if (ok == ERR_NOT_ENOUGH_ENERGY) {
                 debug(`ERR_NOT_ENOUGH_ENERGY, room ${room.name} patience--`);
                 stop_creating = false; //never mind
+                base.reserved_energy = energy_required;
             } else if (ok === OK) {
                 debug(`OK`);
                 base.create_attacker_patience = MAX_CREATE_ATTACKER_PATIENCE;
