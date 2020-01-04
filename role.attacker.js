@@ -42,19 +42,10 @@ var roleAttacker = {
             }
         }
 
-        const base = Memory.bases[Game.spawns[creep.memory.spawn_name].room.name];
-        const nbs = base.neighbor_rooms;
         if (!dd.has_destination(creep)) {
             debug('!dd.has_destination(creep)');
-            for (const rname in nbs) {
-                if (rname in Game.rooms && Game.rooms[rname].controller && !Game.rooms[rname].controller.my && Game.rooms[rname].controller.owner) {
-                    creep.memory.dest_room = rname;
-
-                    let d = new RoomPosition(25, 25, rname);
-                    dd.set_pos_as_destination(creep, d);
-                    break;
-                }
-            }
+            let d = new RoomPosition(25, 25, creep.memory.dest_room);
+            dd.set_pos_as_destination(creep, d);
         }
 
         if (!dd.is_near_destination(creep)) {

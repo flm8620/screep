@@ -39,7 +39,7 @@ function largest_possible_body(energy_available, start, repeat, largest_repeat) 
 
 const ALL_DIRECTIONS = [TOP, TOP_RIGHT, RIGHT, BOTTOM_RIGHT, BOTTOM, BOTTOM_LEFT, LEFT, TOP_LEFT];
 const MAX_CREATE_CREEP_PATIENCE = 30;
-const MAX_CREATE_ATTACKER_PATIENCE = 1000;
+const MAX_CREATE_ATTACKER_PATIENCE = 30;
 
 
 // return true to stop create others
@@ -243,19 +243,21 @@ function create_attacker(spawn) {
     }
 
     for (let rname in base.neighbor_rooms) {
-        if (rname in Game.rooms && Game.rooms[rname].controller &&
-            !Game.rooms[rname].controller.my && Game.rooms[rname].controller.owner) {
+        const room = Game.rooms[rname];
+        if (!room) continue;
+        const enemy = room.find(FIND_HOSTILE_CREEPS);
+        if (!enemy.length) continue;
+        {
             debug(`room ${rname} has no attacker`);
 
-
-            let parts = [ATTACK, ATTACK, ATTACK, RANGED_ATTACK, MOVE, MOVE]
+            let parts = [ATTACK, ATTACK, ATTACK, MOVE, MOVE, MOVE]
             debug(`parts = ${parts}`);
             const name = role_name[0].toUpperCase() + makeid(3);
             var ok = spawn.spawnCreep(
                 parts,
                 name,
                 {
-                    memory: { role: role_name, spawn_name: spawn.name, body: parts },
+                    memory: { role: role_name, spawn_name: spawn.name, body: parts, dest_room: room.name },
                     directions: ALL_DIRECTIONS
                 }
             );
