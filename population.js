@@ -280,6 +280,7 @@ function create_miner_and_transpoter(spawn) {
         if (DEBUG_ON)
             console.log(`[${spawn.name}.create_miner_and_transpoter]: ${msg}`);
     }
+    const energyCapacityAvailable = room.energyCapacityAvailable;
 
     let res_count = 0;
     let miner_count = 0;
@@ -311,8 +312,8 @@ function create_miner_and_transpoter(spawn) {
         );
         if (ok === OK) {
             debug(`spawn OK`);
-            b.create_creep_patience = MAX_CREATE_CREEP_PATIENCE;
-            b.reserved_energy = 0;
+            base.create_creep_patience = MAX_CREATE_CREEP_PATIENCE;
+            base.reserved_energy = 0;
             debug(`Spawn ${spawn.name} new ${role_name} ${name}`);
             stop_creating = true;
         } else {
