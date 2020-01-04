@@ -4,6 +4,7 @@ var roleMiner = require('role.miner');
 var roleTranspoter = require('role.transpoter');
 var roleRecycle = require('role.recycle');
 var roleExplorer = require('role.explorer');
+var roleClaimer = require('role.claimer');
 var roleAttacker = require('role.attacker');
 var roleFreeguy = require('role.freeguy');
 var globalInfo = require('global_info');
@@ -35,6 +36,9 @@ module.exports.loop = function () {
 
         if (c.memory.role == 'attacker')
             roleAttacker.run(c);
+
+        if (c.memory.role == 'claimer')
+            roleClaimer.run(c);
 
         if (c.memory.role == 'freeguy')
             roleFreeguy.run(c);

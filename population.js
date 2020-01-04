@@ -163,6 +163,63 @@ function create_explorer(spawn) {
     return stop_creating;
 }
 
+function create_claimer(spawn) {
+    let stop_creating = false;
+    const role_name = 'claimer';
+    const room = spawn.room;
+    const rname = room.name;
+    const base = Memory.bases[rname];
+
+    const DEBUG_ON = false;
+    let debug = function (msg) {
+        if (DEBUG_ON)
+            console.log(`[${spawn.name}.create_claimer]: ${msg}`);
+    }
+
+    for (let rname in base.neighbor_rooms) {
+        const nb = base.neighbor_rooms[rname];
+        const room = Game.rooms[rname];
+        if (!room) continue;
+        const cs = room.find(FIND_STRUCTURES, {
+            filter: s => s.structureType == STRUCTURE_CONTROLLER
+        });
+        if (!cs.length) continue;
+        const controller = cs[0];
+        if (!controller.my && !Game.creeps[nb.claimer_name]) {
+            debug(`room ${rname} has no claimer`);
+
+            if (!('create_creep_patience' in base))
+                base.create_creep_patience = MAX_CREATE_CREEP_PATIENCE;
+
+            let parts = [CLAIM, CLAIM, MOVE]
+            debug(`parts = ${parts}`);
+            nb.claimer_name = '';
+            const name = role_name[0].toUpperCase() + makeid(3);
+            var ok = spawn.spawnCreep(
+                parts,
+                name,
+                {
+                    memory: { role: role_name, spawn_name: spawn.name, body: parts, dest_room: rname },
+                    directions: ALL_DIRECTIONS
+                }
+            );
+            if (ok == ERR_NOT_ENOUGH_ENERGY) {
+                debug(`ERR_NOT_ENOUGH_ENERGY, room ${room.name} patience--`);
+                base.create_creep_patience--;
+                stop_creating = false; //never mind
+            } else if (ok === OK) {
+                debug(`OK`);
+                base.create_creep_patience = MAX_CREATE_CREEP_PATIENCE;
+                base.reserved_energy = 0;
+                nb.claimer_name = name;
+                stop_creating = true;
+                break;
+            }
+        }
+    }
+    return stop_creating;
+}
+
 function create_attacker(spawn) {
     let stop_creating = false;
     const role_name = 'attacker';
@@ -284,6 +341,9 @@ var Population = {
             return;
         }
         if (create_attacker(spawn)) {
+            return;
+        }
+        if (create_claimer(spawn)) {
             return;
         }
         const base = Memory.bases[spawn.room.name];
