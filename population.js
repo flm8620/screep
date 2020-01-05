@@ -176,7 +176,13 @@ function create_claimer(spawn) {
         });
         if (!cs.length) continue;
         const controller = cs[0];
-        if (!controller.my && !Game.creeps[nb.claimer_name]) {
+        if (!controller.my &&
+            !(
+                controller.reservation &&
+                controller.reservation.username === 'Leman' &&
+                controller.reservation.ticksToEnd > 3000
+            ) &&
+            !Game.creeps[nb.claimer_name]) {
             debug(`room ${rname} has no claimer`);
 
             if (!('create_creep_patience' in base))
