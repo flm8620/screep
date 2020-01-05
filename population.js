@@ -39,7 +39,7 @@ function largest_possible_body(energy_available, start, repeat, largest_repeat) 
 
 const ALL_DIRECTIONS = [TOP, TOP_RIGHT, RIGHT, BOTTOM_RIGHT, BOTTOM, BOTTOM_LEFT, LEFT, TOP_LEFT];
 const MAX_CREATE_CREEP_PATIENCE = 30;
-const MAX_CREATE_ATTACKER_PATIENCE = 30;
+const MAX_CREATE_ATTACKER_PATIENCE = 5;
 
 
 // return true to stop create others
