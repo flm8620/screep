@@ -209,7 +209,7 @@ var dd = {
         return dd.pick_id_using_filter(creep, FIND_STRUCTURES, filter);
     },
     pick_controller_id: function (creep) {
-        return creep.room.controller.id;
+        return Game.spawns[creep.memory.spawn_name].room.controller.id;
     },
     set_id_as_destination: function (creep, id) {
         dd.clear_destination(creep);
