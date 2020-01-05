@@ -66,52 +66,6 @@ var dd = {
         if (!t) return null;
         return t.id;
     },
-    pick_res_id_in_nb_room_using_filter: function (creep, debug = false) {
-        const bname = Game.spawns[creep.memory.spawn_name].room.name;
-        const b = Memory.bases[bname];
-        const rooms_search = [bname].concat(Object.keys(b.neighbor_rooms));
-        const score_id = [];
-        for (const rname of rooms_search) {
-            let pos_start = null;
-            const room = Game.rooms[rname];
-            if (!room) continue;
-            if (room.controller && room.controller.owner && !room.controller.my) continue;
-            let start_length = 1;
-            if (rname === creep.pos.roomName) {
-                pos_start = creep.pos;
-            } else {
-                pos_start = room.find(room.findExitTo(creep.pos.roomName))[0];
-                start_length = 20;
-            }
-            const tbs = room.find(FIND_TOMBSTONES);
-            for (const tb of tbs) {
-                const path_length = PathFinder.search(pos_start, { pos: tb.pos, range: 1 }).path.length + start_length;
-                const score = tb.store.getUsedCapacity() / path_length;
-                score_id.push({ id: tb.id, score });
-            }
-            const dps = room.find(FIND_DROPPED_RESOURCES);
-            for (const dp of dps) {
-                const path_length = PathFinder.search(pos_start, { pos: dp.pos, range: 1 }).path.length + start_length;
-                const score = dp.amount / path_length;
-                score_id.push({ id: dp.id, score });
-            }
-            const cts = room.find(FIND_STRUCTURES, { filter: (structure) => structure.structureType == STRUCTURE_CONTAINER });
-            for (const ct of cts) {
-                const path_length = PathFinder.search(pos_start, { pos: ct.pos, range: 1 }).path.length + start_length;
-                const score = ct.store.getUsedCapacity() / path_length;
-                score_id.push({ id: ct.id, score });
-            }
-        }
-        let id = null;
-        let max_score = 0;
-        for (const s_id of score_id) {
-            if (s_id.score > max_score) {
-                max_score = s_id.score;
-                id = s_id.id;
-            }
-        }
-        return id;
-    },
     pick_nearest_site_id: function (creep) {
         let filters = [
             [FIND_MY_STRUCTURES, (structure) =>
@@ -138,30 +92,6 @@ var dd = {
             id = dd.pick_id_using_filter_with_nb_room(creep, f[0], f[1]);
             if (id) break;
         }
-        return id;
-    },
-    pick_droped_stuff: function (creep, debug = false) {
-        let id = dd.pick_res_id_in_nb_room_using_filter(creep, debug);
-
-        // if (!id) {
-        //     const base = Memory.bases[Game.spawns[creep.memory.spawn_name].room.name];
-        //     for (const rname in base.neighbor_rooms) {
-        //         const room = Game.rooms[rname];
-        //         if (!room) continue;
-        //         const ruins = room.find(FIND_RUINS);
-        //         for (const r of ruins) {
-        //             if (r.store && r.store.getUsedCapacity() > 3000)
-        //                 id = r.id;
-        //         }
-        //         if (!id) {
-        //             const dropped = room.find(FIND_DROPPED_RESOURCES);
-        //             for (const d of dropped) {
-        //                 if (d.amount > 3000)
-        //                     id = d.id;
-        //             }
-        //         }
-        //     }
-        // }
         return id;
     },
     pick_available_energy_store_id: function (creep) {
