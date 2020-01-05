@@ -118,11 +118,11 @@ var dd = {
                 structure.hits < 0.1 * structure.hitsMax
                 && structure.hits < 500],
             [FIND_MY_CONSTRUCTION_SITES, null],
-            [FIND_MY_STRUCTURES, (structure) =>
+            [FIND_STRUCTURES, (structure) =>
                 structure.hits < 0.5 * structure.hitsMax
                 && structure.structureType != STRUCTURE_WALL
                 && structure.structureType != STRUCTURE_RAMPART],
-            [FIND_MY_STRUCTURES, (structure) =>
+            [FIND_STRUCTURES, (structure) =>
                 structure.hits < 0.8 * structure.hitsMax
                 && structure.structureType != STRUCTURE_WALL
                 && structure.structureType != STRUCTURE_RAMPART],

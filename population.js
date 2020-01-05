@@ -323,6 +323,7 @@ function create_miner_and_transpoter(spawn) {
         const role_name = 'miner';
         for (let rid in base.res) {
             const r = base.res[rid];
+            if (!Game.getObjectById(rid)) continue;
             if (!Game.creeps[r.miner_name]) {
                 debug(`res ${rid} has no miner`);
 
@@ -370,18 +371,15 @@ function create_miner_and_transpoter(spawn) {
 
 var Population = {
     reproduce_spawn: function (spawn) {
-        if (create_attacker(spawn)) {
+        if (create_attacker(spawn))
             return;
-        }
-        if (create_miner_and_transpoter(spawn)) {
+        if (create_miner_and_transpoter(spawn))
             return;
-        }
-        if (create_explorer(spawn)) {
+        if (create_explorer(spawn))
             return;
-        }
-        if (create_claimer(spawn)) {
+        if (create_claimer(spawn))
             return;
-        }
+
         const base = Memory.bases[spawn.room.name];
         let n = base.recipe_stages
         for (let stage = 0; stage < n; stage++) {
