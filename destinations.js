@@ -7,11 +7,13 @@ const is_store = (structure) => {
 }
 
 var dd = {
-    pick_id_using_filter_with_nb_room: function (creep, find_name, filter) {
-        debug(`pick_id_using_filter_with_nb_room`);
+    pick_id_using_filter: function (creep, find_name, filter, nb_room = true) {
+        debug(`pick_id_using_filter`);
         var base_room = Game.spawns[creep.memory.spawn_name].room;
         const base = Memory.bases[base_room.name];
-        const rooms_search = [base_room.name].concat(Object.keys(base.neighbor_rooms));
+        let rooms_search = [base_room.name];
+        if (nb_room)
+            rooms_search = rooms_search.concat(Object.keys(base.neighbor_rooms));;
         const length_obj = [];
         for (const rname of rooms_search) {
             debug(`searching room ${rname}`);
@@ -53,19 +55,6 @@ var dd = {
         }
         return id;
     },
-    pick_id_using_filter: function (creep, find_name, filter) {//return null if empty
-        var room = Game.spawns[creep.memory.spawn_name].room;
-        var t;
-        if (creep.room.name == room.name) {
-            t = creep.pos.findClosestByRange(find_name, { filter });
-        } else {
-            const exit = room.findExitTo(creep.room);
-            const p = room.find(exit)[0]
-            t = p.findClosestByRange(find_name, { filter });
-        }
-        if (!t) return null;
-        return t.id;
-    },
     pick_nearest_site_id: function (creep) {
         let filters = [
             [FIND_MY_STRUCTURES, (structure) =>
@@ -88,8 +77,7 @@ var dd = {
         ];
         let id = null;
         for (let f of filters) {
-            //id = dd.pick_id_using_filter(creep, f[0], f[1]);
-            id = dd.pick_id_using_filter_with_nb_room(creep, f[0], f[1]);
+            id = dd.pick_id_using_filter(creep, f[0], f[1]);
             if (id) break;
         }
         return id;
@@ -99,12 +87,14 @@ var dd = {
         const reserved = Memory.bases[room.name].reserved_energy;
         let id = dd.pick_id_using_filter(creep, FIND_STRUCTURES, (structure) =>
             structure.structureType == STRUCTURE_STORAGE
-            && structure.store[RESOURCE_ENERGY] > 0
+            && structure.store[RESOURCE_ENERGY] > 0,
+            false
         );
         if (!id)
             if (!reserved || reserved < room.energyAvailable)
                 id = dd.pick_id_using_filter(creep, FIND_STRUCTURES, (structure) =>
-                    is_store(structure) && structure.store.getUsedCapacity(RESOURCE_ENERGY) >= 50
+                    is_store(structure) && structure.store.getUsedCapacity(RESOURCE_ENERGY) >= 50,
+                    false
                 );
         return id;
     },
@@ -119,16 +109,19 @@ var dd = {
             if (!id)
                 id = dd.pick_id_using_filter(creep, FIND_STRUCTURES,
                     (structure) => (structure.structureType == STRUCTURE_EXTENSION ||
-                        structure.structureType == STRUCTURE_SPAWN) && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+                        structure.structureType == STRUCTURE_SPAWN) && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
+                    false
                 );
             if (!id)
                 id = dd.pick_id_using_filter(creep, FIND_STRUCTURES,
-                    (structure) => structure.structureType == STRUCTURE_TOWER && structure.store.getUsedCapacity(RESOURCE_ENERGY) < 0.9 * structure.store.getCapacity(RESOURCE_ENERGY)
+                    (structure) => structure.structureType == STRUCTURE_TOWER &&
+                        structure.store.getUsedCapacity(RESOURCE_ENERGY) < 0.9 * structure.store.getCapacity(RESOURCE_ENERGY)
                 );
         }
         if (!id)
             id = dd.pick_id_using_filter(creep, FIND_STRUCTURES,
-                (structure) => structure.structureType == STRUCTURE_STORAGE && structure.store.getFreeCapacity() > 0
+                (structure) => structure.structureType == STRUCTURE_STORAGE && structure.store.getFreeCapacity() > 0,
+                false
             );
         return id;
     },
