@@ -144,9 +144,9 @@ var dd = {
     set_id_as_destination: function (creep, id) {
         dd.clear_destination(creep);
         if (!id) return false;
-        creep.memory.dest_id = id;
         var pos = Game.getObjectById(id).pos;
         if (!pos) return false;
+        creep.memory.dest_id = id;
         creep.memory.dest_pos = pos;
         //creep.say('go ' + creep.memory.dest_pos.x + ' ' + creep.memory.dest_pos.y);
         return true;
