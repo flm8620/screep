@@ -204,8 +204,12 @@ var dd = {
 
         if (creep.memory.move_patience <= 0 || creep.memory.my_path.count_down <= 0) {
             creep.memory.move_patience = MAX_MOVE_PATIENCE
-            let path = creep.pos.findPathTo(
+            const p = creep.pos;
+            debug(`findPath from ${p.x} ${p.y} ${p.roomName} To ${dest_pos.x} ${dest_pos.y} ${dest_pos.roomName}`);
+            if (p.roomName !== dest_pos.roomName && opt.range) opt.range = 0;
+            let path = p.findPathTo(
                 new RoomPosition(dest_pos.x, dest_pos.y, dest_pos.roomName), opt);
+
             creep.memory.my_path =
             {
                 path,
@@ -223,6 +227,9 @@ var dd = {
 
         //now try to move
         debug(`try to move`);
+        //so next time we can check whether this move is failed
+        creep.memory.last_pos_before_move = creep.pos;
+
         let path = creep.memory.my_path.path;
         if (path.length === 0) {
             debug(`path empty`);
@@ -241,14 +248,12 @@ var dd = {
             creep.room.visual.poly(creep.memory.my_path.path);
 
         if (result == OK) {
-            //so next time we can check whether this move is failed
-            creep.memory.last_pos_before_move = creep.pos;
             creep.memory.my_path.count_down--;
             if (last_move_failed) {
                 result = ERR_NO_PATH;
             }
         } else {
-            delete creep.memory.last_pos_before_move;
+
         }
 
         if (result == ERR_NOT_FOUND) {
