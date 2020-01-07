@@ -188,7 +188,7 @@ function create_claimer(spawn) {
             if (!('create_creep_patience' in base))
                 base.create_creep_patience = MAX_CREATE_CREEP_PATIENCE;
 
-            let parts = [CLAIM, CLAIM, MOVE]
+            let parts = [CLAIM, CLAIM, MOVE, MOVE]
             debug(`parts = ${parts}`);
             nb.claimer_name = '';
             const name = role_name[0].toUpperCase() + makeid(3);

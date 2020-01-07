@@ -14,38 +14,32 @@ function transpoter_pick_target(creep) {
     const rooms_search = [bname].concat(Object.keys(b.neighbor_rooms));
     const score_id = [];
     for (const rname of rooms_search) {
-        let pos_start = null;
         const room = Game.rooms[rname];
         if (!room) continue;
         if (room.controller && room.controller.owner && !room.controller.my) continue;
-        let start_length = 1;
-        if (rname === creep.pos.roomName) {
-            pos_start = creep.pos;
-        } else {
-            pos_start = room.find(room.findExitTo(creep.pos.roomName))[0];
-            start_length = 10;
+
+
+        for (const e of room.find(FIND_TOMBSTONES)) {
+            const path_length = utils.distance_between_pos(creep.pos, e.pos);
+            const score = Math.min(free_capa, e.store.getUsedCapacity()) / path_length;
+            score_id.push({ id: e.id, score, goto_store: false });
         }
-        for (const tb of room.find(FIND_TOMBSTONES)) {
-            const path_length = PathFinder.search(pos_start, { pos: tb.pos, range: 1 }).path.length + start_length;
-            const score = Math.min(free_capa, tb.store.getUsedCapacity()) / path_length;
-            score_id.push({ id: tb.id, score, goto_store: false });
+        for (const e of room.find(FIND_DROPPED_RESOURCES)) {
+            const path_length = utils.distance_between_pos(creep.pos, e.pos);
+            const score = Math.min(free_capa, e.amount) / path_length;
+            score_id.push({ id: e.id, score, goto_store: false });
         }
-        for (const dp of room.find(FIND_DROPPED_RESOURCES)) {
-            const path_length = PathFinder.search(pos_start, { pos: dp.pos, range: 1 }).path.length + start_length;
-            const score = Math.min(free_capa, dp.amount) / path_length;
-            score_id.push({ id: dp.id, score, goto_store: false });
-        }
-        for (const ct of room.find(FIND_STRUCTURES, { filter: (structure) => structure.structureType == STRUCTURE_CONTAINER })) {
-            const path_length = PathFinder.search(pos_start, { pos: ct.pos, range: 1 }).path.length + start_length;
-            const score = Math.min(free_capa, ct.store.getUsedCapacity()) / path_length;
-            score_id.push({ id: ct.id, score, goto_store: false });
+        for (const e of room.find(FIND_STRUCTURES, { filter: (structure) => structure.structureType == STRUCTURE_CONTAINER })) {
+            const path_length = utils.distance_between_pos(creep.pos, e.pos);
+            const score = Math.min(free_capa, e.store.getUsedCapacity()) / path_length;
+            score_id.push({ id: e.id, score, goto_store: false });
         }
         let found = false;
         if (used_capa == used_capa_energy) {
             for (const t of room.find(FIND_STRUCTURES, {
                 filter: (s) => (s.structureType == STRUCTURE_TOWER) && s.store.getUsedCapacity(RESOURCE_ENERGY) < 500
             })) {
-                const path_length = PathFinder.search(pos_start, { pos: t.pos, range: 1 }).path.length + start_length;
+                const path_length = utils.distance_between_pos(creep.pos, t.pos);
                 const score = Math.min(used_capa_energy, t.store.getFreeCapacity(RESOURCE_ENERGY)) / path_length;
                 score_id.push({ id: t.id, score, goto_store: true });
                 found = true;
@@ -55,7 +49,7 @@ function transpoter_pick_target(creep) {
                     filter: (s) => (s.structureType == STRUCTURE_EXTENSION ||
                         s.structureType == STRUCTURE_SPAWN) && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
                 })) {
-                    const path_length = PathFinder.search(pos_start, { pos: t.pos, range: 1 }).path.length + start_length;
+                    const path_length = utils.distance_between_pos(creep.pos, t.pos);
                     const score = Math.min(used_capa_energy, t.store.getFreeCapacity(RESOURCE_ENERGY)) / path_length;
                     score_id.push({ id: t.id, score, goto_store: true });
                     found = true;
@@ -64,7 +58,7 @@ function transpoter_pick_target(creep) {
                 for (const t of room.find(FIND_STRUCTURES, {
                     filter: (s) => (s.structureType == STRUCTURE_STORAGE) && s.store.getFreeCapacity() > 0
                 })) {
-                    const path_length = PathFinder.search(pos_start, { pos: t.pos, range: 1 }).path.length + start_length;
+                    const path_length = utils.distance_between_pos(creep.pos, t.pos);
                     const score = Math.min(used_capa_energy, t.store.getCapacity()) / path_length;
                     score_id.push({ id: t.id, score, goto_store: true });
                 }
@@ -73,7 +67,7 @@ function transpoter_pick_target(creep) {
             for (const t of room.find(FIND_STRUCTURES, {
                 filter: (s) => (s.structureType == STRUCTURE_STORAGE) && s.store.getFreeCapacity() > 0
             })) {
-                const path_length = PathFinder.search(pos_start, { pos: t.pos, range: 1 }).path.length + start_length;
+                const path_length = utils.distance_between_pos(creep.pos, t.pos);
                 const score = Math.min(used_capa_energy, t.store.getCapacity()) / path_length;
                 score_id.push({ id: t.id, score, goto_store: true });
             }

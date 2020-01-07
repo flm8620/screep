@@ -1,4 +1,27 @@
 var utils = {
+    distance_between_pos: function (pa, pb) {
+        let p1 = new RoomPosition(pa.x, pa.y, pa.roomName);
+        let p2 = new RoomPosition(pb.x, pb.y, pb.roomName);
+        if (p1.roomName === p2.roomName) {
+            return p1.findPathTo(p2).length;
+        }
+        let start_length = 0;
+        const route = Game.map.findRoute(p1.roomName, p2.roomName);
+        if (!route.length) {
+            debug(`no route`);
+            return 1000000;
+        }
+        if (route.length >= 2) {
+            start_length += (route.length - 1) * 50;
+        }
+
+        const r1 = Game.rooms[p1.roomName];
+        const r2 = Game.rooms[p2.roomName];
+        const pos1_start = r1.find(r1.findExitTo(r2))[0];
+        const pos2_start = r2.find(r2.findExitTo(r1))[0];
+        start_length += pos1_start.findPathTo(p1).length + pos2_start.findPathTo(p2).length;
+        return start_length;
+    },
     random_idx_with_probability: function (probs) {
         let sum = 0;
         for (var i = 0; i < probs.length; i++) sum += probs[i];

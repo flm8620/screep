@@ -23,11 +23,9 @@ function init_bases() {
         const nbs = b.neighbor_rooms;
         const exits = Game.map.describeExits(bname);
         let nb_names = Object.keys(exits).map(x => exits[x]);
-        console.log(`${nb_names}`);
         if (extra_neighbors[bname]) {
             nb_names = nb_names.concat(extra_neighbors[bname]);
         }
-        console.log(`concat: ${nb_names}`);
         for (const nb_name of nb_names) {
             if (seen_rooms.has(nb_name)) continue;
             seen_rooms.add(nb_name);

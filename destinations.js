@@ -31,7 +31,7 @@ var dd = {
                     continue;
                 }
                 if (route.length >= 2) {
-                    start_length += route.length * 50;
+                    start_length += (route.length - 1) * 50;
                 }
                 const exit = room.findExitTo(creep.room);
                 pos_start = room.find(exit)[0]
