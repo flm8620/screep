@@ -30,16 +30,16 @@ var roleClaimer = {
                     const controller = dd.get_dest_obj(creep);
                     if (controller.owner) {
                         if (!controller.my) {
-                            creep.attackController(controller);
-                            debug(`attackController`);
+                            const ok = creep.attackController(controller);
+                            debug(`attackController: ${ok}`);
                         }
                         else {
-                            creep.upgradeController(controller);
-                            debug(`upgradeController`);
+                            const ok = creep.upgradeController(controller);
+                            debug(`upgradeController: ${ok}`);
                         }
                     } else {
-                        creep.reserveController(controller);
-                        debug(`reserveController`);
+                        const ok = creep.reserveController(controller);
+                        debug(`reserveController: ${ok}`);
                     }
                 }
             }

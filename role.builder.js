@@ -37,6 +37,11 @@ var roleBuilder = {
         db.set_creep_name(creep.name);
         debug('====== round begin ======');
         if (creep.spawning) return;
+        if (utils.is_at_border(creep)) {
+            debug(`move_out_of_border from ${creep.pos.roomName}`);
+            utils.move_out_of_border(creep);
+            return;
+        }
         if (creep.memory.building) {
             debug('try building');
             if (creep.store.getUsedCapacity(RESOURCE_ENERGY) == 0) {
@@ -65,8 +70,6 @@ var roleBuilder = {
             if (!dd.in_range_destination(creep, 3)) {
                 debug('moving');
                 dd.move_to_destination(creep, false, { range: 3 });
-            } else if (utils.is_at_border(creep)) {
-                utils.move_out_of_border(creep);
             } else {
                 debug('try struct');
                 const struct = dd.get_dest_obj(creep);

@@ -46,9 +46,9 @@ var utils = {
         else if (y == 0)
             creep.move(BOTTOM);
         else if (x == 49)
-            creep.move(TOP);
-        else if (y == 49)
             creep.move(LEFT);
+        else if (y == 49)
+            creep.move(TOP);
     },
     get_or_zero: function (obj, field) {
         if (field in obj)
