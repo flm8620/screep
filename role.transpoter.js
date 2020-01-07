@@ -8,7 +8,7 @@ function transpoter_pick_target(creep) {
     creep.memory.patience = PATIENCE_MAX;
     const used_capa = creep.store.getUsedCapacity();
     const used_capa_energy = creep.store.getUsedCapacity(RESOURCE_ENERGY);
-    const free_capa = creep.store.getFreeCapacity() * 2;
+    const free_capa = creep.store.getFreeCapacity();
     const bname = Game.spawns[creep.memory.spawn_name].room.name;
     const b = Memory.bases[bname];
     const rooms_search = [bname].concat(Object.keys(b.neighbor_rooms));
