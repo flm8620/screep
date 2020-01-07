@@ -14,18 +14,26 @@ function init_bases() {
         b.spawns.push(name);
     }
 
+    const extra_neighbors = {
+        'W9S4': ['W9S6', 'W9S7']
+    };
+
     for (const [bname, b] of Object.entries(bs)) {
         if (!b.neighbor_rooms) b.neighbor_rooms = {};
         const nbs = b.neighbor_rooms;
         const exits = Game.map.describeExits(bname);
-        for (const e in exits) {
-            const nb_name = exits[e];
+        let nb_names = Object.keys(exits).map(x => exits[x]);
+        console.log(`${nb_names}`);
+        if (extra_neighbors[bname]) {
+            nb_names = nb_names.concat(extra_neighbors[bname]);
+        }
+        console.log(`concat: ${nb_names}`);
+        for (const nb_name of nb_names) {
             if (seen_rooms.has(nb_name)) continue;
             seen_rooms.add(nb_name);
 
             if (!nbs[nb_name]) nbs[nb_name] = {};
             const nb = nbs[nb_name];
-            if (!nb.exit) nb.exit = e;
             if (!nb.status) nb.status = "unknown";
             if (!('explorer_name' in nb)) nb.explorer_name = '';
             if (nb_name in Game.rooms && nb.status != 'danger') {

@@ -247,7 +247,7 @@ function create_attacker(spawn) {
         {
             debug(`room ${rname} has no attacker`);
 
-            let parts = [ATTACK, ATTACK, ATTACK, MOVE, MOVE, MOVE]
+            let parts = [ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE];
             const energy_required = energy_of_body(parts);
             debug(`parts = ${parts}`);
             const name = role_name[0].toUpperCase() + makeid(3);
