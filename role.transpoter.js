@@ -8,7 +8,7 @@ function transpoter_pick_target(creep) {
     creep.memory.patience = PATIENCE_MAX;
     const used_capa = creep.store.getUsedCapacity();
     const used_capa_energy = creep.store.getUsedCapacity(RESOURCE_ENERGY);
-    const free_capa = creep.store.getFreeCapacity();
+    const free_capa = creep.store.getFreeCapacity() * 2;
     const bname = Game.spawns[creep.memory.spawn_name].room.name;
     const b = Memory.bases[bname];
     const rooms_search = [bname].concat(Object.keys(b.neighbor_rooms));
@@ -23,7 +23,7 @@ function transpoter_pick_target(creep) {
             pos_start = creep.pos;
         } else {
             pos_start = room.find(room.findExitTo(creep.pos.roomName))[0];
-            start_length = 20;
+            start_length = 10;
         }
         for (const tb of room.find(FIND_TOMBSTONES)) {
             const path_length = PathFinder.search(pos_start, { pos: tb.pos, range: 1 }).path.length + start_length;
