@@ -82,6 +82,37 @@ var utils = {
             LEFT,
             TOP_LEFT];
         creep.move(moves[idx]);
+    },
+    random_move_in_room: function (creep) {
+        if (utils.is_at_border(creep)) {
+            utils.move_out_of_border(creep);
+            return;
+        }
+        const x = creep.pos.x;
+        const y = creep.pos.y;
+        let prob = [1, 1, 1, 1, 1, 1, 1, 1];
+        if (x == 1) {
+            prob[5] = prob[6] = prob[7] = 0;
+        }
+        if (y == 1) {
+            prob[7] = prob[0] = prob[1] = 0;
+        }
+        if (x == 48) {
+            prob[1] = prob[2] = prob[3] = 0;
+        }
+        if (y == 48) {
+            prob[3] = prob[4] = prob[5] = 0;
+        }
+        let idx = utils.random_idx_with_probability(prob);
+        let moves = [TOP,
+            TOP_RIGHT,
+            RIGHT,
+            BOTTOM_RIGHT,
+            BOTTOM,
+            BOTTOM_LEFT,
+            LEFT,
+            TOP_LEFT];
+        creep.move(moves[idx]);
     }
 }
 module.exports = utils;

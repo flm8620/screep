@@ -1,5 +1,6 @@
 var dd = require('destinations');
 const db = require('debug_name');
+const utils = require('utils');
 const debug = db.log;
 
 var roleAttacker = {
@@ -40,6 +41,11 @@ var roleAttacker = {
                 }
                 return;
             }
+        }
+
+        if (creep.pos.roomName === creep.memory.dest_room) {
+            utils.random_move_in_room(creep);
+            return;
         }
 
         if (!dd.has_destination(creep)) {
