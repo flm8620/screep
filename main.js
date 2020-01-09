@@ -19,6 +19,21 @@ module.exports.loop = function () {
     }
     globalInfo.per_tick();
 
+    if (!Memory.transpoter_reservation) Memory.transpoter_reservation = {};
+    for (let id in Memory.transpoter_reservation) {
+        if (_.isEmpty(Memory.transpoter_reservation[id]))
+            delete Memory.transpoter_reservation[id];
+        else if (!Game.getObjectById(id))
+            delete Memory.transpoter_reservation[id];
+        else {
+            const res = Memory.transpoter_reservation[id];
+            for (const creep_name in res) {
+                if (!Game.creeps[creep_name])
+                    delete res[creep_name];
+            }
+        }
+    }
+
     for (let name in Game.creeps) {
         let c = Game.creeps[name];
 

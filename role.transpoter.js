@@ -3,6 +3,14 @@ var dd = require('destinations');
 const db = require('debug_name');
 const debug = db.log;
 
+function remove_reservation(creep) {
+    const id = creep.memory.reserved_id;
+    let reservation = Memory.transpoter_reservation[id];
+    if (!reservation) return;
+    delete reservation[creep.name];
+    delete creep.memory.reserved_id;
+}
+
 function transpoter_pick_target(creep) {
     dd.clear_destination(creep);
     creep.memory.patience = PATIENCE_MAX;
@@ -18,21 +26,28 @@ function transpoter_pick_target(creep) {
         if (!room) continue;
         if (room.controller && room.controller.owner && !room.controller.my) continue;
 
+        const register_target = function (target_id, target_amount, path_length) {
+            const reserve = Memory.transpoter_reservation[target_id];
+            if (reserve) 
+                for (const creep_name in reserve) 
+                    target_amount -= reserve[creep_name].amount;
+            
+            if (target_amount <= 0) return;
+            const score = Math.min(free_capa, target_amount) / path_length;
+            score_id.push({ id: target_id, score, goto_store: false });
+        };
 
         for (const e of room.find(FIND_TOMBSTONES)) {
             const path_length = utils.distance_between_pos(creep.pos, e.pos);
-            const score = Math.min(free_capa, e.store.getUsedCapacity()) / path_length;
-            score_id.push({ id: e.id, score, goto_store: false });
+            register_target(e.id, e.store.getUsedCapacity(), path_length);
         }
         for (const e of room.find(FIND_DROPPED_RESOURCES)) {
             const path_length = utils.distance_between_pos(creep.pos, e.pos);
-            const score = Math.min(free_capa, e.amount) / path_length;
-            score_id.push({ id: e.id, score, goto_store: false });
+            register_target(e.id, e.amount, path_length);
         }
         for (const e of room.find(FIND_STRUCTURES, { filter: (structure) => structure.structureType == STRUCTURE_CONTAINER })) {
             const path_length = utils.distance_between_pos(creep.pos, e.pos);
-            const score = Math.min(free_capa, e.store.getUsedCapacity()) / path_length;
-            score_id.push({ id: e.id, score, goto_store: false });
+            register_target(e.id, e.store.getUsedCapacity(), path_length);
         }
         let found = false;
         if (used_capa == used_capa_energy) {
@@ -82,6 +97,14 @@ function transpoter_pick_target(creep) {
             id = s_id.id;
         }
     }
+
+    if (id && !goto_store) {
+        if (!Memory.transpoter_reservation[id]) Memory.transpoter_reservation[id] = {};
+        let reservation = Memory.transpoter_reservation[id];
+        reservation[creep.name] = { amount: free_capa };
+        creep.memory.reserved_id = id;
+    }
+
     return { id, goto_store };
 }
 
@@ -141,6 +164,7 @@ var roleTranspoter = {
                     let pick_ok = creep.pickup(stuff);
                     if (pick_ok == OK) {
                         debug('pickup OK');
+                        remove_reservation(creep);
                     } else if (pick_ok == ERR_INVALID_TARGET) {
                         debug('try withdraw');
                         let withdraw_ok = -1;
@@ -149,6 +173,7 @@ var roleTranspoter = {
                             break;
                         }
                         if (withdraw_ok == OK) {
+                            remove_reservation(creep);
                             debug('withdraw OK');
                         } else {
                             debug('withdraw failed');
