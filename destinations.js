@@ -1,11 +1,6 @@
 const db = require('debug_name');
 const debug = db.log;
 
-const is_store = (structure) => {
-    return structure.structureType == STRUCTURE_EXTENSION ||
-        structure.structureType == STRUCTURE_SPAWN;
-}
-
 var dd = {
     pick_id_using_filter: function (creep, find_name, filter, nb_room = true) {
         debug(`pick_id_using_filter`);
@@ -87,15 +82,29 @@ var dd = {
         const reserved = Memory.bases[room.name].reserved_energy;
         let id = dd.pick_id_using_filter(creep, FIND_STRUCTURES, (structure) =>
             structure.structureType == STRUCTURE_STORAGE
-            && structure.store[RESOURCE_ENERGY] > 0,
-            false
+            && structure.store[RESOURCE_ENERGY] > 100,
+            true
         );
         if (!id)
             if (!reserved || reserved < room.energyAvailable)
                 id = dd.pick_id_using_filter(creep, FIND_STRUCTURES, (structure) =>
-                    is_store(structure) && structure.store.getUsedCapacity(RESOURCE_ENERGY) >= 50,
-                    false
+                    (
+                        structure.structureType == STRUCTURE_EXTENSION ||
+                        structure.structureType == STRUCTURE_CONTAINER ||
+                        structure.structureType == STRUCTURE_SPAWN
+                    ) &&
+                    structure.store.getUsedCapacity(RESOURCE_ENERGY) >= 50,
+                    true
                 );
+        if (!id) {
+            id = dd.pick_id_using_filter(creep, FIND_STRUCTURES, (structure) =>
+                (
+                    structure.structureType == STRUCTURE_CONTAINER
+                ) &&
+                structure.store.getUsedCapacity(RESOURCE_ENERGY) >= 50,
+                true
+            );
+        }
         return id;
     },
     pick_non_full_store_id: function (creep, resource_is_energy = true) {

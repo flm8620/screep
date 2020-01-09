@@ -28,6 +28,7 @@ var roleClaimer = {
                     }
                 } else {
                     const controller = dd.get_dest_obj(creep);
+                    
                     if (controller.owner) {
                         if (!controller.my) {
                             const ok = creep.attackController(controller);
