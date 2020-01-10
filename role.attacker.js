@@ -9,6 +9,11 @@ var roleAttacker = {
         db.set_creep_name(creep.name);
         debug('====== round begin ======');
 
+        if (utils.is_at_border(creep)) {
+            debug(`move_out_of_border from ${creep.pos.roomName}`);
+            utils.move_out_of_border(creep);
+            return;
+        }
         {
             const enemy = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
             if (enemy) {
