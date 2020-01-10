@@ -11,10 +11,10 @@ var globalInfo = require('global_info');
 var weapon_ctrl = require('weapon_ctrl');
 
 module.exports.loop = function () {
-    if (Game.time % 5 == 0) {
+    if (Game.time % 10 == 0) {
         globalInfo.run();
     }
-    if (Game.time % 5 == 0) {
+    if (Game.time % 10 == 0) {
         population.run();
     }
     globalInfo.per_tick();

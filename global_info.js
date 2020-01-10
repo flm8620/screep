@@ -15,7 +15,6 @@ function init_bases() {
     }
 
     const extra_neighbors = {
-        'W9S4': ['W9S6', 'W9S7']
     };
 
     for (const [bname, b] of Object.entries(bs)) {
