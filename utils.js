@@ -5,22 +5,19 @@ var utils = {
         if (p1.roomName === p2.roomName) {
             return p1.findPathTo(p2).length;
         }
-        let start_length = 0;
         const route = Game.map.findRoute(p1.roomName, p2.roomName);
-        if (!route.length) {
-            debug(`no route`);
-            return 1000000;
-        }
+        
+        let start_length = 0;
         if (route.length >= 2) {
-            start_length += (route.length - 1) * 50;
+            start_length = (route.length - 1) * 50;
         }
 
-        const r1 = Game.rooms[p1.roomName];
-        const r2 = Game.rooms[p2.roomName];
-        const pos1_start = r1.find(r1.findExitTo(r2))[0];
-        const pos2_start = r2.find(r2.findExitTo(r1))[0];
-        start_length += pos1_start.findPathTo(p1).length + pos2_start.findPathTo(p2).length;
-        return start_length;
+        const exit1 = route[0].exit;
+        const exit2 = (route[route.length - 1].exit - 1 + 4) % 8 + 1;
+        const l1 = p1.findPathTo(p1.findClosestByPath(exit1)).length;
+        const l2 = p2.findPathTo(p2.findClosestByPath(exit2)).length;
+        //debug(`${l1} + ${l2} + ${start_length}`);
+        return l1 + l2 + start_length;
     },
     random_idx_with_probability: function (probs) {
         let sum = 0;

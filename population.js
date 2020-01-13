@@ -247,7 +247,7 @@ function create_attacker(spawn) {
         {
             debug(`room ${rname} has no attacker`);
 
-            let parts = [ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE];
+            let parts = [MOVE, MOVE, MOVE, ATTACK, ATTACK, ATTACK];
             const energy_required = energy_of_body(parts);
             debug(`parts = ${parts}`);
             const name = role_name[0].toUpperCase() + makeid(3);
@@ -298,7 +298,7 @@ function create_miner_and_transpoter(spawn) {
     }
 
     const transpoter_count = utils.get_or_zero(base.population, 'transpoter');
-    let mine_transpoter_ratio = 1.5;
+    let mine_transpoter_ratio = 1;
     if (transpoter_count < miner_count * mine_transpoter_ratio) {
         const parts = largest_possible_body(energyCapacityAvailable,
             [CARRY, CARRY, MOVE],
