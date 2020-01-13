@@ -43,11 +43,12 @@ const MAX_CREATE_ATTACKER_PATIENCE = 5;
 
 
 // return true to stop create others
-function create_creep(spawn, role_name, number) {
+function create_builder(spawn) {
+    const role_name = 'builder';
     const DEBUG_ON = false;
     let debug = function (msg) {
         if (DEBUG_ON)
-            console.log(`[create_creep]: ${msg}`);
+            console.log(`[create_builder]: ${msg}`);
     }
     const room = spawn.room;
     const rname = room.name;
@@ -59,46 +60,38 @@ function create_creep(spawn, role_name, number) {
         [WORK, CARRY, MOVE],
         10
     );
-    if (role_name === 'freeguy') {
-        parts = [WORK, WORK, WORK, WORK, WORK,
-            CARRY, CARRY, CARRY, CARRY, CARRY,
-            MOVE, MOVE, MOVE, MOVE, MOVE];
-    } else if (role_name === 'builder') {
-        parts = largest_possible_body(energyCapacityAvailable,
-            [WORK, CARRY, MOVE],
-            [WORK, CARRY, MOVE],
-            8
-        );
-    }
 
     let current_number = utils.get_or_zero(room_pop, role_name);
-    if (current_number < number) {
-        debug(`spawn ${spawn.name} try spawn ${role_name}`);
-        var ok = spawn.spawnCreep(parts, 'asdasdasdasdasd', { dryRun: true });
-        if (ok === OK) {
-            debug(`try spawn OK`);
-            const name = role_name[0].toUpperCase() + makeid(3);
-            ok = spawn.spawnCreep(
-                parts,
-                name,
-                {
-                    memory: { role: role_name, spawn_name: spawn.name, body: parts },
-                    directions: ALL_DIRECTIONS
-                }
-            );
-            if (ok === OK) {
-                debug(`spawn OK`);
-                b.create_creep_patience = MAX_CREATE_CREEP_PATIENCE;
-                b.reserved_energy = 0;
-                console.log('Spawn ' + spawn.name + ' new ' + role_name + ' ' + name);
-                return true;
-            } else {
-                debug(`spawn failed`);
-
+    if (current_number < 8) {
+        const storage = room.find(FIND_MY_STRUCTURES, {
+            filter: (structure) =>
+                structure.structureType === STRUCTURE_STORAGE
+        });
+        if (storage.length === 1) {
+            const s = storage[0];
+            if (s.store[RESOURCE_ENERGY] === 0) {
+                return false;
             }
-        } else {
-            debug(`try spawn failed`);
+        }
+        debug(`spawn ${spawn.name} try spawn ${role_name}`);
+        const name = role_name[0].toUpperCase() + makeid(3);
+        const ok = spawn.spawnCreep(
+            parts,
+            name,
+            {
+                memory: { role: role_name, spawn_name: spawn.name, body: parts },
+                directions: ALL_DIRECTIONS
+            }
+        );
+        if (ok === OK) {
+            debug(`spawn OK`);
+            b.create_creep_patience = MAX_CREATE_CREEP_PATIENCE;
+            b.reserved_energy = 0;
+            console.log('Spawn ' + spawn.name + ' new ' + role_name + ' ' + name);
             return true;
+        } else {
+            debug(`spawn failed`);
+
         }
     }
     return false;
@@ -385,16 +378,8 @@ var Population = {
             return;
         if (create_claimer(spawn))
             return;
-
-        const base = Memory.bases[spawn.room.name];
-        let n = base.recipe_stages
-        for (let stage = 0; stage < n; stage++) {
-            base.current_population_stage = stage;
-            for (let role in base.recipe) {
-                let numbers = base.recipe[role];
-                if (create_creep(spawn, role, numbers[stage])) return;
-            }
-        }
+        if (create_builder(spawn))
+            return;
     },
     reproduce: function () {
         for (let s in Game.spawns) {

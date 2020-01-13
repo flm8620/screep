@@ -39,7 +39,6 @@ module.exports.loop = function () {
         return;
     }
 
-
     if (!Memory.transpoter_reservation) 
         Memory.transpoter_reservation = {};
     clean_reservation(Memory.transpoter_reservation);

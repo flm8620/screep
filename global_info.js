@@ -69,19 +69,11 @@ function init_bases() {
         }
     }
 }
+
 function set_population_number() {
     const bs = Memory.bases;
     for (const rname in Memory.bases) {
-        bs[rname].recipe = {};
         bs[rname].population = {};
-    }
-
-    for (const rname in bs) {
-        const b = bs[rname];
-        b.recipe_stages = 4;
-        let r = b.recipe;
-        r['builder'] = [0, 2, 4, 8];
-        r['freeguy'] = [0, 0, 0, 0];
     }
 
     for (let i in Game.creeps) {

@@ -99,25 +99,33 @@ var dd = {
             && structure.store[RESOURCE_ENERGY] > 100,
             true
         );
-        if (!id)
-            if (!reserved || reserved < room.energyAvailable)
-                id = dd.pick_id_using_filter(creep, FIND_STRUCTURES, (structure) =>
-                    (
-                        structure.structureType == STRUCTURE_EXTENSION ||
-                        structure.structureType == STRUCTURE_CONTAINER ||
-                        structure.structureType == STRUCTURE_SPAWN
-                    ) &&
-                    structure.store.getUsedCapacity(RESOURCE_ENERGY) >= 50,
-                    true
-                );
         if (!id) {
-            id = dd.pick_id_using_filter(creep, FIND_STRUCTURES, (structure) =>
-                (
-                    structure.structureType == STRUCTURE_CONTAINER
-                ) &&
-                structure.store.getUsedCapacity(RESOURCE_ENERGY) >= 50,
-                true
-            );
+            const storage = room.find(FIND_MY_STRUCTURES, {
+                filter: (structure) =>
+                    structure.structureType === STRUCTURE_STORAGE
+            });
+            if (storage.length === 0) {
+                if (!id)
+                    if (!reserved || reserved < room.energyAvailable)
+                        id = dd.pick_id_using_filter(creep, FIND_STRUCTURES, (structure) =>
+                            (
+                                structure.structureType == STRUCTURE_EXTENSION ||
+                                structure.structureType == STRUCTURE_CONTAINER ||
+                                structure.structureType == STRUCTURE_SPAWN
+                            ) &&
+                            structure.store.getUsedCapacity(RESOURCE_ENERGY) >= 50,
+                            true
+                        );
+                if (!id) {
+                    id = dd.pick_id_using_filter(creep, FIND_STRUCTURES, (structure) =>
+                        (
+                            structure.structureType == STRUCTURE_CONTAINER
+                        ) &&
+                        structure.store.getUsedCapacity(RESOURCE_ENERGY) >= 50,
+                        true
+                    );
+                }
+            }
         }
         return id;
     },
