@@ -50,24 +50,38 @@ var dd = {
         }
         return id;
     },
-    pick_nearest_site_id: function (creep) {
+    pick_nearest_site_id_for_builder: function (creep) {
+        const reservation = Memory.builder_reservation;
+        let still_need = function (structure) {
+            const id = structure.id;
+            const reserve = reservation[id];
+            if (!reserve) return true;
+            target_amount = structure.hitsMax - structure.hits;
+            for (const creep_name in reserve)
+                target_amount -= reserve[creep_name].amount * 100 /*repair*/;
+            return target_amount > 0;
+        };
         let filters = [
             [FIND_MY_STRUCTURES, (structure) =>
                 structure.hits < 0.1 * structure.hitsMax
-                && structure.hits < 500],
+                && structure.hits < 500 && still_need(structure)],
             [FIND_MY_CONSTRUCTION_SITES, null],
             [FIND_STRUCTURES, (structure) =>
                 structure.hits < 0.5 * structure.hitsMax
                 && structure.structureType != STRUCTURE_WALL
-                && structure.structureType != STRUCTURE_RAMPART],
+                && structure.structureType != STRUCTURE_RAMPART
+                && still_need(structure)],
             [FIND_STRUCTURES, (structure) =>
                 structure.hits < 0.8 * structure.hitsMax
                 && structure.structureType != STRUCTURE_WALL
-                && structure.structureType != STRUCTURE_RAMPART],
+                && structure.structureType != STRUCTURE_RAMPART
+                && still_need(structure)],
             ...[1000, 10000, 100000, 1000000].map((x) =>
                 [FIND_MY_STRUCTURES, (structure) =>
-                    structure.structureType == STRUCTURE_RAMPART && structure.hits < x && structure.hits > 0 ||
-                    structure.structureType == STRUCTURE_WALL && structure.hits < x && structure.hits > 0]
+                    (structure.structureType == STRUCTURE_RAMPART || structure.structureType == STRUCTURE_WALL)
+                    && structure.hits < x && structure.hits > 0
+                    && still_need(structure)
+                ]
             )
         ];
         let id = null;
