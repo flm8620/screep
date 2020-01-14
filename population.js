@@ -69,7 +69,7 @@ function create_builder(spawn) {
         });
         if (storage.length === 1) {
             const s = storage[0];
-            if (s.store[RESOURCE_ENERGY] === 0) {
+            if (s.store[RESOURCE_ENERGY] < 1000) {
                 return false;
             }
         }
@@ -296,7 +296,7 @@ function create_miner_and_transpoter(spawn) {
         const parts = largest_possible_body(energyCapacityAvailable,
             [CARRY, CARRY, MOVE],
             [CARRY, CARRY, MOVE],
-            transpoter_count >= 1 ? 3 : 0
+            transpoter_count >= 1 ? 5 : 0
         );
         const role_name = 'transpoter';
         debug(`spawn ${spawn.name} ${role_name}`);
