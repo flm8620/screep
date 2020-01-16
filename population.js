@@ -290,9 +290,25 @@ function create_miner_and_transpoter(spawn) {
             miner_count++;
     }
 
+    let need_more_transpoter = false;
+    for (let rid in base.res) {
+        const r = base.res[rid];
+        if (!Game.getObjectById(rid)) continue;
+        const pos = r.mining_pos;
+        const room_pos = new RoomPosition(pos.x, pos.y, pos.roomName);
+        const list = room_pos.lookFor(LOOK_STRUCTURES);
+        let container = list.filter((s) => { return s.structureType == STRUCTURE_CONTAINER });
+        if (!container.length) continue;
+        let c = container[0];
+        if (c.store.getFreeCapacity() == 0) {
+            need_more_transpoter = true;
+            break;
+        }
+    }
+
     const transpoter_count = utils.get_or_zero(base.population, 'transpoter');
     let mine_transpoter_ratio = 1;
-    if (transpoter_count < miner_count * mine_transpoter_ratio) {
+    if (transpoter_count < miner_count * mine_transpoter_ratio || need_more_transpoter) {
         const parts = largest_possible_body(energyCapacityAvailable,
             [CARRY, CARRY, MOVE],
             [CARRY, CARRY, MOVE],
