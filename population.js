@@ -58,7 +58,7 @@ function create_builder(spawn) {
     let parts = largest_possible_body(energyCapacityAvailable,
         [WORK, CARRY, MOVE],
         [WORK, CARRY, MOVE],
-        10
+        15
     );
 
     let current_number = utils.get_or_zero(room_pop, role_name);
@@ -69,7 +69,7 @@ function create_builder(spawn) {
         });
         if (storage.length === 1) {
             const s = storage[0];
-            if (s.store[RESOURCE_ENERGY] < 1000) {
+            if (s.store[RESOURCE_ENERGY] < 5000) {
                 return false;
             }
         }
