@@ -112,7 +112,7 @@ function create_explorer(spawn) {
 
     for (let rname in base.neighbor_rooms) {
         const nb = base.neighbor_rooms[rname];
-        if (!(rname in Game.rooms) && !Game.creeps[nb.explorer_name]) {
+        if (!Game.creeps[nb.explorer_name]) {
             debug(`room ${rname} has no explorer`);
 
             if (!('create_creep_patience' in base))
