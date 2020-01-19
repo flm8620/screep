@@ -64,29 +64,36 @@ var dd = {
         let filters = [
             [FIND_MY_STRUCTURES, (structure) =>
                 structure.hits < 0.1 * structure.hitsMax
-                && structure.hits < 500 && still_need(structure)],
-            [FIND_MY_CONSTRUCTION_SITES, null],
+                && structure.hits < 500
+                && still_need(structure), true],
+            [FIND_MY_CONSTRUCTION_SITES, null, true],
             [FIND_STRUCTURES, (structure) =>
                 structure.hits < 0.5 * structure.hitsMax
                 && structure.structureType != STRUCTURE_WALL
                 && structure.structureType != STRUCTURE_RAMPART
-                && still_need(structure)],
+                && still_need(structure), true],
             [FIND_STRUCTURES, (structure) =>
-                structure.hits < 0.8 * structure.hitsMax
+                structure.hits < 0.6 * structure.hitsMax
                 && structure.structureType != STRUCTURE_WALL
                 && structure.structureType != STRUCTURE_RAMPART
-                && still_need(structure)],
+                && still_need(structure), true],
+            [FIND_STRUCTURES, (structure) =>
+                structure.hits < 0.9 * structure.hitsMax
+                && structure.structureType != STRUCTURE_WALL
+                && structure.structureType != STRUCTURE_RAMPART
+                && still_need(structure), false],
             ...[1000, 10000, 100000, 1000000].map((x) =>
                 [FIND_MY_STRUCTURES, (structure) =>
-                    (structure.structureType == STRUCTURE_RAMPART || structure.structureType == STRUCTURE_WALL)
+                    (structure.structureType == STRUCTURE_RAMPART ||
+                        structure.structureType == STRUCTURE_WALL)
                     && structure.hits < x && structure.hits > 0
-                    && still_need(structure)
+                    && still_need(structure), true
                 ]
             )
         ];
         let id = null;
         for (let f of filters) {
-            id = dd.pick_id_using_filter(creep, f[0], f[1]);
+            id = dd.pick_id_using_filter(creep, f[0], f[1], f[2]);
             if (id) break;
         }
         return id;
