@@ -2,22 +2,8 @@ var utils = {
     distance_between_pos: function (pa, pb) {
         let p1 = new RoomPosition(pa.x, pa.y, pa.roomName);
         let p2 = new RoomPosition(pb.x, pb.y, pb.roomName);
-        if (p1.roomName === p2.roomName) {
-            return p1.findPathTo(p2).length;
-        }
-        const route = Game.map.findRoute(p1.roomName, p2.roomName);
-        
-        let start_length = 0;
-        if (route.length >= 2) {
-            start_length = (route.length - 1) * 50;
-        }
-
-        const exit1 = route[0].exit;
-        const exit2 = (route[route.length - 1].exit - 1 + 4) % 8 + 1;
-        const l1 = p1.findPathTo(p1.findClosestByPath(exit1)).length;
-        const l2 = p2.findPathTo(p2.findClosestByPath(exit2)).length;
-        //debug(`${l1} + ${l2} + ${start_length}`);
-        return l1 + l2 + start_length;
+        const path = PathFinder.search(p1, p2).path;
+        return path.length;
     },
     random_idx_with_probability: function (probs) {
         let sum = 0;
