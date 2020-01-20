@@ -130,6 +130,13 @@ var roleTranspoter = {
         if (creep.spawning) return;
         db.set_creep_name(creep.name);
         debug('====== round begin ======');
+        
+        if('sleep' in creep.memory && creep.memory.sleep > 0) {
+            debug(`sleep ${creep.memory.sleep}`);
+            utils.random_move(creep);
+            creep.memory.sleep--;
+            return;
+        }
 
         if (!dd.has_destination(creep)) {
             debug('!has_destination, change_mode');
@@ -137,6 +144,7 @@ var roleTranspoter = {
             if (!dd.has_destination(creep)) {
                 debug('!has_destination');
                 utils.random_move(creep);
+                creep.memory.sleep = 20;
                 return;
             }
         }

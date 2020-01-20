@@ -1,5 +1,6 @@
 var dd = require('destinations');
 const db = require('debug_name');
+const utils = require('utils');
 const debug = db.log;
 
 var roleExplorer = {
@@ -7,6 +8,13 @@ var roleExplorer = {
         if (creep.spawning) return;
         db.set_creep_name(creep.name);
         debug('====== round begin ======');
+        
+        if (utils.is_at_border(creep)) {
+            debug(`move_out_of_border from ${creep.pos.roomName}`);
+            utils.move_out_of_border(creep);
+            return;
+        }
+        
         {
             const enemy = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
             if (enemy) {
@@ -23,7 +31,8 @@ var roleExplorer = {
             }
         }
         {
-            const enemy = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES);
+            const enemy = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES,
+                { filter: (structure) => structure.structureType != STRUCTURE_CONTROLLER });
             if (enemy) {
                 let p = enemy.pos;
                 if (!creep.pos.isNearTo(p)) {
@@ -36,6 +45,12 @@ var roleExplorer = {
                 }
                 return;
             }
+        }
+        
+        if (creep.pos.roomName === creep.memory.dest_room) {
+            debug('random_move_in_room');
+            utils.random_move_in_room(creep);
+            return;
         }
 
         if(!dd.has_destination(creep)){

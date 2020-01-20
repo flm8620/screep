@@ -68,11 +68,6 @@ var dd = {
                 && still_need(structure), true],
             [FIND_MY_CONSTRUCTION_SITES, null, true],
             [FIND_STRUCTURES, (structure) =>
-                structure.hits < 0.5 * structure.hitsMax
-                && structure.structureType != STRUCTURE_WALL
-                && structure.structureType != STRUCTURE_RAMPART
-                && still_need(structure), true],
-            [FIND_STRUCTURES, (structure) =>
                 structure.hits < 0.6 * structure.hitsMax
                 && structure.structureType != STRUCTURE_WALL
                 && structure.structureType != STRUCTURE_RAMPART
