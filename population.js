@@ -308,7 +308,8 @@ function create_miner_and_transpoter(spawn) {
 
     const transpoter_count = utils.get_or_zero(base.population, 'transpoter');
     let mine_transpoter_ratio = 1;
-    if (transpoter_count < miner_count * mine_transpoter_ratio || need_more_transpoter) {
+    const need_miner = miner_count < res_count;
+    if (transpoter_count < miner_count * mine_transpoter_ratio || (need_more_transpoter && !need_miner)) {
         const parts = largest_possible_body(energyCapacityAvailable,
             [CARRY, CARRY, MOVE],
             [CARRY, CARRY, MOVE],
@@ -334,7 +335,7 @@ function create_miner_and_transpoter(spawn) {
         } else {
             debug(`spawn failed`);
         }
-    } else if (miner_count < res_count) {
+    } else if (need_miner) {
         const role_name = 'miner';
         for (let rid in base.res) {
             const r = base.res[rid];
