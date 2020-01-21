@@ -49,23 +49,19 @@ function init_bases() {
 
         const rooms_search = [bname].concat(Object.keys(b.neighbor_rooms));
         for (const rname of rooms_search) {
-            let pos_start = null;
             const room = Game.rooms[rname];
             if (!room) continue;
             if (room.controller && room.controller.owner && !room.controller.my) continue;
-            if (rname == bname) {
-                pos_start = sp.pos;
-            } else {
-                pos_start = room.find(room.findExitTo(broom))[0];
-            }
+
             const sources = room.find(FIND_SOURCES);
             for (const s of sources) {
                 const id = s.id;
                 if (!res[id]) {
                     const r = res[id] = {};
-                    const path = PathFinder.search(pos_start, { pos: s.pos, range: 1 }).path;
+                    const path = PathFinder.search(sp.pos, { pos: s.pos, range: 1 }).path;
                     r.pos = s.pos;
                     r.mining_pos = path[path.length - 1];
+                    r.distance_to_spawn = path.length;
                 }
             }
         }
