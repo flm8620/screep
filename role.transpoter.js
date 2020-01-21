@@ -133,7 +133,8 @@ var roleTranspoter = {
         
         if('sleep' in creep.memory && creep.memory.sleep > 0) {
             debug(`sleep ${creep.memory.sleep}`);
-            utils.random_move(creep);
+            if (creep.memory.sleep % 5 == 0)
+                utils.random_move(creep);
             creep.memory.sleep--;
             return;
         }
