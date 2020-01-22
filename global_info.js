@@ -56,9 +56,10 @@ function init_bases() {
             const sources = room.find(FIND_SOURCES);
             for (const s of sources) {
                 const id = s.id;
-                if (!res[id]) {
+                if (!res[id] || !res[id].pos || !res[id].mining_pos || !res[id].distance_to_spawn) {
                     const r = res[id] = {};
-                    const path = PathFinder.search(sp.pos, { pos: s.pos, range: 1 }).path;
+                    const path = PathFinder.search(sp.pos,
+                        { pos: s.pos, range: 1 }, { maxOps: 10000 }).path;
                     r.pos = s.pos;
                     r.mining_pos = path[path.length - 1];
                     r.distance_to_spawn = path.length;
