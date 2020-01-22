@@ -236,7 +236,9 @@ function create_attacker(spawn) {
         const room = Game.rooms[rname];
         if (!room) continue;
         const enemy = room.find(FIND_HOSTILE_CREEPS);
-        if (!enemy.length) continue;
+        const enemy_structure = room.find(FIND_HOSTILE_STRUCTURES,
+            { filter: (structure) => structure.structureType != STRUCTURE_CONTROLLER });
+        if (!enemy.length && !enemy_structure.length) continue;
         {
             debug(`room ${rname} has no attacker`);
 
