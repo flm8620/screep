@@ -55,7 +55,7 @@ var roleAttacker = {
         }
 
         if (creep.pos.roomName === creep.memory.dest_room) {
-            if(creep.ticksToLive % 5 == 0)
+            if (creep.ticksToLive % 5 == 0)
                 utils.random_move_in_room(creep);
             return;
         }
