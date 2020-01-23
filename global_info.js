@@ -15,7 +15,7 @@ function init_bases() {
     }
 
     const extra_neighbors = {
-        'W9S3': ['W8S4', 'W7S4', 'W9S1'],
+        'W9S3': ['W8S4'],
         'W9S6': ['W8S5', 'W7S5', 'W7S6', 'W8S6']
     };
 
@@ -40,11 +40,11 @@ function init_bases() {
             }
         }
     }
+    const seen_res = new Set();
 
     for (const [bname, b] of Object.entries(bs)) {
         if (!b.res) b.res = {};
         const res = b.res;
-        const broom = Game.rooms[bname];
         const sp = Game.spawns[b.spawns[0]];
 
         const rooms_search = [bname].concat(Object.keys(b.neighbor_rooms));
@@ -55,6 +55,7 @@ function init_bases() {
 
             const sources = room.find(FIND_SOURCES);
             for (const s of sources) {
+                seen_res.add(s.id);
                 const id = s.id;
                 if (!res[id] || !res[id].pos || !res[id].mining_pos || !res[id].distance_to_spawn) {
                     const r = res[id] = {};
@@ -65,6 +66,19 @@ function init_bases() {
                     r.distance_to_spawn = path.length;
                 }
             }
+        }
+    }
+    //remove unseen rooms and res
+    for (const [bname, b] of Object.entries(bs)) {
+        const nbs = b.neighbor_rooms;
+        for (let name in nbs) {
+            if (!seen_rooms.has(name))
+                delete nbs[name];
+        }
+        const res = b.res;
+        for (let id in res) {
+            if (!seen_res.has(id))
+                delete res[id];
         }
     }
 }

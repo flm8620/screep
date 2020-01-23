@@ -21,7 +21,8 @@ function change_mode_building(creep) {
         site = dd.pick_controller_id(creep);
         if (!site) {
             creep.say('no build');
-            utils.random_move(creep);
+            if (creep.ticksToLive % 5 == 0)
+                utils.random_move(creep);
         } else {
             creep.say('update');
         }
@@ -40,13 +41,14 @@ function change_mode_building(creep) {
 
 function change_mode_recharging(creep) {
     creep.say('reload');
-    
+
     remove_reservation(creep);
     creep.memory.building = false;
     dd.clear_destination(creep);
     if (!dd.set_id_as_destination(creep, dd.pick_available_energy_store_id(creep))) {
         // random move
-        utils.random_move(creep);
+        if (creep.ticksToLive % 5 == 0)
+            utils.random_move(creep);
     }
 }
 

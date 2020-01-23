@@ -21,7 +21,8 @@ var roleRecycle = {
 
             if (!dd.has_destination(creep)) {
                 debug('!has_destination');
-                utils.random_move(creep);
+                if (creep.ticksToLive % 5 == 0)
+                    utils.random_move(creep);
                 return;
             }
         }

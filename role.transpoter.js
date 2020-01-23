@@ -28,10 +28,10 @@ function transpoter_pick_target(creep) {
 
         const register_target = function (target_id, target_amount, path_length) {
             const reserve = Memory.transpoter_reservation[target_id];
-            if (reserve) 
-                for (const creep_name in reserve) 
+            if (reserve)
+                for (const creep_name in reserve)
                     target_amount -= reserve[creep_name].amount;
-            
+
             if (target_amount <= 0) return;
             const score = Math.min(free_capa, target_amount) / path_length;
             score_id.push({ id: target_id, score, goto_store: false });
@@ -130,8 +130,8 @@ var roleTranspoter = {
         if (creep.spawning) return;
         db.set_creep_name(creep.name);
         debug('====== round begin ======');
-        
-        if('sleep' in creep.memory && creep.memory.sleep > 0) {
+
+        if ('sleep' in creep.memory && creep.memory.sleep > 0) {
             debug(`sleep ${creep.memory.sleep}`);
             if (creep.memory.sleep % 5 == 0)
                 utils.random_move(creep);
@@ -144,7 +144,8 @@ var roleTranspoter = {
             change_mode(creep);
             if (!dd.has_destination(creep)) {
                 debug('!has_destination');
-                utils.random_move(creep);
+                if (creep.ticksToLive % 5 == 0)
+                    utils.random_move(creep);
                 creep.memory.sleep = 20;
                 return;
             }

@@ -27,18 +27,28 @@ function clean_reservation(reserve) {
     }
 }
 //profiler.enable();
+const BUCKET_HIGH = 500;
+const BUCKET_LOW = 100;
+let use_bucket_high = false;
 module.exports.loop = function () {
     profiler.wrap(function () {
+        const bucket = Game.cpu.bucket
+        if (!use_bucket_high && bucket < BUCKET_LOW) {
+            use_bucket_high = true;
+            console.log(`skip round: cpu bucket = ${Game.cpu.bucket}`);
+            return;
+        } else if (use_bucket_high && bucket < BUCKET_HIGH) {
+            console.log(`skip round: recharge bucket: cpu bucket = ${Game.cpu.bucket}`);
+            return;
+        } else {
+            use_bucket_high = false;
+        }
+
         if (Game.time % 10 == 0) {
             globalInfo.run();
         }
         if (Game.time % 10 == 0) {
             population.run();
-        }
-
-        if (Game.cpu.bucket < 100) {
-            console.log(`skip round: cpu bucket = ${Game.cpu.bucket}`);
-            return;
         }
 
         if (!Memory.transpoter_reservation)
@@ -110,6 +120,5 @@ module.exports.loop = function () {
 
         console.log(`cpu: ${Game.cpu.getUsed()}`);
         console.log(`cpu.bucket: ${Game.cpu.bucket}`);
-        console.log(`cpu.tickLimit: ${Game.cpu.tickLimit}`);
     })
 }

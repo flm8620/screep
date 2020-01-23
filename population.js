@@ -41,7 +41,6 @@ const ALL_DIRECTIONS = [TOP, TOP_RIGHT, RIGHT, BOTTOM_RIGHT, BOTTOM, BOTTOM_LEFT
 const MAX_CREATE_CREEP_PATIENCE = 30;
 const MAX_CREATE_ATTACKER_PATIENCE = 5;
 
-
 // return true to stop create others
 function create_builder(spawn) {
     const role_name = 'builder';
@@ -118,7 +117,7 @@ function create_explorer(spawn) {
             if (!('create_creep_patience' in base))
                 base.create_creep_patience = MAX_CREATE_CREEP_PATIENCE;
 
-            let parts = [ATTACK, MOVE]
+            let parts = [TOUGH, TOUGH, TOUGH, ATTACK, MOVE, MOVE]
             debug(`parts = ${parts}`);
             nb.explorer_name = '';
             const name = role_name[0].toUpperCase() + makeid(3);
@@ -309,13 +308,13 @@ function create_miner_and_transpoter(spawn) {
     }
 
     const transpoter_count = utils.get_or_zero(base.population, 'transpoter');
-    let mine_transpoter_ratio = 1;
+    let mine_transpoter_ratio = 0.5;
     const need_miner = miner_count < res_count;
     if (transpoter_count < miner_count * mine_transpoter_ratio || (need_more_transpoter && !need_miner)) {
         const parts = largest_possible_body(energyCapacityAvailable,
             [CARRY, CARRY, MOVE],
             [CARRY, CARRY, MOVE],
-            transpoter_count >= 1 ? 5 : 0
+            transpoter_count >= 1 ? 10 : 0
         );
         const role_name = 'transpoter';
         debug(`spawn ${spawn.name} ${role_name}`);
