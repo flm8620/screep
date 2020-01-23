@@ -14,6 +14,12 @@ var roleAttacker = {
             utils.move_out_of_border(creep);
             return;
         }
+
+
+        if (creep.hits < creep.hitsMax && creep.body.some(x => x.type === HEAL)) {
+            creep.heal(creep);
+        }
+
         {
             const enemy = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
             if (enemy) {
