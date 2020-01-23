@@ -146,7 +146,7 @@ var roleTranspoter = {
                 debug('!has_destination');
                 if (creep.ticksToLive % 5 == 0)
                     utils.random_move(creep);
-                creep.memory.sleep = 20;
+                creep.memory.sleep = 10;
                 return;
             }
         }
