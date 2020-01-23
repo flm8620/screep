@@ -77,7 +77,7 @@ function init_bases() {
         }
         const res = b.res;
         for (let id in res) {
-            if (!seen_res.has(id))
+            if (!seen_res.has(id) && !seen_rooms.has(res[id].pos.roomName))
                 delete res[id];
         }
     }
