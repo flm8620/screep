@@ -20,15 +20,15 @@ function change_mode_building(creep) {
         debug(`no build site, try update`);
         site = dd.pick_controller_id(creep);
         if (!site) {
-            creep.say('no build');
+            creep.say('🤷🏼‍♂️');
             if (creep.ticksToLive % 5 == 0)
                 utils.random_move_in_room(creep);
         } else {
-            creep.say('update');
+            creep.say('🚀');
         }
     } else {
         debug(`get build id ${site}`);
-        creep.say('build');
+        creep.say('⛏');
 
         if (!Memory.builder_reservation[site]) Memory.builder_reservation[site] = {};
         let reservation = Memory.builder_reservation[site];
@@ -40,7 +40,7 @@ function change_mode_building(creep) {
 }
 
 function change_mode_recharging(creep) {
-    creep.say('reload');
+    creep.say('🔋');
 
     remove_reservation(creep);
     creep.memory.building = false;

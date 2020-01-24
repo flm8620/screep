@@ -115,9 +115,9 @@ function change_mode(creep) {
     if (!result.id)
         return false;
     if (result.goto_store) {
-        creep.say('store');
+        creep.say('🚚');
     } else {
-        creep.say('take');
+        creep.say('🛒');
     }
 
     creep.memory.patience = PATIENCE_MAX;
