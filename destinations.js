@@ -6,9 +6,7 @@ var dd = {
         debug(`pick_id_using_filter`);
         var base_room = Game.spawns[creep.memory.spawn_name].room;
         const base = Memory.bases[base_room.name];
-        let rooms_search = [base_room.name];
-        if (nb_room)
-            rooms_search = rooms_search.concat(Object.keys(base.neighbor_rooms));;
+        let rooms_search = nb_room ? [base_room.name].concat(Object.keys(base.neighbor_rooms)) : [creep.pos.roomName];
         const length_obj = [];
         for (const rname of rooms_search) {
             debug(`searching room ${rname}`);
@@ -139,7 +137,8 @@ var dd = {
             id = dd.pick_id_using_filter(creep, FIND_STRUCTURES,
                 (structure) => {
                     return (structure.structureType == STRUCTURE_TOWER) && structure.store.getUsedCapacity(RESOURCE_ENERGY) < 500;
-                }
+                },
+                false
             );
             if (!id)
                 id = dd.pick_id_using_filter(creep, FIND_STRUCTURES,
@@ -150,7 +149,8 @@ var dd = {
             if (!id)
                 id = dd.pick_id_using_filter(creep, FIND_STRUCTURES,
                     (structure) => structure.structureType == STRUCTURE_TOWER &&
-                        structure.store.getUsedCapacity(RESOURCE_ENERGY) < 0.9 * structure.store.getCapacity(RESOURCE_ENERGY)
+                        structure.store.getUsedCapacity(RESOURCE_ENERGY) < 0.9 * structure.store.getCapacity(RESOURCE_ENERGY),
+                    false
                 );
         }
         if (!id)
@@ -159,12 +159,6 @@ var dd = {
                 false
             );
         return id;
-    },
-    pick_tower_id: function (creep) {
-        var filter = (structure) => {
-            return (structure.structureType == STRUCTURE_TOWER) && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
-        }
-        return dd.pick_id_using_filter(creep, FIND_STRUCTURES, filter);
     },
     pick_controller_id: function (creep) {
         return Game.spawns[creep.memory.spawn_name].room.controller.id;
