@@ -207,7 +207,7 @@ var dd = {
         let last_move_failed = false;
         const last_pos = creep.memory.last_pos_before_move;
         if (last_pos) {
-            last_move_failed = creep.pos.x == last_pos.x && creep.pos.y == last_pos.y;
+            last_move_failed = creep.pos.x == last_pos.x && creep.pos.y == last_pos.y && !creep.memory.last_move_tired;
             if (last_move_failed) {// last time, somehow block by other creeps on remembered path
                 debug(`last_move_failed`);
                 creep.memory.move_patience--;
@@ -264,6 +264,7 @@ var dd = {
         debug(`try to move`);
         //so next time we can check whether this move is failed
         creep.memory.last_pos_before_move = creep.pos;
+        creep.memory.last_move_tired = false;
 
         let path = creep.memory.my_path.path;
         if (path.length === 0) {
@@ -287,9 +288,9 @@ var dd = {
             if (last_move_failed) {
                 result = ERR_NO_PATH;
             }
-        } else {
-
         }
+
+        creep.memory.last_move_tired = result == ERR_TIRED;
 
         if (result == ERR_NOT_FOUND) {
             //console.log(`Creep ${creep.name} has inconsistent path`);
@@ -299,8 +300,6 @@ var dd = {
             console.log(`Creep ${creep.name} moveByPath ERR_INVALID_ARGS`);
             debug('ERR_INVALID_ARGS');
             delete creep.memory.my_path;
-        } else if (result == ERR_TIRED) {
-            //never mind
         } else if (result == ERR_NO_BODYPART) {
             console.log(`Creep ${creep.name} has no move body`);
         }
