@@ -22,7 +22,7 @@ var roleRecycle = {
             if (!dd.has_destination(creep)) {
                 debug('!has_destination');
                 if (creep.ticksToLive % 5 == 0)
-                    utils.random_move(creep);
+                    utils.random_move_in_room(creep);
                 return;
             }
         }

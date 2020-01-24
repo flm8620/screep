@@ -22,7 +22,7 @@ function change_mode_building(creep) {
         if (!site) {
             creep.say('no build');
             if (creep.ticksToLive % 5 == 0)
-                utils.random_move(creep);
+                utils.random_move_in_room(creep);
         } else {
             creep.say('update');
         }
@@ -48,7 +48,7 @@ function change_mode_recharging(creep) {
     if (!dd.set_id_as_destination(creep, dd.pick_available_energy_store_id(creep))) {
         // random move
         if (creep.ticksToLive % 5 == 0)
-            utils.random_move(creep);
+            utils.random_move_in_room(creep);
     }
 }
 

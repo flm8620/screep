@@ -134,7 +134,7 @@ var roleTranspoter = {
         if ('sleep' in creep.memory && creep.memory.sleep > 0) {
             debug(`sleep ${creep.memory.sleep}`);
             if (creep.memory.sleep % 5 == 0)
-                utils.random_move(creep);
+                utils.random_move_in_room(creep);
             creep.memory.sleep--;
             return;
         }
@@ -145,7 +145,7 @@ var roleTranspoter = {
             if (!dd.has_destination(creep)) {
                 debug('!has_destination');
                 if (creep.ticksToLive % 5 == 0)
-                    utils.random_move(creep);
+                    utils.random_move_in_room(creep);
                 creep.memory.sleep = 10;
                 return;
             }

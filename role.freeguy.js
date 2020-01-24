@@ -46,14 +46,6 @@ var roleFreeguy = {
             return;
         }
 
-        // //let d = new RoomPosition(12, 46, 'W9S3');
-        // let d = new RoomPosition(12, 5, 'W9S4');
-        // let ok = creep.moveTo(d, { serializeMemory: false, visualizePathStyle: {} });
-        // debug(`ok = ${ok}`)
-        // return;
-
-        //let d = new RoomPosition(12, 43, 'W9S3');
-        //let d = new RoomPosition(23, 3, 'W9S5');
         if (false) {
             const enemy = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
             if (enemy) {
@@ -69,9 +61,7 @@ var roleFreeguy = {
             }
             return;
         }
-        //let d = new RoomPosition(16, 25, 'W8S5');
-        let d = new RoomPosition(33, 19, 'W9S3');
-        //let d = new RoomPosition(5, 39, 'W8S3');
+        let d = new RoomPosition(33, 19, 'W7S5');
         dd.set_pos_as_destination(creep, d);
         if (!dd.has_destination(creep)) {
             debug(`set destination to ${d}`);
