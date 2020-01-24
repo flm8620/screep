@@ -281,6 +281,7 @@ function create_miner_and_transpoter(spawn) {
             console.log(`[${spawn.name}.create_miner_and_transpoter]: ${msg}`);
     }
     const energyCapacityAvailable = room.energyCapacityAvailable;
+    const energyAvailable = room.energyAvailable;
 
     let res_count = 0;
     let miner_count = 0;
@@ -311,10 +312,11 @@ function create_miner_and_transpoter(spawn) {
     let mine_transpoter_ratio = 0.5;
     const need_miner = miner_count < res_count;
     if (transpoter_count < miner_count * mine_transpoter_ratio || (need_more_transpoter && !need_miner)) {
-        const parts = largest_possible_body(energyCapacityAvailable,
+        const parts = largest_possible_body(
+            transpoter_count >= 1 ? energyCapacityAvailable : energyAvailable,
             [CARRY, CARRY, MOVE],
             [CARRY, CARRY, MOVE],
-            transpoter_count >= 1 ? 10 : 0
+            10
         );
         const role_name = 'transpoter';
         debug(`spawn ${spawn.name} ${role_name}`);

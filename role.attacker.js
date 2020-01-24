@@ -21,26 +21,16 @@ var roleAttacker = {
         }
 
         {
-            const enemy = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+            let enemy = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES,
+                { filter: (structure) => structure.structureType == STRUCTURE_TOWER });
+            if (!enemy)
+                enemy = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+            if (!enemy)
+                enemy = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES,
+                    { filter: (structure) => structure.structureType != STRUCTURE_CONTROLLER });
+
             if (enemy) {
-                debug('attack creep');
-                let p = enemy.pos;
-                if (!creep.pos.isNearTo(p)) {
-                    creep.moveTo(p);
-                } else {
-                    creep.attack(enemy);
-                }
-                if (creep.pos.inRangeTo(p)) {
-                    creep.rangedAttack(enemy);
-                }
-                return;
-            }
-        }
-        {
-            const enemy = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES,
-                { filter: (structure) => structure.structureType != STRUCTURE_CONTROLLER });
-            if (enemy) {
-                debug(`attack building ${enemy.id}`);
+                debug('attack');
                 let p = enemy.pos;
                 if (!creep.pos.isNearTo(p)) {
                     creep.moveTo(p);
