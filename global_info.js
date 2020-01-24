@@ -111,6 +111,22 @@ function statistics_per_tick() {
     Memory.cpu_history_time.push(cpu);
 }
 
+function room_energy_level() {
+    const bs = Memory.bases;
+    for (const [bname, b] of Object.entries(bs)) {
+        const el = 'energy_level' in b ? b.energy_level : b.energy_level = {};
+        const hist = 'history' in el ? el.history : el.history = [];
+        while (hist.length > 100) {
+            hist.shift();
+        }
+        hist.push(Game.rooms[bname].energyAvailable);
+        let m = 0;
+        for (const e of hist)
+            m = Math.max(m, e);
+        el.max = m;
+    }
+}
+
 var globalInfo = {
     run: function () {
         init_bases();
@@ -118,6 +134,7 @@ var globalInfo = {
     },
     per_tick: function () {
         statistics_per_tick();
+        room_energy_level();
     },
     print_statistic: function () {
         for (let history of [10, 50, 100]) {

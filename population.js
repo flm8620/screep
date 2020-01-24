@@ -38,7 +38,6 @@ function largest_possible_body(energy_available, start, repeat, largest_repeat) 
 }
 
 const ALL_DIRECTIONS = [TOP, TOP_RIGHT, RIGHT, BOTTOM_RIGHT, BOTTOM, BOTTOM_LEFT, LEFT, TOP_LEFT];
-const MAX_CREATE_CREEP_PATIENCE = 30;
 const MAX_CREATE_ATTACKER_PATIENCE = 5;
 
 // return true to stop create others
@@ -53,8 +52,8 @@ function create_builder(spawn) {
     const rname = room.name;
     const b = Memory.bases[rname];
     const room_pop = b.population;
-    let energyCapacityAvailable = room.energyCapacityAvailable;
-    let parts = largest_possible_body(energyCapacityAvailable,
+    let parts = largest_possible_body(
+        b.energy_level.max,
         [WORK, CARRY, MOVE],
         [WORK, CARRY, MOVE],
         15
@@ -84,7 +83,6 @@ function create_builder(spawn) {
         );
         if (ok === OK) {
             debug(`spawn OK`);
-            b.create_creep_patience = MAX_CREATE_CREEP_PATIENCE;
             b.reserved_energy = 0;
             console.log('Spawn ' + spawn.name + ' new ' + role_name + ' ' + name);
             return true;
@@ -101,7 +99,7 @@ function create_explorer(spawn) {
     const role_name = 'explorer';
     const room = spawn.room;
     const rname = room.name;
-    const base = Memory.bases[rname];
+    const b = Memory.bases[rname];
 
     const DEBUG_ON = false;
     let debug = function (msg) {
@@ -109,13 +107,11 @@ function create_explorer(spawn) {
             console.log(`[${spawn.name}.create_explorer]: ${msg}`);
     }
 
-    for (let rname in base.neighbor_rooms) {
-        const nb = base.neighbor_rooms[rname];
+    for (let rname in b.neighbor_rooms) {
+        const nb = b.neighbor_rooms[rname];
         if (!Game.creeps[nb.explorer_name]) {
             debug(`room ${rname} has no explorer`);
 
-            if (!('create_creep_patience' in base))
-                base.create_creep_patience = MAX_CREATE_CREEP_PATIENCE;
 
             let parts = [TOUGH, TOUGH, TOUGH, ATTACK, MOVE, MOVE]
             debug(`parts = ${parts}`);
@@ -131,12 +127,11 @@ function create_explorer(spawn) {
             );
             if (ok == ERR_NOT_ENOUGH_ENERGY) {
                 debug(`ERR_NOT_ENOUGH_ENERGY, room ${room.name} patience--`);
-                base.create_creep_patience--;
+                b.create_creep_patience--;
                 stop_creating = false; //never mind
             } else if (ok === OK) {
                 debug(`OK`);
-                base.create_creep_patience = MAX_CREATE_CREEP_PATIENCE;
-                base.reserved_energy = 0;
+                b.reserved_energy = 0;
                 nb.explorer_name = name;
                 stop_creating = true;
                 break;
@@ -151,7 +146,7 @@ function create_claimer(spawn) {
     const role_name = 'claimer';
     const room = spawn.room;
     const rname = room.name;
-    const base = Memory.bases[rname];
+    const b = Memory.bases[rname];
 
     const DEBUG_ON = false;
     let debug = function (msg) {
@@ -159,8 +154,8 @@ function create_claimer(spawn) {
             console.log(`[${spawn.name}.create_claimer]: ${msg}`);
     }
 
-    for (let rname in base.neighbor_rooms) {
-        const nb = base.neighbor_rooms[rname];
+    for (let rname in b.neighbor_rooms) {
+        const nb = b.neighbor_rooms[rname];
         const room = Game.rooms[rname];
         if (!room) continue;
         const cs = room.find(FIND_STRUCTURES, {
@@ -172,15 +167,17 @@ function create_claimer(spawn) {
             !(
                 controller.reservation &&
                 controller.reservation.username === 'Leman' &&
-                controller.reservation.ticksToEnd > 3000
+                controller.reservation.ticksToEnd > 2000
             ) &&
             !Game.creeps[nb.claimer_name]) {
             debug(`room ${rname} has no claimer`);
 
-            if (!('create_creep_patience' in base))
-                base.create_creep_patience = MAX_CREATE_CREEP_PATIENCE;
-
-            let parts = [CLAIM, CLAIM, MOVE, MOVE]
+            let parts = largest_possible_body(
+                b.energy_level.max,
+                [CLAIM, MOVE],
+                [CLAIM, MOVE],
+                5
+            );
             debug(`parts = ${parts}`);
             nb.claimer_name = '';
             const name = role_name[0].toUpperCase() + makeid(3);
@@ -194,12 +191,11 @@ function create_claimer(spawn) {
             );
             if (ok == ERR_NOT_ENOUGH_ENERGY) {
                 debug(`ERR_NOT_ENOUGH_ENERGY, room ${room.name} patience--`);
-                base.create_creep_patience--;
+                b.create_creep_patience--;
                 stop_creating = false; //never mind
             } else if (ok === OK) {
                 debug(`OK`);
-                base.create_creep_patience = MAX_CREATE_CREEP_PATIENCE;
-                base.reserved_energy = 0;
+                b.reserved_energy = 0;
                 nb.claimer_name = name;
                 stop_creating = true;
                 break;
@@ -214,7 +210,7 @@ function create_attacker(spawn) {
     const role_name = 'attacker';
     const room = spawn.room;
     const rname = room.name;
-    const base = Memory.bases[rname];
+    const b = Memory.bases[rname];
 
     const DEBUG_ON = false;
     let debug = function (msg) {
@@ -223,15 +219,15 @@ function create_attacker(spawn) {
     }
 
 
-    if (!('create_attacker_patience' in base))
-        base.create_attacker_patience = 0;
-    if (base.create_attacker_patience > 0) {
+    if (!('create_attacker_patience' in b))
+        b.create_attacker_patience = 0;
+    if (b.create_attacker_patience > 0) {
         debug(`waiting`);
-        base.create_attacker_patience--;
+        b.create_attacker_patience--;
         return stop_creating;
     }
 
-    for (let rname in base.neighbor_rooms) {
+    for (let rname in b.neighbor_rooms) {
         const room = Game.rooms[rname];
         if (!room) continue;
         const enemy = room.find(FIND_HOSTILE_CREEPS);
@@ -256,11 +252,11 @@ function create_attacker(spawn) {
             if (ok == ERR_NOT_ENOUGH_ENERGY) {
                 debug(`ERR_NOT_ENOUGH_ENERGY, room ${room.name} patience--`);
                 stop_creating = false; //never mind
-                base.reserved_energy = energy_required;
+                b.reserved_energy = energy_required;
             } else if (ok === OK) {
                 debug(`OK`);
-                base.create_attacker_patience = MAX_CREATE_ATTACKER_PATIENCE;
-                base.reserved_energy = 0;
+                b.create_attacker_patience = MAX_CREATE_ATTACKER_PATIENCE;
+                b.reserved_energy = 0;
                 stop_creating = true;
                 break;
             }
@@ -273,28 +269,26 @@ function create_miner_and_transpoter(spawn) {
     let stop_creating = false;
     const room = spawn.room;
     const rname = room.name;
-    const base = Memory.bases[rname];
+    const b = Memory.bases[rname];
 
     const DEBUG_ON = false;
     let debug = function (msg) {
         if (DEBUG_ON)
             console.log(`[${spawn.name}.create_miner_and_transpoter]: ${msg}`);
     }
-    const energyCapacityAvailable = room.energyCapacityAvailable;
-    const energyAvailable = room.energyAvailable;
 
     let res_count = 0;
     let miner_count = 0;
-    for (let rid in base.res) {
+    for (let rid in b.res) {
         res_count++;
-        const r = base.res[rid];
+        const r = b.res[rid];
         if (Game.creeps[r.miner_name])
             miner_count++;
     }
 
     let need_more_transpoter = false;
-    for (let rid in base.res) {
-        const r = base.res[rid];
+    for (let rid in b.res) {
+        const r = b.res[rid];
         if (!Game.getObjectById(rid)) continue;
         const pos = r.mining_pos;
         const room_pos = new RoomPosition(pos.x, pos.y, pos.roomName);
@@ -308,12 +302,12 @@ function create_miner_and_transpoter(spawn) {
         }
     }
 
-    const transpoter_count = utils.get_or_zero(base.population, 'transpoter');
+    const transpoter_count = utils.get_or_zero(b.population, 'transpoter');
     let mine_transpoter_ratio = 0.5;
     const need_miner = miner_count < res_count;
     if (transpoter_count < miner_count * mine_transpoter_ratio || (need_more_transpoter && !need_miner)) {
         const parts = largest_possible_body(
-            transpoter_count >= 1 ? energyCapacityAvailable : energyAvailable,
+            b.energy_level.max,
             [CARRY, CARRY, MOVE],
             [CARRY, CARRY, MOVE],
             10
@@ -331,8 +325,7 @@ function create_miner_and_transpoter(spawn) {
         );
         if (ok === OK) {
             debug(`spawn OK`);
-            base.create_creep_patience = MAX_CREATE_CREEP_PATIENCE;
-            base.reserved_energy = 0;
+            b.reserved_energy = 0;
             debug(`Spawn ${spawn.name} new ${role_name} ${name}`);
             stop_creating = true;
         } else {
@@ -340,21 +333,17 @@ function create_miner_and_transpoter(spawn) {
         }
     } else if (need_miner) {
         const role_name = 'miner';
-        for (let rid in base.res) {
-            const r = base.res[rid];
+        for (let rid in b.res) {
+            const r = b.res[rid];
             if (!Game.getObjectById(rid)) continue;
             if (!Game.creeps[r.miner_name]) {
                 debug(`res ${rid} has no miner`);
 
-                if (!('create_creep_patience' in base))
-                    base.create_creep_patience = MAX_CREATE_CREEP_PATIENCE;
-
-                const energyCapacityAvailable = room.energyCapacityAvailable;
-                const parts = largest_possible_body(energyCapacityAvailable,
+                const parts = largest_possible_body(
+                    b.energy_level.max,
                     [WORK, WORK, CARRY, MOVE],
                     [WORK, WORK, MOVE],
-                    base.create_creep_patience >= MAX_CREATE_CREEP_PATIENCE / 2 ? 2 :
-                        base.create_creep_patience >= MAX_CREATE_CREEP_PATIENCE / 4 ? 1 : 0
+                    2
                 );
                 const energy_required = energy_of_body(parts);
                 debug(`parts = ${parts}`);
@@ -370,14 +359,13 @@ function create_miner_and_transpoter(spawn) {
                 );
                 if (ok == ERR_NOT_ENOUGH_ENERGY) {
                     debug(`ERR_NOT_ENOUGH_ENERGY, room ${room.name} patience--`);
-                    base.create_creep_patience--;
-                    base.reserved_energy = energy_required;
+                    b.create_creep_patience--;
+                    b.reserved_energy = energy_required;
                     stop_creating = true; //stop creating other creep
                 } else if (ok === OK) {
                     debug(`OK`);
                     r.miner_name = name;
-                    base.create_creep_patience = MAX_CREATE_CREEP_PATIENCE;
-                    base.reserved_energy = 0;
+                    b.reserved_energy = 0;
                     stop_creating = true;
                     break;
                 }
@@ -413,6 +401,34 @@ var Population = {
         for (var name in Memory.creeps)
             if (!Game.creeps[name])
                 delete Memory.creeps[name];
+    },
+    create_special: function () {
+        const room = Game.rooms['W9S6'];
+        let spawns = room.find(FIND_STRUCTURES, { filter: (x) => x.structureType === STRUCTURE_SPAWN && x.my });
+        for (let spawn of spawns) {
+            const name = 'FGUY' + Math.floor(Math.random() * 100);
+            const role_name = 'freeguy';
+            const N = 12;
+            const parts = Array(N).fill(MOVE).concat(Array(N).fill(ATTACK)).concat(Array(N).fill(HEAL));
+            console.log(`require energy : ${energy_of_body(parts)}, we have ${room.energyAvailable}/${room.energyCapacityAvailable}`);
+            const ok = spawn.spawnCreep(
+                parts,
+                name,
+                {
+                    memory: {
+                        role: role_name, spawn_name: spawn.name,
+                        body: parts
+                    },
+                    directions: ALL_DIRECTIONS
+                }
+            );
+            if (ok === OK) {
+                console.log(`spawn OK`);
+                return true;
+            } else {
+                console.log(`spawn failed: ${ok}`);
+            }
+        }
     }
 };
 module.exports = Population;
