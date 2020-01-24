@@ -4,50 +4,35 @@ const db = require('debug_name');
 const debug = db.log;
 
 var roleFreeguy = {
-
     run: function (creep) {
         if (creep.spawning) return;
         db.set_creep_name(creep.name);
         debug('====== round begin ======');
-        if (false) {
-            if (creep.memory.building) {
-                let site = Game.getObjectById('5ded0c4cad2e8d8b0fd214b9');
-                debug(`build`);
-                if (creep.store.getUsedCapacity(RESOURCE_ENERGY) == 0) {
-                    debug(`building = false`);
-                    creep.memory.building = false;
-                } else {
-                    if (!creep.pos.inRangeTo(site, 3)) {
-                        debug('not in range');
-                        let ok = creep.moveTo(site);
-                        if (ok !== OK) {
-                            debug('no path');
-                        }
-                    } else {
-                        creep.build(site);
-                    }
-                }
-            } else {
-                debug(`harvest`);
-                let source = Game.getObjectById('5bbcac629099fc012e635600');
-                if (creep.store.getFreeCapacity(RESOURCE_ENERGY) == 0) {
-                    debug(`building = true`);
-                    creep.memory.building = true;
-                } else if (!creep.pos.isNearTo(source)) {
-                    debug('!is_near_destination');
-                    let ok = creep.moveTo(source);
-                    if (ok !== OK) {
-                        debug('no path');
-                    }
-                } else {
-                    creep.harvest(source);
-                }
-            }
-            return;
+
+        if (creep.hits < creep.hitsMax && creep.body.some(x => x.type === HEAL)) {
+            creep.heal(creep);
         }
 
-        if (false) {
-            const enemy = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+        const flag = Game.flags['A'];
+        if (!flag) {
+            return;
+        }
+        const pos = flag.pos;
+        dd.set_pos_as_destination(creep, pos);
+        if (!dd.is_near_destination(creep)) {
+            debug('!is_near_destination');
+            const move_ok = dd.move_to_destination(creep);
+            if (move_ok == ERR_NO_PATH) {
+                debug('no path');
+            }
+        } else {
+            let enemy = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES,
+                { filter: (structure) => structure.structureType == STRUCTURE_TOWER });
+            if (!enemy)
+                enemy = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+            if (!enemy)
+                enemy = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES,
+                    { filter: (structure) => structure.structureType != STRUCTURE_CONTROLLER });
             if (enemy) {
                 let p = enemy.pos;
                 if (!creep.pos.isNearTo(p)) {
@@ -58,22 +43,6 @@ var roleFreeguy = {
                 if (creep.pos.inRangeTo(p)) {
                     creep.rangedAttack(enemy);
                 }
-            }
-            return;
-        }
-        let d = new RoomPosition(33, 19, 'W7S5');
-        dd.set_pos_as_destination(creep, d);
-        if (!dd.has_destination(creep)) {
-            debug(`set destination to ${d}`);
-            return;
-        } else {
-            if (!dd.is_near_destination(creep)) {
-                debug('!is_near_destination');
-                var move_ok = dd.move_to_destination(creep);
-                if (move_ok == ERR_NO_PATH) {
-                    debug('no path');
-                }
-
             }
         }
     }
