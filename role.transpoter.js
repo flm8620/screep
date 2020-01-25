@@ -36,7 +36,6 @@ function transpoter_pick_target(creep) {
             const score = Math.min(free_capa, target_amount) / path_length;
             score_id.push({ id: target_id, score, goto_store: false });
         };
-
         for (const e of room.find(FIND_TOMBSTONES)) {
             const path_length = utils.distance_between_pos(creep.pos, e.pos);
             register_target(e.id, e.store.getUsedCapacity(), path_length);
@@ -51,7 +50,7 @@ function transpoter_pick_target(creep) {
         }
         let found = false;
         if (used_capa == used_capa_energy) {
-            for (const t of room.find(FIND_STRUCTURES, {
+            for (const t of room.find(FIND_MY_STRUCTURES, {
                 filter: (s) => (s.structureType == STRUCTURE_TOWER) && s.store.getUsedCapacity(RESOURCE_ENERGY) < 500
             })) {
                 const path_length = utils.distance_between_pos(creep.pos, t.pos);
@@ -59,18 +58,28 @@ function transpoter_pick_target(creep) {
                 score_id.push({ id: t.id, score, goto_store: true });
                 found = true;
             }
-            if (!found)
-                for (const t of room.find(FIND_STRUCTURES, {
+            if (!found) {
+                let stores = room.find(FIND_MY_STRUCTURES, {
                     filter: (s) => (s.structureType == STRUCTURE_EXTENSION ||
-                        s.structureType == STRUCTURE_SPAWN) && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
-                })) {
-                    const path_length = utils.distance_between_pos(creep.pos, t.pos);
+                        s.structureType == STRUCTURE_SPAWN) && s.store.getUsedCapacity(RESOURCE_ENERGY) == 0
+                });
+                if (!stores.length) {
+                    stores = room.find(FIND_MY_STRUCTURES, {
+                        filter: (s) => (s.structureType == STRUCTURE_EXTENSION ||
+                            s.structureType == STRUCTURE_SPAWN) && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+                    });
+                }
+                if (stores.length) {
+                    const result = utils.find_closest_by_path(creep.pos, stores);
+                    const path_length = result.path.length;
+                    const t = result.target;
                     const score = Math.min(used_capa_energy, t.store.getFreeCapacity(RESOURCE_ENERGY)) / path_length;
                     score_id.push({ id: t.id, score, goto_store: true });
                     found = true;
                 }
+            }
             if (!found)
-                for (const t of room.find(FIND_STRUCTURES, {
+                for (const t of room.find(FIND_MY_STRUCTURES, {
                     filter: (s) => (s.structureType == STRUCTURE_STORAGE) && s.store.getFreeCapacity() > 0
                 })) {
                     const path_length = utils.distance_between_pos(creep.pos, t.pos);
@@ -79,7 +88,7 @@ function transpoter_pick_target(creep) {
                 }
         }
         else
-            for (const t of room.find(FIND_STRUCTURES, {
+            for (const t of room.find(FIND_MY_STRUCTURES, {
                 filter: (s) => (s.structureType == STRUCTURE_STORAGE) && s.store.getFreeCapacity() > 0
             })) {
                 const path_length = utils.distance_between_pos(creep.pos, t.pos);
@@ -110,7 +119,9 @@ function transpoter_pick_target(creep) {
 
 function change_mode(creep) {
     dd.clear_destination(creep);
+    //utils.tic();
     const result = transpoter_pick_target(creep);
+    //utils.toc('transpoter_pick_target');
     creep.memory.goto_store = result.goto_store;
     if (!result.id)
         return false;
