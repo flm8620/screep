@@ -77,7 +77,7 @@ function create_builder(spawn) {
             parts,
             name,
             {
-                memory: { role: role_name, spawn_name: spawn.name, body: parts },
+                memory: { role: role_name, spawn_name: spawn.name },
                 directions: ALL_DIRECTIONS
             }
         );
@@ -121,7 +121,7 @@ function create_explorer(spawn) {
                 parts,
                 name,
                 {
-                    memory: { role: role_name, spawn_name: spawn.name, body: parts, dest_room: rname },
+                    memory: { role: role_name, spawn_name: spawn.name, dest_room: rname },
                     directions: ALL_DIRECTIONS
                 }
             );
@@ -185,7 +185,7 @@ function create_claimer(spawn) {
                 parts,
                 name,
                 {
-                    memory: { role: role_name, spawn_name: spawn.name, body: parts, dest_room: rname },
+                    memory: { role: role_name, spawn_name: spawn.name, dest_room: rname },
                     directions: ALL_DIRECTIONS
                 }
             );
@@ -245,7 +245,7 @@ function create_attacker(spawn) {
                 parts,
                 name,
                 {
-                    memory: { role: role_name, spawn_name: spawn.name, body: parts, dest_room: room.name },
+                    memory: { role: role_name, spawn_name: spawn.name, dest_room: room.name },
                     directions: ALL_DIRECTIONS
                 }
             );
@@ -264,7 +264,7 @@ function create_attacker(spawn) {
     }
     return stop_creating;
 }
-
+const TRANSPOTER_COOL_DOWN = 5;
 function create_miner_and_transpoter(spawn) {
     let stop_creating = false;
     const room = spawn.room;
@@ -305,9 +305,13 @@ function create_miner_and_transpoter(spawn) {
     const transpoter_count = utils.get_or_zero(b.population, 'transpoter');
     let mine_transpoter_ratio = 0.5;
     const need_miner = miner_count < res_count;
-    if (transpoter_count < miner_count * mine_transpoter_ratio || (need_more_transpoter && !need_miner)) {
+    const need_transpoter = b.transpoter_cool_down == 0 &&
+        (transpoter_count < miner_count * mine_transpoter_ratio || (need_more_transpoter && !need_miner));
+
+
+    if (need_transpoter) {
         const parts = largest_possible_body(
-            b.energy_level.max,
+            transpoter_count > 0 ? b.energy_level.max : room.energyAvailable,
             [CARRY, CARRY, MOVE],
             [CARRY, CARRY, MOVE],
             10
@@ -319,13 +323,14 @@ function create_miner_and_transpoter(spawn) {
             parts,
             name,
             {
-                memory: { role: role_name, spawn_name: spawn.name, body: parts },
+                memory: { role: role_name, spawn_name: spawn.name },
                 directions: ALL_DIRECTIONS
             }
         );
         if (ok === OK) {
             debug(`spawn OK`);
             b.reserved_energy = 0;
+            b.transpoter_cool_down = TRANSPOTER_COOL_DOWN;
             debug(`Spawn ${spawn.name} new ${role_name} ${name}`);
             stop_creating = true;
         } else {
@@ -359,7 +364,7 @@ function create_miner_and_transpoter(spawn) {
                     parts,
                     name,
                     {
-                        memory: { role: role_name, spawn_name: spawn.name, body: parts, mine_id: rid },
+                        memory: { role: role_name, spawn_name: spawn.name, mine_id: rid },
                         directions: ALL_DIRECTIONS
                     }
                 );
@@ -397,6 +402,11 @@ var Population = {
             return;
     },
     reproduce: function () {
+        for (let bname in Memory.bases) {
+            const b = Memory.bases[bname];
+            if (!('transpoter_cool_down' in b)) b.transpoter_cool_down = TRANSPOTER_COOL_DOWN;
+            if (b.transpoter_cool_down > 0) b.transpoter_cool_down--;
+        }
         for (let s in Game.spawns) {
             const sp = Game.spawns[s];
             if (sp.spawning) continue;
@@ -424,7 +434,6 @@ var Population = {
                 {
                     memory: {
                         role: role_name, spawn_name: spawn.name,
-                        body: parts
                     },
                     directions: ALL_DIRECTIONS
                 }

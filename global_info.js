@@ -116,7 +116,7 @@ function room_energy_level() {
     for (const [bname, b] of Object.entries(bs)) {
         const el = 'energy_level' in b ? b.energy_level : b.energy_level = {};
         const hist = 'history' in el ? el.history : el.history = [];
-        while (hist.length > 100) {
+        while (hist.length >= 100) {
             hist.shift();
         }
         hist.push(Game.rooms[bname].energyAvailable);
