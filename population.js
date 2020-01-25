@@ -331,13 +331,20 @@ function create_miner_and_transpoter(spawn) {
         } else {
             debug(`spawn failed`);
         }
-    } else if (need_miner) {
+    } else {
         const role_name = 'miner';
         for (let rid in b.res) {
             const r = b.res[rid];
             if (!Game.getObjectById(rid)) continue;
-            if (!Game.creeps[r.miner_name]) {
-                debug(`res ${rid} has no miner`);
+            const name = role_name[0].toUpperCase() + makeid(3);
+            const cur_miner = Game.creeps[r.miner_name];
+            const no_miner = !cur_miner;
+            const miner_dying = !no_miner && !cur_miner.memory.successor && cur_miner.ticksToLive < r.distance_to_spawn + 50;
+            if (no_miner || miner_dying) {
+                if (no_miner)
+                    debug(`res ${rid} has no miner`);
+                else if (miner_dying)
+                    debug(`res ${rid} has dying miner`);
 
                 const parts = largest_possible_body(
                     b.energy_level.max,
@@ -348,7 +355,6 @@ function create_miner_and_transpoter(spawn) {
                 const energy_required = energy_of_body(parts);
                 debug(`parts = ${parts}`);
                 r.miner_name = null;
-                const name = role_name[0].toUpperCase() + makeid(3);
                 var ok = spawn.spawnCreep(
                     parts,
                     name,
@@ -366,6 +372,7 @@ function create_miner_and_transpoter(spawn) {
                     debug(`OK`);
                     r.miner_name = name;
                     b.reserved_energy = 0;
+                    if (miner_dying) cur_miner.memory.successor = name;
                     stop_creating = true;
                     break;
                 }
