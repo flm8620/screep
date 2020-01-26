@@ -1,8 +1,34 @@
+let cpu_time = [];
 var utils = {
+    tic: function () {
+        cpu_time.push(Game.cpu.getUsed());
+    },
+    toc: function (name) {
+        const t = Game.cpu.getUsed() - cpu_time.pop();
+        console.log(`${name}: ${t}`);
+    },
+    find_closest_by_path: function (p1, list) {
+        let lastPos = p1;
+        const r = PathFinder.search(p1, list.map((x) => ({ pos: x.pos, range: 1 })));
+        const path = r.path;
+        if (path.length)
+            lastPos = path[path.length - 1];
+        let result = null;
+        for (const e of list)
+            if (lastPos.isNearTo(e))
+                result = e;
+        if (!result) {
+            console.log(`path: ${r.path.length} ${r.ops} ${list.length}`);
+            for (let l of list) {
+                console.log(`list: ${l.pos}`);
+            }
+        }
+        return { path: path, target: result };
+    },
     distance_between_pos: function (pa, pb) {
         let p1 = new RoomPosition(pa.x, pa.y, pa.roomName);
         let p2 = new RoomPosition(pb.x, pb.y, pb.roomName);
-        const path = PathFinder.search(p1, p2).path;
+        const path = PathFinder.search(p1, { pos: p2, range: 1 }).path;
         return path.length;
     },
     random_idx_with_probability: function (probs) {
@@ -32,6 +58,18 @@ var utils = {
             creep.move(LEFT);
         else if (y == 49)
             creep.move(TOP);
+    },
+    move_to_border: function (creep) {
+        const x = creep.pos.x;
+        const y = creep.pos.y;
+        if (x == 1)
+            creep.move(LEFT);
+        else if (y == 1)
+            creep.move(TOP);
+        else if (x == 48)
+            creep.move(RIGHT);
+        else if (y == 48)
+            creep.move(BOTTOM);
     },
     get_or_zero: function (obj, field) {
         if (field in obj)
