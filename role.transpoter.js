@@ -101,7 +101,7 @@ function transpoter_pick_target(creep) {
                     filter: (s) => (s.structureType == STRUCTURE_STORAGE) && s.store.getFreeCapacity() > 0
                 })) {
                     const path_length = utils.distance_between_pos(creep.pos, t.pos);
-                    const score = Math.min(used_capa_energy, t.store.getCapacity()) / path_length;
+                    const score = Math.min(used_capa, t.store.getCapacity()) / path_length;
                     add_score(t.id, score, true);
                 }
             }
