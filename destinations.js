@@ -69,7 +69,7 @@ var dd = {
                 structure.hits < 0.6 * structure.hitsMax
                 && structure.structureType != STRUCTURE_WALL
                 && structure.structureType != STRUCTURE_RAMPART
-                && (structure.my || structure.structureType == STRUCTURE_ROAD)
+                && (structure.my || structure.structureType == STRUCTURE_ROAD || structure.structureType == STRUCTURE_CONTAINER)
                 && still_need(structure), true],
             [FIND_STRUCTURES, (structure) =>
                 structure.hits < 0.9 * structure.hitsMax
