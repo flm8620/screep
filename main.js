@@ -45,9 +45,8 @@ module.exports.loop = function () {
         }
 
         if (Game.time % 10 == 0) {
+            console.log('run global update');
             globalInfo.run();
-        }
-        if (Game.time % 10 == 0) {
             population.run();
         }
 

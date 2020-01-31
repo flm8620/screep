@@ -53,7 +53,16 @@ function init_bases() {
             if (!room) continue;
             if (room.controller && room.controller.owner && !room.controller.my) continue;
 
-            const sources = room.find(FIND_SOURCES);
+            const sources = room.find(FIND_SOURCES).concat(room.find(FIND_MINERALS, {
+                filter: (m) => {
+                    room.lookAt(m.pos).some((o) =>
+                        o.type == LOOK_STRUCTURES &&
+                        o[LOOK_STRUCTURES].structureType &&
+                        o[LOOK_STRUCTURES].structureType == STRUCTURE_EXTRACTOR
+                    )
+                }
+            }
+            ));
             for (const s of sources) {
                 seen_res.add(s.id);
                 const id = s.id;
