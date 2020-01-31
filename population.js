@@ -41,6 +41,7 @@ const ALL_DIRECTIONS = [TOP, TOP_RIGHT, RIGHT, BOTTOM_RIGHT, BOTTOM, BOTTOM_LEFT
 const MAX_CREATE_ATTACKER_PATIENCE = 5;
 
 // return true to stop create others
+const BUILDER_COOL_DOWN = 10;
 function create_builder(spawn) {
     const role_name = 'builder';
     const DEBUG_ON = false;
@@ -85,6 +86,7 @@ function create_builder(spawn) {
         if (ok === OK) {
             debug(`spawn OK`);
             b.reserved_energy = 0;
+            b.builder_cool_down = BUILDER_COOL_DOWN;
             console.log('Spawn ' + spawn.name + ' new ' + role_name + ' ' + name);
             return true;
         } else {
@@ -233,7 +235,7 @@ function create_attacker(spawn) {
         if (!room) continue;
         const enemy = room.find(FIND_HOSTILE_CREEPS);
         const enemy_structure = room.find(FIND_HOSTILE_STRUCTURES,
-            { filter: (structure) => structure.structureType != STRUCTURE_CONTROLLER });
+            { filter: (s) => s.structureType != STRUCTURE_CONTROLLER && s.structureType != STRUCTURE_POWER_BANK });
         if (!enemy.length && !enemy_structure.length) continue;
         {
             debug(`room ${rname} has no attacker`);
@@ -265,7 +267,7 @@ function create_attacker(spawn) {
     }
     return stop_creating;
 }
-const TRANSPOTER_COOL_DOWN = 5;
+const TRANSPOTER_COOL_DOWN = 10;
 function create_miner_and_transpoter(spawn) {
     let stop_creating = false;
     const room = spawn.room;
@@ -407,6 +409,8 @@ var Population = {
             const b = Memory.bases[bname];
             if (!('transpoter_cool_down' in b)) b.transpoter_cool_down = TRANSPOTER_COOL_DOWN;
             if (b.transpoter_cool_down > 0) b.transpoter_cool_down--;
+            if (!('builder_cool_down' in b)) b.builder_cool_down = BUILDER_COOL_DOWN;
+            if (b.builder_cool_down > 0) b.builder_cool_down--;
         }
         for (let s in Game.spawns) {
             const sp = Game.spawns[s];
@@ -426,8 +430,8 @@ var Population = {
         for (let spawn of spawns) {
             const name = 'FGUY' + Math.floor(Math.random() * 100);
             const role_name = 'freeguy';
-            const N = 12;
-            const parts = Array(N).fill(MOVE).concat(Array(N).fill(ATTACK)).concat(Array(N).fill(HEAL));
+            const N = 17;
+            const parts = [].concat(Array(N).fill(MOVE)).concat(Array(N).fill(HEAL));
             console.log(`require energy : ${energy_of_body(parts)}, we have ${room.energyAvailable}/${room.energyCapacityAvailable}`);
             const ok = spawn.spawnCreep(
                 parts,
