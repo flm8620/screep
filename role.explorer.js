@@ -8,52 +8,23 @@ var roleExplorer = {
         if (creep.spawning) return;
         db.set_creep_name(creep.name);
         debug('====== round begin ======');
-        
+
         if (utils.is_at_border(creep)) {
             debug(`move_out_of_border from ${creep.pos.roomName}`);
             utils.move_out_of_border(creep);
             return;
         }
-        
-        {
-            const enemy = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
-            if (enemy) {
-                let p = enemy.pos;
-                if (!creep.pos.isNearTo(p)) {
-                    creep.moveTo(p);
-                } else {
-                    creep.attack(enemy);
-                }
-                if (creep.pos.inRangeTo(p)) {
-                    creep.rangedAttack(enemy);
-                }
-                return;
-            }
-        }
-        {
-            const enemy = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES,
-                { filter: (structure) => structure.structureType != STRUCTURE_CONTROLLER });
-            if (enemy) {
-                let p = enemy.pos;
-                if (!creep.pos.isNearTo(p)) {
-                    creep.moveTo(p);
-                } else {
-                    creep.attack(enemy);
-                }
-                if (creep.pos.inRangeTo(p)) {
-                    creep.rangedAttack(enemy);
-                }
-                return;
-            }
-        }
-        
+
+        if (utils.attack_enemy(creep))
+            return;
+
         if (creep.pos.roomName === creep.memory.dest_room) {
             debug('random_move_in_room');
             utils.random_move_in_room(creep);
             return;
         }
 
-        if(!dd.has_destination(creep)){
+        if (!dd.has_destination(creep)) {
             debug(`pick room`);
             let d = new RoomPosition(25, 25, creep.memory.dest_room);
             dd.set_pos_as_destination(creep, d);

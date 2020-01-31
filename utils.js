@@ -76,6 +76,29 @@ var utils = {
             return obj[field];
         return 0;
     },
+    attack_enemy: function (creep) {
+        let enemy = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES,
+            { filter: (structure) => structure.structureType == STRUCTURE_TOWER });
+        if (!enemy)
+            enemy = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+        if (!enemy)
+            enemy = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES,
+                { filter: (s) => s.structureType != STRUCTURE_CONTROLLER && s.structureType != STRUCTURE_POWER_BANK });
+
+        if (enemy) {
+            let p = enemy.pos;
+            if (!creep.pos.isNearTo(p)) {
+                creep.moveTo(p);
+            } else {
+                creep.attack(enemy);
+            }
+            if (creep.pos.inRangeTo(p)) {
+                creep.rangedAttack(enemy);
+            }
+            return true;
+        }
+        return false;
+    },
     energy_of_body: function (body) {
         let sum = 0;
         body.forEach((v) => {

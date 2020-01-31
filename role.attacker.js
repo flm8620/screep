@@ -20,29 +20,8 @@ var roleAttacker = {
             creep.heal(creep);
         }
 
-        {
-            let enemy = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES,
-                { filter: (structure) => structure.structureType == STRUCTURE_TOWER });
-            if (!enemy)
-                enemy = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
-            if (!enemy)
-                enemy = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES,
-                    { filter: (structure) => structure.structureType != STRUCTURE_CONTROLLER });
-
-            if (enemy) {
-                debug('attack');
-                let p = enemy.pos;
-                if (!creep.pos.isNearTo(p)) {
-                    creep.moveTo(p);
-                } else {
-                    creep.attack(enemy);
-                }
-                if (creep.pos.inRangeTo(p)) {
-                    creep.rangedAttack(enemy);
-                }
-                return;
-            }
-        }
+        if (utils.attack_enemy(creep))
+            return;
 
         if (creep.pos.roomName === creep.memory.dest_room) {
             if (creep.ticksToLive % 5 == 0)
