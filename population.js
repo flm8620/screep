@@ -52,6 +52,7 @@ function create_builder(spawn) {
     const rname = room.name;
     const b = Memory.bases[rname];
     const room_pop = b.population;
+    const level = room.find(FIND_STRUCTURES, { filter: (s) => s.structureType == STRUCTURE_CONTROLLER })[0].level;
     let parts = largest_possible_body(
         b.energy_level.max,
         [WORK, CARRY, MOVE],
@@ -60,7 +61,7 @@ function create_builder(spawn) {
     );
 
     let current_number = utils.get_or_zero(room_pop, role_name);
-    if (current_number < 8) {
+    if (current_number < 8 && level < 8 || current_number < 2 && level >= 8) {
         const storage = room.find(FIND_MY_STRUCTURES, {
             filter: (structure) =>
                 structure.structureType === STRUCTURE_STORAGE

@@ -19,17 +19,20 @@ function change_mode_building(creep) {
     if (!site) {
         debug(`no build site, try update`);
         site = dd.pick_controller_id(creep);
-        if (!site) {
+        const reservation = Memory.builder_reservation;
+        if (site && (site.level < 8 || !reservation[site.id])) {
+            creep.say('🚀');
+        } else {
+            site = null;
             creep.say('🤷🏼‍♂️');
             if (creep.ticksToLive % 5 == 0)
                 utils.random_move_in_room(creep);
-        } else {
-            creep.say('🚀');
         }
     } else {
         debug(`get build id ${site}`);
         creep.say('⛏');
-
+    }
+    if (site) {
         if (!Memory.builder_reservation[site]) Memory.builder_reservation[site] = {};
         let reservation = Memory.builder_reservation[site];
         const free_capa = creep.store.getUsedCapacity(RESOURCE_ENERGY);
